@@ -19,9 +19,9 @@ import logo from '/src/images/logos/logo.png';
 
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: HomeIcon, current: true },
-  { name: 'Households', href: '/admin/households/add', icon: FolderIcon, current: false },
-  { name: 'Families', href: '/admin/families/add', icon: UsersIcon, current: false },
-  { name: 'Deaths', href: '#', icon: DocumentDuplicateIcon, current: false },
+  { name: 'Households', href: '/admin/households', icon: FolderIcon, current: false },
+  { name: 'Families', href: '/admin/families', icon: UsersIcon, current: false },
+  { name: 'Deaths', href: '/admin/deaths', icon: DocumentDuplicateIcon, current: false },
   { name: 'Reports', href: '#', icon: ChartPieIcon, current: false },
 ]
 const teams = [

@@ -458,8 +458,13 @@ export default function HouseholdAdd() {
     if (familyError) {
         throw familyError;
     }
-
+    router.push('/admin/families');
     console.log(familyData);
+    };
+
+
+    const handleBackClick = () => {
+        router.push('/admin/families');
     };
     
     return (
@@ -493,7 +498,7 @@ export default function HouseholdAdd() {
                             <div className="flex items-center">
                                 <ChevronRightIcon className="flex-shrink-0 w-5 h-5 text-gray-400" aria-hidden="true" />
                                 <a href="#" className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
-                                Househlods
+                                Families
                                 </a>
                             </div>
                             </li>
@@ -511,7 +516,7 @@ export default function HouseholdAdd() {
                     <div className="mt-2 md:flex md:items-center md:justify-between">
                         <div className="flex-1 min-w-0">
                         <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-                            Households
+                            Families
                         </h2>
                         </div>
                         <div className="flex flex-shrink-0 mt-4 md:ml-4 md:mt-0">
@@ -523,6 +528,7 @@ export default function HouseholdAdd() {
                         </button> */}
                         <button
                             type="button"
+                            onClick={handleBackClick}
                             className="inline-flex items-center px-3 py-2 ml-3 text-sm font-semibold text-white rounded-md shadow-sm bg-sky-600 hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
                         >
                             Go to Index
@@ -533,7 +539,7 @@ export default function HouseholdAdd() {
                 
                 <div className="grid grid-cols-1 pt-10 gap-x-8 gap-y-8 md:grid-cols-3">
                     <div className="px-4 sm:px-0">
-                    <h2 className="text-base font-semibold leading-7 text-gray-900">Household Information</h2>
+                    <h2 className="text-base font-semibold leading-7 text-gray-900">Families Information</h2>
                     <p className="mt-1 text-sm leading-6 text-gray-600">Use a permanent address where you can receive mail.</p>
                     </div>
 

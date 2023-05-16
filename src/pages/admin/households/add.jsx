@@ -226,9 +226,14 @@ export default function HouseholdAdd() {
         throw householdError;
     }
 
+    router.push('/admin/households');
     console.log(householdData);
     };
 
+
+    const handleBackClick = () => {
+        router.push('/admin/households');
+    };
 
     return (
         <>
@@ -291,6 +296,7 @@ export default function HouseholdAdd() {
                         </button> */}
                         <button
                             type="button"
+                            onClick={handleBackClick}
                             className="inline-flex items-center px-3 py-2 ml-3 text-sm font-semibold text-white rounded-md shadow-sm bg-sky-600 hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
                         >
                             Go to Index

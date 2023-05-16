@@ -6,7 +6,6 @@ import Sidebar from '@/components/admin/layouts/Sidebar'
 import React, { useState, useEffect } from "react";
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
-import ReactPaginate from 'react-paginate';
 
 export default function Household() {
     const router = useRouter();
@@ -57,11 +56,6 @@ export default function Household() {
             villages (id, name)
         `)
         .order('household_no', { ascending: false });
-
-        // Simulating a delay of 1 second
-        setTimeout(() => {
-            setHouseholds(househlodData);
-        }, 1000);
 
         if (error) {
         setErrorMessage(error.message);
@@ -137,14 +131,7 @@ export default function Household() {
     const filteredHouseholds = households.filter((household) => {
         const isMatchingSearchQuery =
         household.household_no.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        household.entry_date.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        household.house_no.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        household.family_head.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        household.state_regions.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        household.districts.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        household.townships.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        household.ward_village_tracts.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        household.villages.name.toLowerCase().includes(searchQuery.toLowerCase());
+        household.family_head.toLowerCase().includes(searchQuery.toLowerCase());
 
         const isMatchingStateRegion =
         selectedStateRegion === '' || household.state_regions.name === selectedStateRegion;
@@ -179,23 +166,9 @@ export default function Household() {
         router.push('/admin/households/add');
     };
 
-    // Pagination Start
-    const [currentPage, setCurrentPage] = useState(0);
-    const [perPage] = useState(10);
-    const offset = currentPage * perPage;
-    const currentPageData = filteredHouseholds.slice(offset, offset + perPage);
-    const goToPreviousPage = () => {
-        if (currentPage > 0) {
-          setCurrentPage(currentPage - 1);
-        }
-    };
-    const goToNextPage = () => {
-    if (currentPage < Math.ceil(filteredHouseholds.length / perPage) - 1) {
-        setCurrentPage(currentPage + 1);
-    }
-    };
-    // Pagination End
+    // pagination
     
+
     return (
         <>
             <Head>
@@ -248,7 +221,7 @@ export default function Household() {
                         </div>
 
                         <select value={selectedStateRegion} onChange={(e) => setSelectedStateRegion(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                        <option value="">All - State/Regions</option>
+                        <option value="">State/Regions</option>
                         {/* Render state region options */}
                         {stateRegions.map((stateRegion) => (
                             <option key={stateRegion.id} value={stateRegion.name}>
@@ -257,7 +230,7 @@ export default function Household() {
                         ))}
                         </select>
                         <select value={selectedDistrict} onChange={(e) => setSelectedDistrict(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                        <option value="">All - Districts</option>
+                        <option value="">Districts</option>
                         {/* Render district options */}
                         {districts.map((district) => (
                             <option key={district.id} value={district.name}>
@@ -266,7 +239,7 @@ export default function Household() {
                         ))}
                         </select>
                         <select value={selectedTownship} onChange={(e) => setSelectedTownship(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                        <option value="">All - Townships</option>
+                        <option value="">Townships</option>
                         {/* Render township options */}
                         {townships.map((township) => (
                             <option key={township.id} value={township.name}>
@@ -275,7 +248,7 @@ export default function Household() {
                         ))}
                         </select>
                         <select value={selectedWardVillageTract} onChange={(e) => setSelectedWardVillageTract(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                        <option value="">All - Ward/Village Tracts</option>
+                        <option value="">Ward/Village Tracts</option>
                         {/* Render ward/village tract options */}
                         {wardVillageTracts.map((wardVillageTract) => (
                             <option key={wardVillageTract.id} value={wardVillageTract.name}>
@@ -284,7 +257,7 @@ export default function Household() {
                         ))}
                         </select>
                         <select value={selectedVillage} onChange={(e) => setSelectedVillage(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                        <option value="">All- Villages</option>
+                        <option value="">Villages</option>
                         {/* Render village options */}
                         {villages.map((village) => (
                             <option key={village.id} value={village.name}>
@@ -369,7 +342,7 @@ export default function Household() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {currentPageData.map((household, householdIdx) => (
+                                    {filteredHouseholds.map((household, householdIdx) => (
                                     <tr key={household.id}>
                                         <td
                                         className={classNames(
@@ -377,8 +350,7 @@ export default function Household() {
                                             'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
                                         )}
                                         >
-                                        {(currentPage * perPage) + householdIdx + 1}
-                                        {/* {householdIdx + 1} */}
+                                        {householdIdx + 1}
                                         </td>
                                         <td
                                         className={classNames(
@@ -466,45 +438,7 @@ export default function Household() {
                                     ))}
                                 </tbody>
                             </table>
-                            {/* Pagination */}
-                            <nav className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6" aria-label="Pagination">
-                                <div className="hidden sm:block">
-                                <p className="text-sm text-gray-700">
-                                    Showing <span className="font-medium">{offset + 1}</span> to{' '}
-                                    <span className="font-medium">{offset + currentPageData.length}</span> of{' '}
-                                    <span className="font-medium">{filteredHouseholds.length}</span> results
-                                </p>
-                                </div>
-                                <div className="flex justify-between flex-1 sm:justify-end">
-                                <button
-                                    onClick={goToPreviousPage}
-                                    className="relative inline-flex items-center px-3 py-2 text-sm font-semibold text-gray-900 bg-white rounded-md ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
-                                    disabled={currentPage === 0}
-                                >
-                                    Previous
-                                </button>
-                                <button
-                                    onClick={goToNextPage}
-                                    className="relative inline-flex items-center px-3 py-2 ml-3 text-sm font-semibold text-gray-900 bg-white rounded-md ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
-                                    disabled={currentPage === Math.ceil(filteredHouseholds.length / perPage) - 1}
-                                >
-                                    Next
-                                </button>
-                                </div>
-                            </nav>
                             
-                            {/* <ReactPaginate
-                                previousLabel="Previous"
-                                nextLabel="Next"
-                                breakLabel="..."
-                                breakClassName="break-me"
-                                pageCount={Math.ceil(households.length / perPage)}
-                                marginPagesDisplayed={2}
-                                pageRangeDisplayed={5}
-                                onPageChange={handlePageChange}
-                                containerClassName="pagination"
-                                activeClassName="active"
-                            /> */}
                         </div>
                     </div>
                 </div>

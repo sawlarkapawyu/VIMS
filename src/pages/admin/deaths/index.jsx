@@ -7,7 +7,6 @@ import React, { useState, useEffect } from "react";
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 
-
 export default function Deaths() {
     const router = useRouter();
     const supabase = useSupabaseClient();
@@ -42,6 +41,46 @@ export default function Deaths() {
     function classNames(...classes) {
         return classes.filter(Boolean).join(' ')
     }
+
+    const handleRegisterClick = () => {
+        router.push('/admin/deaths/register');
+    };
+
+    // Search and filter state
+    const [searchQuery, setSearchQuery] = useState('');
+
+    // Filtered deaths based on search and filters
+    const filteredDeaths = deaths.filter((death) => {
+        const isMatchingSearchQuery =
+        death.death_date.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        death.death_place.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        death.complainant.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        death.remark.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        death.families.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        death.families.date_of_birth.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        death.families.nrc_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        death.families.gender.toLowerCase().includes(searchQuery.toLowerCase())
+        return (
+        isMatchingSearchQuery
+        );
+    });
+
+    // Pagination Start
+    const [currentPage, setCurrentPage] = useState(0);
+    const [perPage] = useState(10);
+    const offset = currentPage * perPage;
+    const currentPageData = filteredDeaths.slice(offset, offset + perPage);
+    const goToPreviousPage = () => {
+        if (currentPage > 0) {
+          setCurrentPage(currentPage - 1);
+        }
+    };
+    const goToNextPage = () => {
+    if (currentPage < Math.ceil(filteredDeaths.length / perPage) - 1) {
+        setCurrentPage(currentPage + 1);
+    }
+    };
+    // Pagination End
 
     return (
         <>
@@ -92,7 +131,7 @@ export default function Deaths() {
                     <div className="mt-2 md:flex md:items-center md:justify-between">
                         <div className="flex-1 min-w-0">
                         <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-                            Death Information
+                            Deaths Information
                         </h2>
                         </div>
                         <div className="flex flex-shrink-0 mt-4 md:ml-4 md:mt-0">
@@ -104,6 +143,7 @@ export default function Deaths() {
                         </button> */}
                         <button
                             type="button"
+                            onClick={handleRegisterClick}
                             className="inline-flex items-center px-3 py-2 ml-3 text-sm font-semibold text-white rounded-md shadow-sm bg-sky-600 hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
                         >
                             Go to Register
@@ -113,6 +153,24 @@ export default function Deaths() {
                 </div>
                 
                 <div className="flow-root mt-8">
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gridGap: '10px' }} className='py-2'>
+                        <div className="relative flex items-center mt-2">
+                            <input
+                            type="text"
+                            name="search"
+                            id="search"
+                            placeholder="Search"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="block w-full rounded-md border-0 py-1.5 pr-14 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
+                            />
+                            <div className="absolute inset-y-0 right-0 flex py-1.5 pr-1.5">
+                                <kbd className="inline-flex items-center px-1 font-sans text-xs text-gray-400 border border-gray-200 rounded">
+                                    ⌘K
+                                </kbd>
+                            </div>
+                        </div>
+                    </div>
                     <div className="-mx-4 -my-2 sm:-mx-6 lg:-mx-8">
                         <div className="inline-block min-w-full py-2 align-middle">
                             <table className="min-w-full border-separate border-spacing-0">
@@ -187,7 +245,7 @@ export default function Deaths() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {deaths.map((death, deathIdx) => (
+                                    {currentPageData.map((death, deathIdx) => (
                                     <tr key={death.id}>
                                         <td
                                         className={classNames(
@@ -195,7 +253,7 @@ export default function Deaths() {
                                             'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
                                         )}
                                         >
-                                        {deathIdx + 1}
+                                        {(currentPage * perPage) + deathIdx + 1}
                                         </td>
                                         <td
                                         className={classNames(
@@ -286,6 +344,32 @@ export default function Deaths() {
                                     ))}
                                 </tbody>
                             </table>
+                            {/* Pagination */}
+                            <nav className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6" aria-label="Pagination">
+                                <div className="hidden sm:block">
+                                <p className="text-sm text-gray-700">
+                                    Showing <span className="font-medium">{offset + 1}</span> to{' '}
+                                    <span className="font-medium">{offset + currentPageData.length}</span> of{' '}
+                                    <span className="font-medium">{filteredDeaths.length}</span> results
+                                </p>
+                                </div>
+                                <div className="flex justify-between flex-1 sm:justify-end">
+                                <button
+                                    onClick={goToPreviousPage}
+                                    className="relative inline-flex items-center px-3 py-2 text-sm font-semibold text-gray-900 bg-white rounded-md ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
+                                    disabled={currentPage === 0}
+                                >
+                                    Previous
+                                </button>
+                                <button
+                                    onClick={goToNextPage}
+                                    className="relative inline-flex items-center px-3 py-2 ml-3 text-sm font-semibold text-gray-900 bg-white rounded-md ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
+                                    disabled={currentPage === Math.ceil(filteredDeaths.length / perPage) - 1}
+                                >
+                                    Next
+                                </button>
+                                </div>
+                            </nav>
                         </div>
                     </div>
                 </div>

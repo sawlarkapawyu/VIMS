@@ -210,7 +210,7 @@ export default function FamilySearch() {
                             <div className="inline-block min-w-full py-2 align-middle">
                                 
                                 {filteredFamilies.length === 0 ? (
-                                    <div>No families found.</div>
+                                    <div>Loading!</div>
                                 ) : (
                                 <table className="min-w-full border-separate border-spacing-0">
                                     <thead>
