@@ -3,7 +3,6 @@ import Sidebar from '@/components/admin/layouts/Sidebar'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
 import React, { useState, useEffect } from "react";
 
-
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 
@@ -122,7 +121,7 @@ export default function FamilySearch() {
             family_id: selectedFamily.id
         },
         ]);
-
+        
         // Update isDeath to 'Yes' in families table
         const { data: updateData, error: updateError } = await supabase
         .from("families")
@@ -136,10 +135,30 @@ export default function FamilySearch() {
         if (deathError) {
             throw deathError;
         }
+        
         setSelectedFamily(null)
         fetchFamilies();
+        router.push('/admin/deaths');
         console.log(deathData);
+        console.log(updateData);
     };
+
+    // Pagination Start
+    const [currentPage, setCurrentPage] = useState(0);
+    const [perPage] = useState(10);
+    const offset = currentPage * perPage;
+    const currentPageData = filteredFamilies.slice(offset, offset + perPage);
+    const goToPreviousPage = () => {
+        if (currentPage > 0) {
+          setCurrentPage(currentPage - 1);
+        }
+    };
+    const goToNextPage = () => {
+    if (currentPage < Math.ceil(filteredFamilies.length / perPage) - 1) {
+        setCurrentPage(currentPage + 1);
+    }
+    };
+    // Pagination End
 
     return (
         <>
@@ -266,7 +285,7 @@ export default function FamilySearch() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {filteredFamilies.map((family, familyIdx) => (
+                                        {currentPageData.map((family, familyIdx) => (
                                         <tr key={family.id}>
                                             <td
                                             className={classNames(
@@ -274,7 +293,7 @@ export default function FamilySearch() {
                                                 'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
                                             )}
                                             >
-                                            {familyIdx + 1}
+                                            {(currentPage * perPage) + familyIdx + 1}
                                             </td>
                                             <td
                                             className={classNames(
@@ -339,7 +358,33 @@ export default function FamilySearch() {
                                     </tbody>
                                 </table>
                                 )}
-
+                                {/* Pagination */}
+                                <nav className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6" aria-label="Pagination">
+                                    <div className="hidden sm:block">
+                                    <p className="text-sm text-gray-700">
+                                        Showing <span className="font-medium">{offset + 1}</span> to{' '}
+                                        <span className="font-medium">{offset + currentPageData.length}</span> of{' '}
+                                        <span className="font-medium">{filteredFamilies.length}</span> results
+                                    </p>
+                                    </div>
+                                    <div className="flex justify-between flex-1 sm:justify-end">
+                                    <button
+                                        onClick={goToPreviousPage}
+                                        className="relative inline-flex items-center px-3 py-2 text-sm font-semibold text-gray-900 bg-white rounded-md ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
+                                        disabled={currentPage === 0}
+                                    >
+                                        Previous
+                                    </button>
+                                    <button
+                                        onClick={goToNextPage}
+                                        className="relative inline-flex items-center px-3 py-2 ml-3 text-sm font-semibold text-gray-900 bg-white rounded-md ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
+                                        disabled={currentPage === Math.ceil(filteredFamilies.length / perPage) - 1}
+                                    >
+                                        Next
+                                    </button>
+                                    </div>
+                                </nav>
+                                
                                 <form onSubmit={handleRegister}>
                                     {selectedFamily && (
                                     <Modal onClose={() => setSelectedFamily(null)}>

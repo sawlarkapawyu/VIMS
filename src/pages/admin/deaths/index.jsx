@@ -29,7 +29,7 @@ export default function Deaths() {
             families (name, date_of_birth, nrc_id, gender)
             
           `)
-          .order("death_date", { ascending: false });
+          .order("inserted_at", { ascending: false });
         
         if (deathsError) {
           throw deathsError;

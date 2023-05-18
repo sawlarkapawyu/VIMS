@@ -1,9 +1,12 @@
 import Head from 'next/head'
+
+
+import { Header } from '@/components/Header'
 import Sidebar from '@/components/admin/layouts/Sidebar'
 import React, { useState, useEffect } from "react";
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
-import { PlusCircleIcon } from '@heroicons/react/24/outline';
+import ReactPaginate from 'react-paginate';
 
 export default function Household() {
     const router = useRouter();
@@ -203,27 +206,30 @@ export default function Household() {
                 />
             </Head>
             <Sidebar>
-            <div className="px-4 sm:px-6 lg:px-8">
-                <div className="sm:flex sm:items-center">
-                    <div className="sm:flex-auto">
-                        <h1 className="text-base font-semibold leading-6 text-gray-900">Households</h1>
-                        <p className="mt-2 text-sm text-gray-700">
-                            A list of all the users in your account including their name, title, email and role.
-                        </p>
+                <div className="md:flex md:items-center md:justify-between">
+                    <div className="flex-1 min-w-0">
+                        <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+                        Household Index
+                        </h2>
                     </div>
-                    <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-                        <button
-                            type="button"
-                            onClick={handleAddClick}
-                            className="flex items-center justify-center px-2 py-2 text-sm font-semibold text-white rounded-md shadow-sm bg-sky-600 hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
+                    <div className="flex mt-4 md:ml-4 md:mt-0">
+                        {/* <button
+                        type="button"
+                        className="inline-flex items-center px-3 py-2 text-sm font-semibold text-gray-900 bg-white rounded-md shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
                         >
-                        <PlusCircleIcon className="w-8 h-8 mr-2" />
+                        Edit
+                        </button> */}
+                        <button
+                        type="button"
+                        onClick={handleAddClick}
+                        className="inline-flex items-center px-3 py-2 ml-3 text-sm font-semibold text-white rounded-md shadow-sm bg-sky-600 hover:bg-sky-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
+                        >
                         Add Household
                         </button>
                     </div>
                 </div>
                 <div className="flow-root mt-8">
-                    <div className="py-4 sm:grid sm:grid-cols-6 sm:gap-4">
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gridGap: '10px' }} className='py-2'>
                         <div className="relative flex items-center mt-2">
                             <input
                             type="text"
@@ -235,79 +241,60 @@ export default function Household() {
                             className="block w-full rounded-md border-0 py-1.5 pr-14 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
                             />
                             <div className="absolute inset-y-0 right-0 flex py-1.5 pr-1.5">
-                            <kbd className="inline-flex items-center px-1 font-sans text-xs text-gray-400 border border-gray-200 rounded">
-                                ⌘K
-                            </kbd>
+                                <kbd className="inline-flex items-center px-1 font-sans text-xs text-gray-400 border border-gray-200 rounded">
+                                    ⌘K
+                                </kbd>
                             </div>
                         </div>
 
-                        <div>
-                            <select
-                            value={selectedStateRegion}
-                            onChange={(e) => setSelectedStateRegion(e.target.value)}
-                            className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6"
-                            >
-                            <option value="">All - State/Regions</option>
-                                {/* Render state region options */}
-                                {stateRegions.map((stateRegion) => (
-                                    <option key={stateRegion.id} value={stateRegion.name}>
-                                {stateRegion.name}
-                                </option>
-                            ))}
-                            </select>
-                        </div>
-                            
-                        <div>
-                            <select value={selectedDistrict} onChange={(e) => setSelectedDistrict(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                                <option value="">All - Districts</option>
-                                {/* Render district options */}
-                                {districts.map((district) => (
-                                    <option key={district.id} value={district.name}>
-                                    {district.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div>
-                            <select value={selectedTownship} onChange={(e) => setSelectedTownship(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                            <option value="">All - Townships</option>
-                            {/* Render township options */}
-                            {townships.map((township) => (
-                                <option key={township.id} value={township.name}>
-                                {township.name}
-                                </option>
-                            ))}
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <select value={selectedWardVillageTract} onChange={(e) => setSelectedWardVillageTract(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                            <option value="">All - Ward/Village Tracts</option>
-                            {/* Render ward/village tract options */}
-                            {wardVillageTracts.map((wardVillageTract) => (
-                                <option key={wardVillageTract.id} value={wardVillageTract.name}>
-                                {wardVillageTract.name}
-                                </option>
-                            ))}
-                            </select>
-                        </div>
-
-                        <div>
-                            <select value={selectedVillage} onChange={(e) => setSelectedVillage(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                            <option value="">All- Villages</option>
-                            {/* Render village options */}
-                            {villages.map((village) => (
-                                <option key={village.id} value={village.name}>
-                                {village.name}
-                                </option>
-                            ))}
-                            </select>
-                        </div>
+                        <select value={selectedStateRegion} onChange={(e) => setSelectedStateRegion(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
+                        <option value="">All - State/Regions</option>
+                        {/* Render state region options */}
+                        {stateRegions.map((stateRegion) => (
+                            <option key={stateRegion.id} value={stateRegion.name}>
+                            {stateRegion.name}
+                            </option>
+                        ))}
+                        </select>
+                        <select value={selectedDistrict} onChange={(e) => setSelectedDistrict(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
+                        <option value="">All - Districts</option>
+                        {/* Render district options */}
+                        {districts.map((district) => (
+                            <option key={district.id} value={district.name}>
+                            {district.name}
+                            </option>
+                        ))}
+                        </select>
+                        <select value={selectedTownship} onChange={(e) => setSelectedTownship(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
+                        <option value="">All - Townships</option>
+                        {/* Render township options */}
+                        {townships.map((township) => (
+                            <option key={township.id} value={township.name}>
+                            {township.name}
+                            </option>
+                        ))}
+                        </select>
+                        <select value={selectedWardVillageTract} onChange={(e) => setSelectedWardVillageTract(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
+                        <option value="">All - Ward/Village Tracts</option>
+                        {/* Render ward/village tract options */}
+                        {wardVillageTracts.map((wardVillageTract) => (
+                            <option key={wardVillageTract.id} value={wardVillageTract.name}>
+                            {wardVillageTract.name}
+                            </option>
+                        ))}
+                        </select>
+                        <select value={selectedVillage} onChange={(e) => setSelectedVillage(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
+                        <option value="">All- Villages</option>
+                        {/* Render village options */}
+                        {villages.map((village) => (
+                            <option key={village.id} value={village.name}>
+                            {village.name}
+                            </option>
+                        ))}
+                        </select>
                     </div>
-                    
-                    <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                        <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+                    <div className="-mx-4 -my-2 sm:-mx-6 lg:-mx-8">
+                        <div className="inline-block min-w-full py-2 align-middle">
                             {isLoading && <p>Loading...</p>}
                             {errorMessage && <p>{errorMessage}</p>}
                             <table className="min-w-full border-separate border-spacing-0">
@@ -505,11 +492,24 @@ export default function Household() {
                                 </button>
                                 </div>
                             </nav>
+                            
+                            {/* <ReactPaginate
+                                previousLabel="Previous"
+                                nextLabel="Next"
+                                breakLabel="..."
+                                breakClassName="break-me"
+                                pageCount={Math.ceil(households.length / perPage)}
+                                marginPagesDisplayed={2}
+                                pageRangeDisplayed={5}
+                                onPageChange={handlePageChange}
+                                containerClassName="pagination"
+                                activeClassName="active"
+                            /> */}
                         </div>
                     </div>
                 </div>
-            </div>
             </Sidebar>
+        
         </>
     )
 }
