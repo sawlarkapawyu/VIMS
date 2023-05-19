@@ -238,7 +238,7 @@ export default function HouseholdAdd() {
     return (
         <>
             <Head>
-                <title>VIMS - Household Add</title>
+                <title>TaxPal - Accounting made simple for small businesses</title>
                 <meta
                 name="description"
                 content="Most bookkeeping software is accurate, but hard to use. We make the opposite trade-off, and hope you don’t get audited."
@@ -306,28 +306,34 @@ export default function HouseholdAdd() {
                 </div>
                 
                 <div className="grid grid-cols-1 pt-10 gap-x-8 gap-y-8 md:grid-cols-3">
-                    <form onSubmit={handleCreateHousehold} className="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-3">
-                        <div className="grid grid-cols-1 px-3 py-3 md:grid-cols-3"> {/* Updated className */}
-                            <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
-                                <label htmlFor="householdId" className="block text-sm font-medium leading-6 text-gray-900">
-                                    Household No
-                                </label>
-                                <div className="mt-2">
-                                    <input
-                                        type="text"
-                                        id="householdId"
-                                        value={householdId}
-                                        onChange={(e) => setHouseholdId(e.target.value)}
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
-                                    />
-                                </div>
-                            </div>
+                    <div className="px-4 sm:px-0">
+                    <h2 className="text-base font-semibold leading-7 text-gray-900">Household Information</h2>
+                    <p className="mt-1 text-sm leading-6 text-gray-600">Use a permanent address where you can receive mail.</p>
+                    </div>
 
-                            <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
-                                <label htmlFor="entryDate" className="block text-sm font-medium leading-6 text-gray-900">
+                    <form onSubmit={handleCreateHousehold} className="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2">
+                        <div className="px-4 py-6 sm:p-8">
+                            <div className="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                                <div className="sm:col-span-3">
+                                    <label htmlFor="householdId" className="block text-sm font-medium leading-6 text-gray-900">
+                                    Household No
+                                    </label>
+                                    <div className="mt-2">
+                                        <input
+                                            type="text"
+                                            id="householdId"
+                                            value={householdId}
+                                            onChange={(e) => setHouseholdId(e.target.value)}
+                                            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="sm:col-span-3">
+                                    <label htmlFor="entryDate" className="block text-sm font-medium leading-6 text-gray-900">
                                     Entry Date
-                                </label>
-                                <div className="mt-2">
+                                    </label>
+                                    <div className="mt-2">
                                     <input
                                         type="date"
                                         id="entryDate"
@@ -335,14 +341,14 @@ export default function HouseholdAdd() {
                                         onChange={(e) => setEntryDate(e.target.value)}
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
                                     />
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
-                                <label htmlFor="houseNo" className="block text-sm font-medium leading-6 text-gray-900">
+                                <div className="sm:col-span-3">
+                                    <label htmlFor="houseNo" className="block text-sm font-medium leading-6 text-gray-900">
                                     House Number
-                                </label>
-                                <div className="mt-2">
+                                    </label>
+                                    <div className="mt-2">
                                     <input
                                         type="text"
                                         id="houseNo"
@@ -350,124 +356,123 @@ export default function HouseholdAdd() {
                                         onChange={(e) => setHouseNo(e.target.value)}
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
                                     />
+                                    </div>
                                 </div>
-                            </div>
+                                <div className="sm:col-span-3">
+                                    <label htmlFor="familyHead" className="block text-sm font-medium leading-6 text-gray-900">
+                                    Family Head
+                                    </label>
+                                    <div className="mt-2">
+                                    <input
+                                        type="text"
+                                        id="familyHead"
+                                        value={familyHead}
+                                        onChange={(e) => setFamilyHead(e.target.value)}
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
+                                    />
+                                    </div>
+                                </div>
 
-                            <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
-                                <label htmlFor="familyHead" className="block text-sm font-medium leading-6 text-gray-900">
-                                Family Head
-                                </label>
-                                <div className="mt-2">
-                                <input
-                                    type="text"
-                                    id="familyHead"
-                                    value={familyHead}
-                                    onChange={(e) => setFamilyHead(e.target.value)}
-                                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
-                                />
+                                <div className="sm:col-span-3">
+                                    <label htmlFor="stateRegions" className="block text-sm font-medium leading-6 text-gray-900">
+                                    State/Regions
+                                    </label>
+                                    <div className="mt-2">
+                                        <select 
+                                            id="stateRegions"
+                                            value={selectedStateRegion ? selectedStateRegion.id : ""}
+                                            onChange={handleStateRegionChange} 
+                                            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:max-w-xs sm:text-sm sm:leading-6">
+                                            <option value="">Select state/region</option>
+                                            {stateRegions.map((sr) => (
+                                            <option key={sr.id} value={sr.id}>
+                                                {sr.name}
+                                            </option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
+                                
+                                <div className="sm:col-span-3">
+                                    <label htmlFor="districts" className="block text-sm font-medium leading-6 text-gray-900">
+                                    Districts
+                                    </label>
+                                    <div className="mt-2">
+                                        <select 
+                                            id="districts"
+                                            value={selectedDistrict ? selectedDistrict.id :"" }
+                                            onChange={handleDistrictChange} 
+                                            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:max-w-xs sm:text-sm sm:leading-6">
+                                            <option value="">Select district</option>
+                                            {districts.map((d) => (
+                                            <option key={d.id} value={d.id}>
+                                                {d.name}
+                                            </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
 
-                            <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
-                                <label htmlFor="stateRegions" className="block text-sm font-medium leading-6 text-gray-900">
-                                State/Regions
-                                </label>
-                                <div className="mt-2">
-                                    <select 
-                                        id="stateRegions"
-                                        value={selectedStateRegion ? selectedStateRegion.id : ""}
-                                        onChange={handleStateRegionChange} 
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:max-w-xs sm:text-sm sm:leading-6">
-                                        <option value="">Select state/region</option>
-                                        {stateRegions.map((sr) => (
-                                        <option key={sr.id} value={sr.id}>
-                                            {sr.name}
-                                        </option>
-                                        ))}
-                                    </select>
+                                <div className="sm:col-span-3">
+                                    <label htmlFor="townships" className="block text-sm font-medium leading-6 text-gray-900">
+                                    Townships
+                                    </label>
+                                    <div className="mt-2">
+                                        <select 
+                                            id="townships"
+                                            value={selectedTownship ? selectedDistrict.id: ""}
+                                            onChange={handleTownshipChange} 
+                                            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:max-w-xs sm:text-sm sm:leading-6">
+                                            <option value="">Select township</option>
+                                            {townships.map((t) => (
+                                            <option key={t.id} value={t.id}>
+                                                {t.name}
+                                            </option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-                            
-                            <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
-                                <label htmlFor="districts" className="block text-sm font-medium leading-6 text-gray-900">
-                                Districts
-                                </label>
-                                <div className="mt-2">
-                                    <select 
-                                        id="districts"
-                                        value={selectedDistrict ? selectedDistrict.id :"" }
-                                        onChange={handleDistrictChange} 
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:max-w-xs sm:text-sm sm:leading-6">
-                                        <option value="">Select district</option>
-                                        {districts.map((d) => (
-                                        <option key={d.id} value={d.id}>
-                                            {d.name}
-                                        </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
 
-                            <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
-                                <label htmlFor="townships" className="block text-sm font-medium leading-6 text-gray-900">
-                                Townships
-                                </label>
-                                <div className="mt-2">
-                                    <select 
-                                        id="townships"
-                                        value={selectedTownship ? selectedDistrict.id: ""}
-                                        onChange={handleTownshipChange} 
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:max-w-xs sm:text-sm sm:leading-6">
-                                        <option value="">Select township</option>
-                                        {townships.map((t) => (
-                                        <option key={t.id} value={t.id}>
-                                            {t.name}
-                                        </option>
-                                        ))}
-                                    </select>
+                                <div className="sm:col-span-3">
+                                    <label htmlFor="wardVillageTracts" className="block text-sm font-medium leading-6 text-gray-900">
+                                    Ward/Village Tracts
+                                    </label>
+                                    <div className="mt-2">
+                                        <select 
+                                            id="wardVillageTracts"
+                                            value={selectedWardVillageTract ? selectedWardVillageTract.id : ""}
+                                            onChange={handleWardVillageTractChange} 
+                                            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:max-w-xs sm:text-sm sm:leading-6">
+                                            <option value="">Select ward/village tract</option>
+                                            {wardVillageTracts.map((wvt) => (
+                                            <option key={wvt.id} value={wvt.id}>
+                                                {wvt.name}
+                                            </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div className="sm:col-span-3">
+                                    <label htmlFor="selectedVillage" className="block text-sm font-medium leading-6 text-gray-900">
+                                    Villages
+                                    </label>
+                                    <div className="mt-2">
+                                        <select 
+                                            id="selectedVillage"
+                                            value={selectedVillage}
+                                            onChange={handleVillageChange} 
+                                            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:max-w-xs sm:text-sm sm:leading-6">
+                                            <option value="">Select village</option>
+                                            {villages.map((v) => (
+                                            <option key={v.id} value={v.id}>
+                                                {v.name}
+                                            </option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
-
-                            <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
-                                <label htmlFor="wardVillageTracts" className="block text-sm font-medium leading-6 text-gray-900">
-                                Ward/Village Tracts
-                                </label>
-                                <div className="mt-2">
-                                    <select 
-                                        id="wardVillageTracts"
-                                        value={selectedWardVillageTract ? selectedWardVillageTract.id : ""}
-                                        onChange={handleWardVillageTractChange} 
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:max-w-xs sm:text-sm sm:leading-6">
-                                        <option value="">Select ward/village tract</option>
-                                        {wardVillageTracts.map((wvt) => (
-                                        <option key={wvt.id} value={wvt.id}>
-                                            {wvt.name}
-                                        </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
-                                <label htmlFor="selectedVillage" className="block text-sm font-medium leading-6 text-gray-900">
-                                Villages
-                                </label>
-                                <div className="mt-2">
-                                    <select 
-                                        id="selectedVillage"
-                                        value={selectedVillage}
-                                        onChange={handleVillageChange} 
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:max-w-xs sm:text-sm sm:leading-6">
-                                        <option value="">Select village</option>
-                                        {villages.map((v) => (
-                                        <option key={v.id} value={v.id}>
-                                            {v.name}
-                                        </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-
                         </div>
                         <div className="flex items-center justify-end px-4 py-4 border-t gap-x-6 border-gray-900/10 sm:px-8">
                             <button type="button" className="text-sm font-semibold leading-6 text-gray-900">

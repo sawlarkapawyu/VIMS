@@ -12,6 +12,9 @@ export default function FamilySearch() {
     const supabase = useSupabaseClient();
     const user = useUser();
 
+    const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+    
     const [families, setFamilies] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredFamilies, setFilteredFamilies] = useState([]);
@@ -163,7 +166,7 @@ export default function FamilySearch() {
     return (
         <>
             <Head>
-                <title>TaxPal - Accounting made simple for small businesses</title>
+                <title>VIMS - Death Register</title>
                 <meta
                 name="description"
                 content="Most bookkeeping software is accurate, but hard to use. We make the opposite trade-off, and hope you don’t get audited."
@@ -173,52 +176,61 @@ export default function FamilySearch() {
                 <div>
                     <div>
                         <nav className="sm:hidden" aria-label="Back">
-                        <a href="#" className="flex items-center text-sm font-medium text-gray-500 hover:text-gray-700">
-                            <ChevronLeftIcon className="flex-shrink-0 w-5 h-5 mr-1 -ml-1 text-gray-400" aria-hidden="true" />
-                            Back
-                        </a>
-                        </nav>
-                        <nav className="hidden sm:flex" aria-label="Breadcrumb">
-                        <ol role="list" className="flex items-center space-x-4">
-                            <li>
-                            <div className="flex">
-                                <a href="#" className="text-sm font-medium text-gray-500 hover:text-gray-700">
-                                Admin
-                                </a>
-                            </div>
-                            </li>
-                            <li>
-                            <div className="flex items-center">
-                                <ChevronRightIcon className="flex-shrink-0 w-5 h-5 text-gray-400" aria-hidden="true" />
-                                <a href="#" className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
-                                Deaths
-                                </a>
-                            </div>
-                            </li>
-                            <li>
-                            <div className="flex items-center">
-                                <ChevronRightIcon className="flex-shrink-0 w-5 h-5 text-gray-400" aria-hidden="true" />
-                                <a href="#" aria-current="page" className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
-                                Index
-                                </a>
-                            </div>
-                            </li>
-                        </ol>
+                            <a href="#" className="flex items-center text-sm font-medium text-gray-500 hover:text-gray-700">
+                                <ChevronLeftIcon className="flex-shrink-0 w-5 h-5 mr-1 -ml-1 text-gray-400" aria-hidden="true" />
+                                Back
+                            </a>
+                            </nav>
+                            <nav className="hidden sm:flex" aria-label="Breadcrumb">
+                            <ol role="list" className="flex items-center space-x-4">
+                                <li>
+                                <div className="flex">
+                                    <a href="#" className="text-sm font-medium text-gray-500 hover:text-gray-700">
+                                    Admin
+                                    </a>
+                                </div>
+                                </li>
+                                <li>
+                                <div className="flex items-center">
+                                    <ChevronRightIcon className="flex-shrink-0 w-5 h-5 text-gray-400" aria-hidden="true" />
+                                    <a href="#" className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
+                                    Deaths
+                                    </a>
+                                </div>
+                                </li>
+                                <li>
+                                <div className="flex items-center">
+                                    <ChevronRightIcon className="flex-shrink-0 w-5 h-5 text-gray-400" aria-hidden="true" />
+                                    <a href="#" aria-current="page" className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
+                                    Register
+                                    </a>
+                                </div>
+                                </li>
+                            </ol>
                         </nav>
                     </div>
                     <div className="mt-2 md:flex md:items-center md:justify-between">
                         <div className="flex-1 min-w-0">
-                        <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-                            Death Registration Form
-                        </h2>
+                            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+                                Death Registration
+                            </h2>
                         </div>
-                        <div className="flex flex-shrink-0 mt-4 w-30 md:ml-4 md:mt-0">
-                            <input 
-                                type="text" 
-                                placeholder="Search families" 
-                                value={searchTerm} 
-                                onChange={handleSearch} 
-                                className="block rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6" />
+                        <div className="relative flex items-center mt-2">
+                            <input
+                            type="text"
+                            name="search"
+                            id="search"
+                            placeholder="Search"
+                            value={searchTerm} 
+                            onChange={handleSearch} 
+                            className="block w-full rounded-md border-0 py-1.5 pr-14 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
+                            />
+                            <div className="absolute inset-y-0 right-0 flex py-1.5 pr-1.5">
+                                <kbd className="inline-flex items-center px-1 font-sans text-xs text-gray-400 border border-gray-200 rounded">
+                                    ⌘K
+                                </kbd>
+                            </div>
+                           
                         </div>
                     </div>
                 </div>
@@ -229,7 +241,7 @@ export default function FamilySearch() {
                             <div className="inline-block min-w-full py-2 align-middle">
                                 
                                 {filteredFamilies.length === 0 ? (
-                                    <div>Loading!</div>
+                                    <div>No data!</div>
                                 ) : (
                                 <table className="min-w-full border-separate border-spacing-0">
                                     <thead>
@@ -285,6 +297,9 @@ export default function FamilySearch() {
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        {isLoading && <p>Loading...</p>}
+                                        {errorMessage && <p>{errorMessage}</p>}
+
                                         {currentPageData.map((family, familyIdx) => (
                                         <tr key={family.id}>
                                             <td
@@ -388,8 +403,8 @@ export default function FamilySearch() {
                                 <form onSubmit={handleRegister}>
                                     {selectedFamily && (
                                     <Modal onClose={() => setSelectedFamily(null)}>
-                                        <div className="grid max-w-4xl grid-cols-1 px-6 py-4 gap-x-6 gap-y-8 sm:grid-cols-6">
-                                            <div className="sm:col-span-6">
+                                        <div className="grid max-w-4xl grid-cols-1 px-6 py-4 mx-auto gap-x-4 gap-y-8 sm:grid-cols-1">
+                                            <div className="sm:col-span-4">
                                                 <div className="text-lg font-bold">Register Death Form</div>
                                                 <hr className="my-2 border-gray-300" />
                                                 <p>Death Date: {selectedFamily.name}</p>
@@ -397,7 +412,7 @@ export default function FamilySearch() {
                                                 <p>Gender: {selectedFamily.gender}</p>
                                                 <p>NRC ID: {selectedFamily.nrc_id}</p>
                                             </div>
-                                            <div className="sm:col-span-6">
+                                            <div className="sm:col-span-4">
                                                 <input
                                                 type="date"
                                                 placeholder="Death Date"
@@ -406,7 +421,7 @@ export default function FamilySearch() {
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
                                                 />
                                             </div>
-                                            <div className="sm:col-span-6">
+                                            <div className="sm:col-span-4">
                                                 <input
                                                 type="text"
                                                 placeholder="Death Place"
@@ -415,7 +430,7 @@ export default function FamilySearch() {
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
                                                 />
                                             </div>
-                                            <div className="sm:col-span-6">
+                                            <div className="sm:col-span-4">
                                                 <input
                                                 type="text"
                                                 placeholder="Complainant"
@@ -425,7 +440,7 @@ export default function FamilySearch() {
                                                 />
                                             </div>
 
-                                            <div className="sm:col-span-6">
+                                            <div className="sm:col-span-4">
                                                 <textarea
                                                     id="about"
                                                     placeholder="Remarks"
@@ -436,7 +451,7 @@ export default function FamilySearch() {
                                                 />
                                             </div>
                                             
-                                            <div className="flex justify-between sm:col-span-6">
+                                            <div className="flex justify-between sm:col-span-4">
                                                 <button
                                                     type="submit"
                                                     className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
@@ -469,9 +484,10 @@ const Modal = ({ children }) => {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center">
         <div className="fixed inset-0 bg-gray-800 opacity-75"></div>
-        <div className="z-50 max-w-3xl p-6 mx-auto bg-white rounded-lg">
+        <div className="z-50 max-w-4xl p-6 mx-auto bg-white rounded-lg">
           {children}
         </div>
       </div>
     );
 };
+  

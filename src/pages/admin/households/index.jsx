@@ -3,7 +3,7 @@ import Sidebar from '@/components/admin/layouts/Sidebar'
 import React, { useState, useEffect } from "react";
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
-import { PlusCircleIcon } from '@heroicons/react/24/outline';
+import { PlusCircleIcon, ChevronRightIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
 
 export default function Household() {
     const router = useRouter();
@@ -27,13 +27,30 @@ export default function Household() {
     const [villages, setVillages] = useState([]);
     const [selectedVillage, setSelectedVillage] = useState('');
     
+    // useEffect(() => {
+    //     fetchHouseholds();
+    //     fetchStateRegions();
+    //     fetchDistricts();
+    //     fetchTownships();
+    //     fetchWardVillageTracts();
+    //     fetchVillages();
+    // }, []);
+
     useEffect(() => {
-        fetchHouseholds();
-        fetchStateRegions();
-        fetchDistricts();
-        fetchTownships();
-        fetchWardVillageTracts();
-        fetchVillages();
+        const fetchData = async () => {
+          try {
+            await fetchStateRegions();
+            await fetchDistricts();
+            await fetchTownships();
+            await fetchWardVillageTracts();
+            await fetchVillages();
+            await fetchHouseholds();
+          } catch (error) {
+            console.error('Error fetching data:', error);
+          }
+        };
+      
+        fetchData();
     }, []);
 
     async function fetchHouseholds() {
@@ -196,7 +213,7 @@ export default function Household() {
     return (
         <>
             <Head>
-                <title>TaxPal - Accounting made simple for small businesses</title>
+                <title>VIMS - Household</title>
                 <meta
                 name="description"
                 content="Most bookkeeping software is accurate, but hard to use. We make the opposite trade-off, and hope you don’t get audited."
@@ -204,9 +221,47 @@ export default function Household() {
             </Head>
             <Sidebar>
             <div className="px-4 sm:px-6 lg:px-8">
+                {/* Breadcrumbs Start */}
+                <div className='py-2'>
+                    <nav className="sm:hidden" aria-label="Back">
+                        <a href="#" className="flex items-center text-sm font-medium text-gray-500 hover:text-gray-700">
+                            <ChevronLeftIcon className="flex-shrink-0 w-5 h-5 mr-1 -ml-1 text-gray-400" aria-hidden="true" />
+                            Back
+                        </a>
+                        </nav>
+                        <nav className="hidden sm:flex" aria-label="Breadcrumb">
+                        <ol role="list" className="flex items-center space-x-4">
+                            <li>
+                            <div className="flex">
+                                <a href="#" className="text-sm font-medium text-gray-500 hover:text-gray-700">
+                                Admin
+                                </a>
+                            </div>
+                            </li>
+                            <li>
+                            <div className="flex items-center">
+                                <ChevronRightIcon className="flex-shrink-0 w-5 h-5 text-gray-400" aria-hidden="true" />
+                                <a href="#" className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
+                                Household
+                                </a>
+                            </div>
+                            </li>
+                            <li>
+                            <div className="flex items-center">
+                                <ChevronRightIcon className="flex-shrink-0 w-5 h-5 text-gray-400" aria-hidden="true" />
+                                <a href="#" aria-current="page" className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
+                                Show All
+                                </a>
+                            </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+                {/* Breadcrumbs End */}
+                
                 <div className="sm:flex sm:items-center">
                     <div className="sm:flex-auto">
-                        <h1 className="text-base font-semibold leading-6 text-gray-900">Households</h1>
+                        <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">Households</h2>
                         <p className="mt-2 text-sm text-gray-700">
                             A list of all the users in your account including their name, title, email and role.
                         </p>
@@ -308,8 +363,7 @@ export default function Household() {
                     
                     <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                         <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-                            {isLoading && <p>Loading...</p>}
-                            {errorMessage && <p>{errorMessage}</p>}
+                            
                             <table className="min-w-full border-separate border-spacing-0">
                                 <thead>
                                     <tr>
