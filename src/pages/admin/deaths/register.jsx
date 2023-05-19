@@ -94,6 +94,7 @@ export default function FamilySearch() {
             console.error('Error fetching families:', error);
         }
     };
+    
     //Search and Filter Start
     const filterFamilies = (searchTerm) => {
         const filtered = [];
@@ -282,7 +283,7 @@ export default function FamilySearch() {
         return classes.filter(Boolean).join(' ')
     }
 
-
+    //Modal Box with selected Id and register 
     const [selectedFamily, setSelectedFamily] = useState(null);
     const [deathDate, setDeathDate] = useState('');
     const [deathPlace, setDeathPlace] = useState('');
