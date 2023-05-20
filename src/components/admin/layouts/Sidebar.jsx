@@ -22,7 +22,7 @@ const navigation = [
   { name: 'Households', href: '/admin/households', icon: FolderIcon, current: false },
   { name: 'Families', href: '/admin/families', icon: UsersIcon, current: false },
   { name: 'Deaths', href: '/admin/deaths', icon: DocumentDuplicateIcon, current: false },
-  { name: 'Reports', href: '#', icon: ChartPieIcon, current: false },
+  { name: 'Reports', href: '/admin/reports', icon: ChartPieIcon, current: false },
 ]
 const teams = [
   { id: 1, name: 'Heroicons', href: '#', initial: 'H', current: false },
