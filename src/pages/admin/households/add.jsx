@@ -15,7 +15,6 @@ export default function HouseholdAdd() {
     const [entryDate, setEntryDate] = useState('');
     const [householdId, setHouseholdId] = useState('');
     const [houseNo, setHouseNo] = useState('');
-    const [familyHead, setFamilyHead] = useState('');
 
     const [stateRegions, setStateRegions] = useState([]);
     const [selectedStateRegion, setSelectedStateRegion] = useState(null);
@@ -213,7 +212,6 @@ export default function HouseholdAdd() {
             entry_date: entryDate,
             household_no: householdId,
             house_no: houseNo,
-            family_head: familyHead,
             state_region_id: selectedStateRegion.id,
             district_id: selectedDistrict.id,
             township_id: selectedTownship.id,
@@ -350,21 +348,6 @@ export default function HouseholdAdd() {
                                         onChange={(e) => setHouseNo(e.target.value)}
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
                                     />
-                                </div>
-                            </div>
-
-                            <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
-                                <label htmlFor="familyHead" className="block text-sm font-medium leading-6 text-gray-900">
-                                Family Head
-                                </label>
-                                <div className="mt-2">
-                                <input
-                                    type="text"
-                                    id="familyHead"
-                                    value={familyHead}
-                                    onChange={(e) => setFamilyHead(e.target.value)}
-                                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
-                                />
                                 </div>
                             </div>
 

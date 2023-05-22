@@ -3,7 +3,6 @@ CREATE TABLE households (
   entry_date timestamp WITHOUT TIME ZONE NOT NULL,
   household_no TEXT NOT NULL,
   house_no TEXT NOT NULL,
-  family_head TEXT NOT NULL,
   state_region_id BIGINT NULL,
   district_id BIGINT NULL,
   township_id BIGINT NULL,

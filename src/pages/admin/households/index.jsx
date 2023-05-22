@@ -62,7 +62,6 @@ export default function Household() {
             id, 
             household_no, 
             entry_date,
-            family_head,
             house_no,
             state_regions (id, name),
             districts (id, name),
@@ -153,7 +152,6 @@ export default function Household() {
         household.household_no.toLowerCase().includes(searchQuery.toLowerCase()) ||
         household.entry_date.toLowerCase().includes(searchQuery.toLowerCase()) ||
         household.house_no.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        household.family_head.toLowerCase().includes(searchQuery.toLowerCase()) ||
         household.state_regions.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         household.districts.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         household.townships.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -462,14 +460,6 @@ export default function Household() {
                                         )}
                                         >
                                         {new Date(household.entry_date).toLocaleDateString()}
-                                        </td>
-                                        <td
-                                        className={classNames(
-                                            householdIdx !== households.length - 1 ? 'border-b border-gray-200' : '',
-                                            'whitespace-nowrap hidden px-3 py-4 text-sm text-gray-500 lg:table-cell'
-                                        )}
-                                        >
-                                        {household.family_head}
                                         </td>
                                         <td
                                         className={classNames(
