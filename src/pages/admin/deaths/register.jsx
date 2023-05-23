@@ -29,6 +29,8 @@ export default function FamilySearch() {
     const [selectedWardVillageTract, setSelectedWardVillageTract] = useState('');
     const [villages, setVillages] = useState([]);
     const [selectedVillage, setSelectedVillage] = useState('');
+    const [households, setHouseholds] = useState([]);
+    const [selectedHousehold, setSelectedHousehold] = useState('');
     
     
     useEffect(() => {
@@ -39,57 +41,30 @@ export default function FamilySearch() {
         try {
             const { data: familiesData, error: familiesError } = await supabase
                 .from('families')
-                .select('*')
+                .select(`
+                    id, 
+                    name, 
+                    date_of_birth,
+                    nrc_id,
+                    gender,
+                    father_name,
+                    mother_name,
+                    remark,
+                    relationships (name),
+                    occupations (name),
+                    educations (name),
+                    ethnicities (name),
+                    nationalities (name),
+                    religions (name),
+                    households (household_no, state_regions(name), townships(name), districts(name), ward_village_tracts(name), villages(name)),
+                    household_no
+                `)
                 .eq('isDeath', 'No');
         
             if (familiesError) throw new Error(familiesError.message);
-            
-            const familiesWithLocationNames = await Promise.all(
-                familiesData.map(async (family) => {
-                try {
-                    const { data: householdsData, error: householdsError } = await supabase
-                    .from('households')
-                    .select(`
-                        villages(name),
-                        ward_village_tracts(name),
-                        townships(name),
-                        districts(name),
-                        state_regions(name)
-                    `)
-                    .eq('household_no', family.household_no);
-        
-                    if (householdsError) throw new Error(householdsError.message);
-                    
-                    const villageName = householdsData[0]?.villages?.name || 'Unknown';
-                    const wardVillageTractName = householdsData[0]?.ward_village_tracts?.name || 'Unknown';
-                    const townshipName = householdsData[0]?.townships?.name || 'Unknown';
-                    const districtName = householdsData[0]?.districts?.name || 'Unknown';
-                    const stateRegionName = householdsData[0]?.state_regions?.name || 'Unknown';
-                    
-                    return {
-                    ...family,
-                    villageName,
-                    wardVillageTractName,
-                    townshipName,
-                    districtName,
-                    stateRegionName,
-                    };
-                } catch (error) {
-                    console.error(`Error fetching village name for household_no: ${family.household_no}`, error);
-                    return {
-                    ...family,
-                    villageName: 'Unknown',
-                    wardVillageTractName: 'Unknown',
-                    townshipName: 'Unknown',
-                    districtName: 'Unknown',
-                    stateRegionName: 'Unknown',
-                    };
-                }
-                })
-            );
       
-            setFamilies(familiesWithLocationNames);
-            setFilteredFamilies(familiesWithLocationNames);
+            setFamilies(familiesData);
+            setFilteredFamilies(familiesData);
         } catch (error) {
             console.error('Error fetching families:', error);
         }
@@ -101,33 +76,36 @@ export default function FamilySearch() {
         
         for (const family of families) {
           const isMatchingSearchTerm =
-            family.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            family.nrc_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            family.date_of_birth.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            family.gender.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            family.father_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            family.household_no.toLowerCase().includes(searchTerm.toLowerCase());
-      
-          const isMatchingStateRegion =
-            selectedStateRegion === '' || family.stateRegionName === selectedStateRegion;
-      
-          const isMatchingDistrict = selectedDistrict === '' || family.districtName === selectedDistrict;
-      
-          const isMatchingTownship =
-            selectedTownship === '' || family.townshipName === selectedTownship;
-      
-          const isMatchingWardVillageTract =
-            selectedWardVillageTract === '' || family.wardVillageTractName === selectedWardVillageTract;
-      
-          const isMatchingVillage = selectedVillage === '' || family.villageName === selectedVillage;
+            (family.name && family.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (family.nrc_id && family.nrc_id.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (family.date_of_birth && family.date_of_birth.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (family.gender && family.gender.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (family.father_name && family.father_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (family.household_no && family.household_no.toLowerCase().includes(searchTerm.toLowerCase()));
+            
+            const isMatchingStateRegion =
+                selectedStateRegion === '' || family.households.state_regions.name === selectedStateRegion;
+        
+            const isMatchingDistrict = selectedDistrict === '' || family.households.districts.name === selectedDistrict;
+        
+            const isMatchingTownship =
+                selectedTownship === '' || family.households.townships.name === selectedTownship;
+        
+            const isMatchingWardVillageTract =
+                selectedWardVillageTract === '' || family.households.ward_village_tracts.name === selectedWardVillageTract;
+        
+            const isMatchingVillage = selectedVillage === '' || family.households.villages.name === selectedVillage;
 
+            const isMatchingHousehold = selectedHousehold === '' || family.household_no === selectedHousehold;
+            
           if (
             isMatchingSearchTerm &&
             isMatchingStateRegion &&
             isMatchingDistrict &&
             isMatchingTownship &&
             isMatchingWardVillageTract &&
-            isMatchingVillage
+            isMatchingVillage &&
+            isMatchingHousehold
           ) {
             filtered.push(family);
           }
@@ -142,7 +120,7 @@ export default function FamilySearch() {
     
         // Update filtered families based on the selected village
         const filteredByVillage = selectedValue
-          ? families.filter((family) => family.villageName === selectedValue)
+          ? families.filter((family) => family.households.villages.name === selectedValue)
           : families;
     
         setFilteredFamilies(filteredByVillage);
@@ -154,7 +132,7 @@ export default function FamilySearch() {
     
         // Update filtered families based on the selected village
         const filteredByWardVillagTract = selectedValue
-          ? families.filter((family) => family.wardVillageTractName === selectedValue)
+          ? families.filter((family) => family.households.ward_village_tracts.name === selectedValue)
           : families;
     
         setFilteredFamilies(filteredByWardVillagTract);
@@ -166,7 +144,7 @@ export default function FamilySearch() {
     
         // Update filtered families based on the selected village
         const filteredByTownship = selectedValue
-          ? families.filter((family) => family.townshipName === selectedValue)
+          ? families.filter((family) => family.households.townships.name === selectedValue)
           : families;
     
         setFilteredFamilies(filteredByTownship);
@@ -178,7 +156,7 @@ export default function FamilySearch() {
     
         // Update filtered families based on the selected village
         const filteredByDistrict = selectedValue
-          ? families.filter((family) => family.districtName === selectedValue)
+          ? families.filter((family) => family.households.districts.name === selectedValue)
           : families;
     
         setFilteredFamilies(filteredByDistrict);
@@ -190,10 +168,21 @@ export default function FamilySearch() {
     
         // Update filtered families based on the selected village
         const filteredByStateRegion = selectedValue
-          ? families.filter((family) => family.stateRegionName === selectedValue)
+          ? families.filter((family) => family.households.state_regions.name === selectedValue)
           : families;
     
         setFilteredFamilies(filteredByStateRegion);
+    };
+
+    const handleHousehlodChange = (e) => {
+        const selectedValue = e.target.value;
+        setSelectedHousehold(selectedValue);
+    
+        const filteredByHousehold = selectedValue
+          ? families.filter((family) => family.household_no === selectedValue)
+          : families;
+    
+        setFilteredFamilies(filteredByHousehold);
     };
     
     const handleSearch = (e) => {
@@ -209,6 +198,7 @@ export default function FamilySearch() {
             await fetchTownships();
             await fetchWardVillageTracts();
             await fetchVillages();
+            await fetchHouseholds();
           } catch (error) {
             console.error('Error fetching data:', error);
           }
@@ -274,6 +264,18 @@ export default function FamilySearch() {
           setVillages(data);
         } catch (error) {
           console.log('Error fetching villages:', error.message);
+        }
+    }
+    
+    async function fetchHouseholds() {
+        try {
+          const { data, error } = await supabase.from('households').select('id, household_no');
+          if (error) {
+            throw new Error(error.message);
+          }
+          setHouseholds(data);
+        } catch (error) {
+          console.log('Error fetching households:', error.message);
         }
     }
     
@@ -423,7 +425,7 @@ export default function FamilySearch() {
                     </div>
 
                     
-                    <div className="py-4 sm:grid sm:grid-cols-5 sm:gap-4">
+                    <div className="py-4 sm:grid sm:grid-cols-6 sm:gap-4">
                         <div>
                             <select
                             value={selectedStateRegion}
@@ -486,6 +488,17 @@ export default function FamilySearch() {
                                 ))}
                             </select>
                         </div>
+                        <div>
+                            <select value={selectedHousehold} onChange={handleHousehlodChange} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
+                                <option value="">All - Household No</option>
+                                {/* Render Religions options */}
+                                {households.map((household) => (
+                                    <option key={household.id} value={household.household_no}>
+                                    {household.household_no}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
                     <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                         <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
@@ -522,6 +535,12 @@ export default function FamilySearch() {
                                         </th>
                                         <th
                                             scope="col"
+                                            className="sticky top-0 z-10 hidden border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter lg:table-cell"
+                                        >
+                                            Age
+                                        </th>
+                                        <th
+                                            scope="col"
                                             className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter"
                                         >
                                             Gender
@@ -536,7 +555,7 @@ export default function FamilySearch() {
                                             scope="col"
                                             className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter"
                                         >
-                                            Village
+                                            Household No
                                         </th>
                                         <th
                                             scope="col"
@@ -596,6 +615,17 @@ export default function FamilySearch() {
                                             'whitespace-nowrap px-3 py-4 text-sm text-gray-500'
                                         )}
                                         >
+                                            {Math.floor(
+                                            (new Date() - new Date(family.date_of_birth)) /
+                                                (365.25 * 24 * 60 * 60 * 1000)
+                                            )}
+                                        </td>
+                                        <td
+                                        className={classNames(
+                                            familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
+                                            'whitespace-nowrap px-3 py-4 text-sm text-gray-500'
+                                        )}
+                                        >
                                         {family.gender}
                                         </td>
                                         <td
@@ -612,7 +642,7 @@ export default function FamilySearch() {
                                             'whitespace-nowrap px-3 py-4 text-sm text-gray-500'
                                         )}
                                         >
-                                        {family.villageName}
+                                        {family.household_no}
                                         </td>
                                         <td
                                         className={classNames(
@@ -620,7 +650,7 @@ export default function FamilySearch() {
                                             'whitespace-pre-line px-3 py-4 text-sm text-gray-500'
                                         )}
                                         >
-                                        {`${family.villageName}\n${family.wardVillageTractName}\n${family.townshipName}, ${family.districtName},${family.stateRegionName}`}
+                                        {`${family.households.villages.name}\n${family.households.ward_village_tracts.name}\n${family.households.townships.name}, ${family.households.districts.name},${family.households.state_regions.name}`}
                                         </td>
                                         <td
                                         className={classNames(

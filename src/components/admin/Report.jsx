@@ -72,70 +72,14 @@ const Table = () => {
                     ethnicities (id, name),
                     nationalities (id, name),
                     religions (id, name),
-                    households (id, household_no),
+                    households (household_no, state_regions(name), townships(name), districts(name), ward_village_tracts(name), villages(name)),
                     household_no
                     `)
                     .eq('isDeath', 'No');
             
                 if (familiesError) throw new Error(familiesError.message);
-                
-                const familiesWithLocationNames = await Promise.all(
-                    familiesData.map(async (family) => {
-                    try {
-                        const { data: householdsData, error: householdsError } = await supabase
-                        .from('households')
-                        .select(`
-                            entry_date,
-                            house_no,
-                            household_no,
-                            villages(name),
-                            ward_village_tracts(name),
-                            townships(name),
-                            districts(name),
-                            state_regions(name)
-                        `)
-                        .eq('household_no', family.household_no);
-            
-                        if (householdsError) throw new Error(householdsError.message);
-                        
-                        const entryDate = householdsData[0]?.entry_date || 'Unknown';
-                        const houseNo = householdsData[0]?.house_no || 'Unknown';
-                        const householdNo = householdsData[0]?.household_no || 'Unknown';
-                        const villageName = householdsData[0]?.villages?.name || 'Unknown';
-                        const wardVillageTractName = householdsData[0]?.ward_village_tracts?.name || 'Unknown';
-                        const townshipName = householdsData[0]?.townships?.name || 'Unknown';
-                        const districtName = householdsData[0]?.districts?.name || 'Unknown';
-                        const stateRegionName = householdsData[0]?.state_regions?.name || 'Unknown';
-                        
-                        return {
-                        ...family,
-                        entryDate,
-                        houseNo,
-                        householdNo,
-                        villageName,
-                        wardVillageTractName,
-                        townshipName,
-                        districtName,
-                        stateRegionName,
-                        };
-                    } catch (error) {
-                        console.error(`Error fetching village name for household_no: ${family.household_no}`, error);
-                        return {
-                        ...family,
-                        householdNo: 'Unknown',
-                        entryDate: 'Unknown',
-                        houseNo: 'Unknown',
-                        villageName: 'Unknown',
-                        wardVillageTractName: 'Unknown',
-                        townshipName: 'Unknown',
-                        districtName: 'Unknown',
-                        stateRegionName: 'Unknown',
-                        };
-                    }
-                    })
-                );
         
-                setFamilies(familiesWithLocationNames);
+                setFamilies(familiesData);
             } catch (error) {
                 console.error('Error fetching families:', error);
             }
@@ -159,70 +103,14 @@ const Table = () => {
                     ethnicities (id, name),
                     nationalities (id, name),
                     religions (id, name),
-                    households (id, household_no),
+                    households (household_no, state_regions(name), townships(name), districts(name), ward_village_tracts(name), villages(name)),
                     household_no
                     `)
                     .eq('isDeath', selectedDeath);
             
                 if (familiesError) throw new Error(familiesError.message);
-                
-                const familiesWithLocationNames = await Promise.all(
-                    familiesData.map(async (family) => {
-                    try {
-                        const { data: householdsData, error: householdsError } = await supabase
-                        .from('households')
-                        .select(`
-                            entry_date,
-                            house_no,
-                            household_no,
-                            villages(name),
-                            ward_village_tracts(name),
-                            townships(name),
-                            districts(name),
-                            state_regions(name)
-                        `)
-                        .eq('household_no', family.household_no);
-            
-                        if (householdsError) throw new Error(householdsError.message);
-                        
-                        const entryDate = householdsData[0]?.entry_date || 'Unknown';
-                        const houseNo = householdsData[0]?.house_no || 'Unknown';
-                        const householdNo = householdsData[0]?.household_no || 'Unknown';
-                        const villageName = householdsData[0]?.villages?.name || 'Unknown';
-                        const wardVillageTractName = householdsData[0]?.ward_village_tracts?.name || 'Unknown';
-                        const townshipName = householdsData[0]?.townships?.name || 'Unknown';
-                        const districtName = householdsData[0]?.districts?.name || 'Unknown';
-                        const stateRegionName = householdsData[0]?.state_regions?.name || 'Unknown';
-                        
-                        return {
-                        ...family,
-                        entryDate,
-                        houseNo,
-                        householdNo,
-                        villageName,
-                        wardVillageTractName,
-                        townshipName,
-                        districtName,
-                        stateRegionName,
-                        };
-                    } catch (error) {
-                        console.error(`Error fetching village name for household_no: ${family.household_no}`, error);
-                        return {
-                        ...family,
-                        householdNo: 'Unknown',
-                        entryDate: 'Unknown',
-                        houseNo: 'Unknown',
-                        villageName: 'Unknown',
-                        wardVillageTractName: 'Unknown',
-                        townshipName: 'Unknown',
-                        districtName: 'Unknown',
-                        stateRegionName: 'Unknown',
-                        };
-                    }
-                    })
-                );
         
-                setFamilies(familiesWithLocationNames);
+                setFamilies(familiesData);
             } catch (error) {
                 console.error('Error fetching families:', error);
             }
@@ -287,21 +175,20 @@ const Table = () => {
         
         const isMatchingAge = checkAge(family.date_of_birth);
 
-        const isMatchingHousehold =
-        selectedHousehold === '' || family.householdNo === selectedHousehold;
+            const isMatchingStateRegion =
+                selectedStateRegion === '' || family.households.state_regions.name === selectedStateRegion;
         
-        const isMatchingStateRegion =
-            selectedStateRegion === '' || family.stateRegionName === selectedStateRegion;
-    
-        const isMatchingDistrict = selectedDistrict === '' || family.districtName === selectedDistrict;
-    
-        const isMatchingTownship =
-            selectedTownship === '' || family.townshipName === selectedTownship;
-    
-        const isMatchingWardVillageTract =
-            selectedWardVillageTract === '' || family.wardVillageTractName === selectedWardVillageTract;
-    
-        const isMatchingVillage = selectedVillage === '' || family.villageName === selectedVillage;
+            const isMatchingDistrict = selectedDistrict === '' || family.households.districts.name === selectedDistrict;
+        
+            const isMatchingTownship =
+                selectedTownship === '' || family.households.townships.name === selectedTownship;
+        
+            const isMatchingWardVillageTract =
+                selectedWardVillageTract === '' || family.households.ward_village_tracts.name === selectedWardVillageTract;
+        
+            const isMatchingVillage = selectedVillage === '' || family.households.villages.name === selectedVillage;
+
+            const isMatchingHousehold = selectedHousehold === '' || family.household_no === selectedHousehold;
 
         return (
             isMatchingDeath &&
@@ -501,6 +388,7 @@ const Table = () => {
           console.log('Error fetching villages:', error.message);
         }
     }
+    
     // Pagination Start
     const [currentPage, setCurrentPage] = useState(0);
     const [perPage] = useState(10);
@@ -898,7 +786,7 @@ const Table = () => {
                                     'whitespace-pre-line px-3 py-1 text-sm text-gray-500'
                                 )}
                                 >
-                                {`${family.houseNo}, ${family.villageName}\n${family.wardVillageTractName}\n${family.townshipName}, ${family.districtName},${family.stateRegionName}`}
+                                {`${family.households.villages.name}\n${family.households.ward_village_tracts.name}\n${family.households.townships.name}, ${family.households.districts.name},${family.households.state_regions.name}`}
                                 </td>
                             </tr>
                             ))}

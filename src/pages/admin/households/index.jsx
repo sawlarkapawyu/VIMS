@@ -69,7 +69,7 @@ export default function Household() {
             ward_village_tracts (id, name),
             villages (id, name)
         `)
-        .order('household_no', { ascending: false });
+        .order('household_no', { ascending: true });
 
         // Simulating a delay of 1 second
         setTimeout(() => {
@@ -382,12 +382,6 @@ export default function Household() {
                                             className="sticky top-0 z-10 hidden border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:table-cell"
                                         >
                                             Entry Date
-                                        </th>
-                                        <th
-                                            scope="col"
-                                            className="sticky top-0 z-10 hidden border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter lg:table-cell"
-                                        >
-                                            Family Head
                                         </th>
                                         <th
                                             scope="col"

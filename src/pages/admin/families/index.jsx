@@ -57,17 +57,17 @@ export default function Family() {
             father_name,
             mother_name,
             remark,
-            relationships (id, name),
-            occupations (id, name),
-            educations (id, name),
-            ethnicities (id, name),
-            nationalities (id, name),
-            religions (id, name),
-            households (id, household_no),
+            relationships (name),
+            occupations (name),
+            educations (name),
+            ethnicities (name),
+            nationalities (name),
+            religions (name),
+            households (household_no),
             household_no
         `)
         .eq('isDeath', 'No')
-        .order('household_no', { ascending: false });
+        .order('id', { ascending: false });
 
         if (error) {
         setErrorMessage(error.message);
@@ -171,20 +171,14 @@ export default function Family() {
     // Filtered faimiles based on search and filters
     const filteredFamilies = families.filter((family) => {
         const isMatchingSearchQuery =
-        family.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        family.gender.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        family.father_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        family.mother_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        family.remark.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        family.date_of_birth.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        family.nrc_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-
-        family.occupations.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        family.educations.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        family.ethnicities.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        family.households.household_no.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        family.religions.name.toLowerCase().includes(searchQuery.toLowerCase());
-
+        (family.name && family.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (family.nrc_id && family.nrc_id.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (family.date_of_birth && family.date_of_birth.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (family.gender && family.gender.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (family.father_name && family.father_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (family.mother_name && family.mother_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (family.remark && family.remark.toLowerCase().includes(searchQuery.toLowerCase()));
+        
         const isMatchingOccupation =
         selectedOccupation === '' || family.occupations.name === selectedOccupation;
 
@@ -197,7 +191,7 @@ export default function Family() {
 
         const isMatchingReligion = selectedReligion === '' || family.religions.name === selectedReligion;
         const isMatchingHousehold = selectedHousehold === '' || family.households.household_no === selectedHousehold;
-
+        
         return (
         isMatchingSearchQuery &&
         isMatchingOccupation &&
