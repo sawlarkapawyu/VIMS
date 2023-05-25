@@ -1,17 +1,42 @@
 import { GridFilterListIcon } from '@mui/x-data-grid';
-import React, { useState, useRef, useEffect } from 'react';
-import { useReactToPrint } from 'react-to-print';
-import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import React, { useState, useEffect } from "react";
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
+import { UsersIcon, UserGroupIcon, HomeIcon, DocumentIcon } from '@heroicons/react/24/outline';
 
-const Report = () => {
+import { Bar, Pie } from 'react-chartjs-2';
+import { Chart, LinearScale, CategoryScale, BarController, BarElement, ArcElement, Tooltip, Legend, Title } from 'chart.js';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+
+Chart.register(LinearScale, CategoryScale, BarController, BarElement, ArcElement, ChartDataLabels, Tooltip, Legend, Title);
+
+
+const Dashboard = () => {
     const router = useRouter();
     const supabase = useSupabaseClient();
     const user = useUser();
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+
+    const [totalNumberofDeaths, setTotalNumberofDeaths] = useState(0);
+    const [totalNumberofUsers, setTotalNumberofUsers] = useState(0);
+    
+    useEffect(() => {
+    // Fetch data from Supabase
+    const fetchData = async () => {
+        const { data: deaths, error: deathsError } = await supabase
+            .from('deaths')
+            .select('*', { count: 'exact' });
+        if (deathsError) {
+            console.error('Error fetching total number of deaths:', deathsError);
+            return;
+        }
+        setTotalNumberofDeaths(deaths.length);
+        // setTotalNumberofUsers(users.length);
+        };
+
+        fetchData();
+    }, []);
     
     const [families, setFamilies] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
@@ -44,13 +69,29 @@ const Report = () => {
     const [minAge, setMinAge] = useState('');
     const [maxAge, setMaxAge] = useState('');
     
-    function classNames(...classes) {
-        return classes.filter(Boolean).join(' ')
-    }
-
-    useEffect(() => {
-        fetchFamilies();
-      }, [selectedDeath, minAge, maxAge]);
+      useEffect(() => {
+        const fetchData = async () => {
+          try {
+            await fetchFamilies();
+            await fetchOccupation();
+            await fetchEducation();
+            await fetchEthnicity();
+            await fetchRelition();
+            await fetchGenders();
+            await fetchDeaths();
+            await fetchHouseholds();
+            await fetchStateRegions();
+            await fetchDistricts();
+            await fetchTownships();
+            await fetchWardVillageTracts();
+            await fetchVillages();
+          } catch (error) {
+            console.error('Error fetching data:', error);
+          }
+        };
+      
+        fetchData();
+    }, [selectedDeath, minAge, maxAge]);
 
     const fetchFamilies = async () => {
         setIsLoading(true);
@@ -115,13 +156,15 @@ const Report = () => {
                 if (familiesError) throw new Error(familiesError.message);
         
                 setFamilies(familiesData);
+                
                 setIsLoading(false);
+                
             } catch (error) {
                 console.error('Error fetching families:', error);
             }
         }
     };
-    
+
     // Function to check if the age matches the selected age filter
     const checkAge = (dateOfBirth) => {
         const today = new Date();
@@ -180,21 +223,21 @@ const Report = () => {
         
         const isMatchingAge = checkAge(family.date_of_birth);
 
-            const isMatchingStateRegion =
-                selectedStateRegion === '' || family.households.state_regions.name === selectedStateRegion;
-        
-            const isMatchingDistrict = selectedDistrict === '' || family.households.districts.name === selectedDistrict;
-        
-            const isMatchingTownship =
-                selectedTownship === '' || family.households.townships.name === selectedTownship;
-        
-            const isMatchingWardVillageTract =
-                selectedWardVillageTract === '' || family.households.ward_village_tracts.name === selectedWardVillageTract;
-        
-            const isMatchingVillage = selectedVillage === '' || family.households.villages.name === selectedVillage;
+        const isMatchingStateRegion =
+            selectedStateRegion === '' || family.households.state_regions.name === selectedStateRegion;
+    
+        const isMatchingDistrict = selectedDistrict === '' || family.households.districts.name === selectedDistrict;
+    
+        const isMatchingTownship =
+            selectedTownship === '' || family.households.townships.name === selectedTownship;
+    
+        const isMatchingWardVillageTract =
+            selectedWardVillageTract === '' || family.households.ward_village_tracts.name === selectedWardVillageTract;
+    
+        const isMatchingVillage = selectedVillage === '' || family.households.villages.name === selectedVillage;
 
-            const isMatchingHousehold = selectedHousehold === '' || family.household_no === selectedHousehold;
-
+        const isMatchingHousehold = selectedHousehold === '' || family.household_no === selectedHousehold;
+        
         return (
             isMatchingDeath &&
             isMatchingOccupation &&
@@ -213,28 +256,109 @@ const Report = () => {
         );
     });
 
-    useEffect(() => {
-        const fetchData = async () => {
-          try {
-            await fetchOccupation();
-            await fetchEducation();
-            await fetchEthnicity();
-            await fetchRelition();
-            await fetchGenders();
-            await fetchDeaths();
-            await fetchHouseholds();
-            await fetchStateRegions();
-            await fetchDistricts();
-            await fetchTownships();
-            await fetchWardVillageTracts();
-            await fetchVillages();
-          } catch (error) {
-            console.error('Error fetching data:', error);
-          }
+    // Calculate total gender counts, family count, and household count for each village start
+    const villageSet = new Set();
+    const villageCounts = {};
+    const householdCounts = {};
+    let totalFamilies = 0;
+    let totalHouseholds = 0;
+
+    filterFamilies.forEach((family) => {
+        const villageName = family.households?.villages?.name;
+        const gender = family.gender;
+        const isDeath = family.isDeath;
+        const householdNo = family.households?.household_no;
+    
+    if (villageName && isDeath === 'No') {
+        if (!villageSet.has(villageName)) {
+        villageSet.add(villageName);
+        villageCounts[villageName] = {
+            maleCount: 0,
+            femaleCount: 0,
+            familyCount: 0,
+            householdCount: 0,
         };
-      
-        fetchData();
-    }, []);
+        }
+
+        if (gender === 'ကျား') {
+        villageCounts[villageName].maleCount++;
+        } else if (gender === 'မ') {
+        villageCounts[villageName].femaleCount++;
+        }
+
+        villageCounts[villageName].familyCount++;
+        totalFamilies++;
+
+        if (householdNo) {
+        if (!householdCounts[villageName]) {
+            householdCounts[villageName] = new Set();
+        }
+        householdCounts[villageName].add(householdNo);
+        villageCounts[villageName].householdCount = householdCounts[villageName].size;
+        }
+
+        if (householdNo && !householdCounts[householdNo]) {
+        householdCounts[householdNo] = 0;
+        totalHouseholds++;
+        }
+
+        householdCounts[householdNo]++;
+    }
+    if (selectedDeath === 'Yes') {
+        if (!villageSet.has(villageName)) {
+            villageSet.add(villageName);
+            villageCounts[villageName] = {
+                maleCount: 0,
+                femaleCount: 0,
+                familyCount: 0,
+                householdCount: 0,
+            };
+            }
+    
+            if (gender === 'ကျား') {
+            villageCounts[villageName].maleCount++;
+            } else if (gender === 'မ') {
+            villageCounts[villageName].femaleCount++;
+            }
+    
+            villageCounts[villageName].familyCount++;
+            totalFamilies++;
+    
+            if (householdNo) {
+            if (!householdCounts[villageName]) {
+                householdCounts[villageName] = new Set();
+            }
+            householdCounts[villageName].add(householdNo);
+            villageCounts[villageName].householdCount = householdCounts[villageName].size;
+            }
+    
+            if (householdNo && !householdCounts[householdNo]) {
+            householdCounts[householdNo] = 0;
+            totalHouseholds++;
+            }
+    
+            householdCounts[householdNo]++;
+        }
+    });
+
+    const sortedVillages = Object.keys(villageCounts).sort((a, b) => {
+        return villageCounts[b].familyCount - villageCounts[a].familyCount;
+
+    });
+    
+    // Calculate total gender counts, family count, and household count for each village end
+    
+    //Chart start
+    
+    const barChartLabels = sortedVillages;
+    const barChartData = sortedVillages.map((village) => villageCounts[village].familyCount);
+    const barChartDataHousehold = sortedVillages.map((village) => villageCounts[village].householdCount);
+    
+    const genderData = [
+        totalFamilies - sortedVillages.reduce((acc, village) => acc + villageCounts[village].femaleCount, 0),
+        sortedVillages.reduce((acc, village) => acc + villageCounts[village].femaleCount, 0),
+    ];
+    //Chart End
     
     async function fetchDeaths() {
         try {
@@ -393,10 +517,16 @@ const Report = () => {
           console.log('Error fetching villages:', error.message);
         }
     }
-    
+
+    const [showFilter, setShowFilter] = useState(false);
+
+    const handleToggleFilter = () => {
+        setShowFilter(!showFilter);
+    };
+
     // Pagination Start
     const [currentPage, setCurrentPage] = useState(0);
-    const [perPage] = useState(10);
+    const [perPage] = useState(20);
     const offset = currentPage * perPage;
     const currentPageData = filterFamilies.slice(offset, offset + perPage);
     const goToPreviousPage = () => {
@@ -411,30 +541,212 @@ const Report = () => {
     };
     // Pagination End
     
-    const [showFilter, setShowFilter] = useState(false);
-
-    const handleToggleFilter = () => {
-        setShowFilter(!showFilter);
-    };
-
-    //Print and save pdf
-    const componentRef = useRef();
-    const handlePrint = useReactToPrint({
-        content: () => componentRef.current,
-    });
-
-    const handleSaveAsPdf = () => {
-        const doc = new jsPDF();
-        doc.autoTable({
-          head: [['Name', 'Age', 'School']],
-          body: filterFamilies.map((item) => [item.name, item.age, item.school]),
-        });
-        doc.save('table.pdf');
-    };
-
+    function classNames(...classes) {
+        return classes.filter(Boolean).join(' ')
+    }
+    
     return (
         <div className='py-4'>
-            <div className="flex items-center justify-between mb-4">
+            <section className="grid gap-6 py-4 md:grid-cols-2 xl:grid-cols-4">
+                <div className="relative flex items-center p-8 bg-white rounded-lg shadow hover:bg-gray-100">
+                    <div className="inline-flex items-center justify-center flex-shrink-0 w-16 h-16 mr-6 text-blue-700 bg-blue-100 rounded-full">
+                        <svg
+                        aria-hidden="true"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        className="w-6 h-6"
+                        >
+                        <UserGroupIcon className="inline w-6 h-6 mr-2"></UserGroupIcon>
+                        </svg>
+                    </div>
+                    <div>
+                        <span className="block text-2xl font-bold">{totalFamilies}</span>
+                        <span className="block text-gray-500">Total Populations</span>
+                    </div>
+                    <div className="absolute bottom-0 left-0 w-full h-1 bg-blue-700" />
+                </div>
+                <div className="relative flex items-center p-8 bg-white rounded-lg shadow hover:bg-gray-100">
+                    <div className="inline-flex items-center justify-center flex-shrink-0 w-16 h-16 mr-6 text-blue-900 bg-blue-100 rounded-full">
+                        <svg
+                        aria-hidden="true"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        className="w-6 h-6"
+                        >
+                        <HomeIcon className="inline w-6 h-6 mr-2" />
+                        </svg>
+                    </div>
+                    <div>
+                        <span className="block text-2xl font-bold">{totalHouseholds}</span>
+                        <span className="block text-gray-500">Total Households</span>
+                    </div>
+                    <div className="absolute bottom-0 left-0 w-full h-1 bg-blue-900" />
+                </div>
+                
+                <div className="relative flex items-center p-8 bg-white rounded-lg shadow hover:bg-gray-100">
+                    <div className="inline-flex items-center justify-center flex-shrink-0 w-16 h-16 mr-6 text-blue-400 bg-blue-100 rounded-full">
+                        <svg
+                        aria-hidden="true"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        className="w-6 h-6"
+                        >
+                        <DocumentIcon className="inline w-6 h-6 mr-2"></DocumentIcon>
+                        </svg>
+                    </div>
+                    <div>
+                        <span className="inline-block text-2xl font-bold">{totalNumberofDeaths}</span>
+                        <span className="block text-gray-500">Total Deaths</span>
+                    </div>
+                    <div className="absolute bottom-0 left-0 w-full h-1 bg-blue-400" />
+                </div>
+
+                <div className="relative flex items-center p-8 bg-white rounded-lg shadow hover:bg-gray-100">
+                    <div className="inline-flex items-center justify-center flex-shrink-0 w-16 h-16 mr-6 text-blue-400 bg-blue-100 rounded-full">
+                        <svg
+                        aria-hidden="true"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        className="w-6 h-6"
+                        >
+                        <UsersIcon className="inline w-6 h-6 mr-2" />
+                        </svg>
+                    </div>
+                    <div>
+                        <span className="block text-2xl font-bold">1</span>
+                        <span className="block text-gray-500">Total Users</span>
+                    </div>
+                    <div className="absolute bottom-0 left-0 w-full h-1 bg-blue-200" />
+                </div>
+            </section>
+
+          
+            {/* Chart */}
+            <section className="grid grid-cols-3 gap-4 py-4">
+                <div className="relative flex items-center col-span-2 p-8 bg-white rounded-lg shadow hover:bg-gray-100">
+                    <div className="w-full mx-auto overflow-hidden">
+                        <Bar
+                        data={{
+                            labels: barChartLabels,
+                            datasets: [
+                            {
+                                label: 'Populations',
+                                data: barChartData,
+                                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            },
+                            {
+                                label: 'Households',
+                                data: barChartDataHousehold,
+                                backgroundColor: 'rgba(155, 99, 132, 0.6)',
+                            },
+                            ],
+                        }}
+                        options={{
+                            indexAxis: 'x',
+                            responsive: true,
+                            plugins: {
+                            title: {
+                                display: true,
+                                text: 'Population Reation in Village',
+                                position: 'top',
+                                font: {
+                                weight: 'bold',
+                                size: 18,
+                                },
+                            },
+                            legend: {
+                                display: true,
+                                position: 'bottom',
+                            },
+                            datalabels: {
+                                anchor: 'end',
+                                align: 'top',
+                                formatter: (value) => value,
+                                color: 'black',
+                                font: {
+                                weight: 'bold',
+                                },
+                            },
+                            tooltip: {
+                                callbacks: {
+                                title: (context) => barChartLabels[context[0].dataIndex],
+                                label: (context) => `Count: ${context.raw}`,
+                                },
+                            },
+                            },
+                            scales: {
+                            y: {
+                                display: true,
+                                title: {
+                                display: true,
+                                text: 'Total Population',
+                                font: {
+                                    weight: 'bold',
+                                    size: 14,
+                                },
+                                },
+                            },
+                            },
+                        }}
+                        />
+
+                    </div>
+                </div>
+                <div className="relative flex items-center p-8 bg-white rounded-lg shadow hover:bg-gray-100">
+                    <div className="w-4/5 mx-auto overflow-hidden">
+                        <Pie
+                        data={{
+                            labels: ['Male', 'Female'],
+                            datasets: [
+                            {
+                                data: genderData,
+                                backgroundColor: ['rgba(255, 205, 86, 0.6)', 'rgba(255, 99, 132, 0.6)'],
+                            },
+                            ],
+                        }}
+                        options={{
+                            responsive: true,
+                            plugins: {
+                            title: {
+                                display: true,
+                                text: 'Gender Ratio',
+                                position: 'top',
+                                font: {
+                                weight: 'bold',
+                                size: 18,
+                                },
+                            },
+                            legend: {
+                                position: 'bottom',
+                                reverse: true,
+                                labels: {
+                                usePointStyle: true,
+                                },
+                            },
+                            tooltip: {
+                                callbacks: {
+                                label: (context) => `${context.label}: ${context.formattedValue}`,
+                                },
+                            },
+                            },
+                            layout: {
+                            padding: {
+                                bottom: 30, // Adjust bottom padding to make room for axis title
+                            },
+                            },
+                        }}
+                        />
+                    </div>
+                </div>
+            </section>
+            {/* Chart End       */}
+            
+            {/* Search & Filter */}
+            <div className="flex items-center justify-between py-4 mb-4">
                 <div className="flex items-center">
                 <input
                     type="text"
@@ -455,7 +767,7 @@ const Report = () => {
             </div>
 
             {showFilter && (
-            <div className="py-4 sm:grid sm:grid-cols-7 sm:gap-4">
+            <div className="py-4 sm:grid sm:grid-cols-9 sm:gap-4">
                 <div>
                     <select
                     value={selectedHousehold}
@@ -533,71 +845,6 @@ const Report = () => {
                         ))}
                     </select>
                 </div>
-
-                <div>
-                    <select 
-                    value={selectedOccupation}
-                    onChange={(e) => setSelectedOccupation(e.target.value)}
-                    className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                        <option value="">All - Occupations</option>
-                        {/* Render Occupations options */}
-                        {occupations.map((occupation) => (
-                            <option key={occupation.id} value={occupation.name}>
-                            {occupation.name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                    
-                <div>
-                    <select value={selectedEducation} onChange={(e) => setSelectedEducation(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                        <option value="">All - Educations</option>
-                        {/* Render Educations options */}
-                        {educations.map((education) => (
-                            <option key={education.id} value={education.name}>
-                            {education.name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                <div>
-                    <select value={selectedEthnicity} onChange={(e) => setSelectedEthnicity(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                        <option value="">All - Ethnicities</option>
-                        {/* Render Ethnicities options */}
-                        {ethnicities.map((ethnicity) => (
-                            <option key={ethnicity.id} value={ethnicity.name}>
-                            {ethnicity.name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                
-                <div>
-                    <select value={selectedReligion} onChange={(e) => setSelectedReligion(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                        <option value="">All - Religions</option>
-                        {/* Render Religions options */}
-                        {religions.map((religion) => (
-                            <option key={religion.id} value={religion.name}>
-                            {religion.name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div>
-                    <select
-                        value={selectedGender}
-                        onChange={(e) => setSelectedGender(e.target.value)}
-                        className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6"
-                    >
-                        <option value="">All - Gender</option>
-                        {genders.map((gender) => (
-                        <option key={gender} value={gender}>
-                            {gender}
-                        </option>
-                        ))}
-                    </select>
-                </div>
                 <div>
                     <select
                         value={selectedDeath}
@@ -632,8 +879,8 @@ const Report = () => {
                     />
                 </div>
             </div>
-           
             )}
+
             <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                 <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
                    
@@ -650,229 +897,90 @@ const Report = () => {
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    Name
+                                    Village Name
                                 </th>
                                 <th
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    NRC ID
+                                    Total Gender
                                 </th>
                                 <th
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    Date of Birth
+                                    Total Population
                                 </th>
                                 <th
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    Age
-                                </th>
-                                <th
-                                    scope="col"
-                                    className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
-                                >
-                                    Gender
-                                </th>
-                                <th
-                                    scope="col"
-                                    className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
-                                >
-                                    Father Name
-                                </th>
-                                <th
-                                    scope="col"
-                                    className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
-                                >
-                                    Mother Name
-                                </th>
-                                <th
-                                    scope="col"
-                                    className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
-                                >
-                                    Household No
-                                </th>
-                                <th
-                                    scope="col"
-                                    className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
-                                >
-                                    Address
+                                    Total Household
                                 </th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td className="py-4 pl-4 pr-3 text-lg">
-                                    {isLoading && <p>Loading...</p>}
-                                    {errorMessage && <p>{errorMessage}</p>}
+                                {isLoading && <p>Loading...</p>}
+                                {errorMessage && <p>{errorMessage}</p>}
                                 </td>
                             </tr>
 
-                            {currentPageData.map((family, familyIdx) => (
-                            <tr key={family.id} className='transition duration-300 ease-in-out border-b hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-600'>
-                                <td
-                                className={classNames(
-                                    familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
-                                    'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
-                                )}
-                                >
-                                {(currentPage * perPage) + familyIdx + 1}
-                                </td>
-                                <td
-                                className={classNames(
-                                    familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
-                                    'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
-                                )}
-                                >
-                                {family.name}
-                                </td>
-                                <td
-                                className={classNames(
-                                    familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
-                                    'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
-                                )}
-                                >
-                                {family.nrc_id}
-                                </td>
-                                <td
-                                className={classNames(
-                                    familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
-                                    'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
-                                )}
-                                >
-                                    {new Date(family.date_of_birth).toLocaleDateString()}
-                                </td>
-                                <td
-                                className={classNames(
-                                    familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
-                                    'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
-                                )}
-                                >
-                                    {Math.floor(
-                                    (new Date() - new Date(family.date_of_birth)) /
-                                        (365.25 * 24 * 60 * 60 * 1000)
+                                {sortedVillages.map((villageName, familyIdx) => {
+                                    const counts = villageCounts[villageName];
+
+                                return (
+                                <tr key={villageName} className="transition duration-300 ease-in-out border-b hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-600">
+                                    <td
+                                    className={classNames(
+                                        familyIdx !== villageName.length - 1 ? "border-b border-gray-200" : "",
+                                        "whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8"
                                     )}
-                                </td>
-                                <td
-                                className={classNames(
-                                    familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
-                                    'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
-                                )}
-                                >
-                                {family.gender}
-                                </td>
-                                <td
-                                className={classNames(
-                                    familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
-                                    'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
-                                )}
-                                >
-                                {family.father_name}
-                                </td>
-                                <td
-                                className={classNames(
-                                    familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
-                                    'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
-                                )}
-                                >
-                                {family.mother_name}
-                                </td>
-                                <td
-                                className={classNames(
-                                    familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
-                                    'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
-                                )}
-                                >
-                                {family.household_no}
-                                </td>
-                                <td
-                                className={classNames(
-                                    familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
-                                    'whitespace-pre-line px-3 py-1 text-sm text-gray-500'
-                                )}
-                                >
-                                {`${family.households.villages.name}\n${family.households.ward_village_tracts.name}\n${family.households.townships.name}, ${family.households.districts.name},${family.households.state_regions.name}`}
-                                </td>
-                            </tr>
-                            ))}
-                        </tbody>
+                                    >
+                                    {(currentPage * perPage) + familyIdx + 1}
+                                    </td>
+                                    <td
+                                    className={classNames(
+                                        familyIdx !== villageName.length - 1 ? "border-b border-gray-200" : "",
+                                        "whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8"
+                                    )}
+                                    >
+                                    {villageName}
+                                    </td>
+                                    <td
+                                    className={classNames(
+                                        familyIdx !== villageName.length - 1 ? "border-b border-gray-200" : "",
+                                        "whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8"
+                                    )}
+                                    >
+                                    ကျား - {counts.maleCount}, မ - {counts.femaleCount}
+                                    </td>
+                                    <td
+                                    className={classNames(
+                                        familyIdx !== villageName.length - 1 ? "border-b border-gray-200" : "",
+                                        "whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8"
+                                    )}
+                                    >
+                                    {counts.familyCount}
+                                    </td>
+                                    <td
+                                    className={classNames(
+                                        familyIdx !== villageName.length - 1 ? "border-b border-gray-200" : "",
+                                        "whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8"
+                                    )}
+                                    >
+                                    {counts.householdCount}
+                                    </td>
+                                </tr>
+                                );
+                            })}
+                            </tbody>
+
                     </table>
-                   
-                    {/* Pagination */}
-                    <nav className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6" aria-label="Pagination">
-                        <div className="hidden sm:block">
-                        <p className="text-sm text-gray-700">
-                            Showing <span className="font-medium">{offset + 1}</span> to{' '}
-                            <span className="font-medium">{offset + currentPageData.length}</span> of{' '}
-                            <span className="font-medium">{filterFamilies.length}</span> results
-                        </p>
-                        </div>
-                        <div className="flex justify-between flex-1 sm:justify-end">
-                        <button
-                            onClick={goToPreviousPage}
-                            className="relative inline-flex items-center px-3 py-2 text-sm font-semibold text-gray-900 bg-white rounded-md ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
-                            disabled={currentPage === 0}
-                        >
-                            Previous
-                        </button>
-                        <button
-                            onClick={goToNextPage}
-                            className="relative inline-flex items-center px-3 py-2 ml-3 text-sm font-semibold text-gray-900 bg-white rounded-md ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
-                            disabled={currentPage === Math.ceil(filterFamilies.length / perPage) - 1}
-                        >
-                            Next
-                        </button>
-                        </div>
-                    </nav>
                 </div>
             </div>
-            <div className="flex items-center mt-4">
-                <button
-                    onClick={handlePrint}
-                    className="px-4 py-2 mr-2 text-white bg-blue-900 rounded-md"
-                >
-                    Print
-                </button>
-                <button
-                    onClick={handleSaveAsPdf}
-                    className="px-4 py-2 text-white bg-blue-500 rounded-md"
-                >
-                    Save as PDF
-                </button>
-            </div>
-
-        {/* Hidden component for printing */}
-        <div style={{ display: 'none' }}>
-            <ComponentToPrint ref={componentRef} data={filterFamilies} totalResults={filterFamilies.length} />
         </div>
-    </div>
-    );
-};
+)};
 
-const ComponentToPrint = React.forwardRef(({ data, totalResults }, ref) => (
-    <div ref={ref}>
-      <h2>Total Results: {totalResults}</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Age</th>
-            <th>School</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((item) => (
-            <tr key={item.id}>
-              <td>{item.name}</td>
-              <td>{item.age}</td>
-              <td>{item.school}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-));
-
-export default Report;
+export default Dashboard;

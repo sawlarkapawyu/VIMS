@@ -38,6 +38,9 @@ export default function FamilySearch() {
     }, []);
 
     const fetchFamilies = async () => {
+        setIsLoading(true);
+        setErrorMessage(null);
+        
         try {
             const { data: familiesData, error: familiesError } = await supabase
                 .from('families')
@@ -68,6 +71,7 @@ export default function FamilySearch() {
         } catch (error) {
             console.error('Error fetching families:', error);
         }
+        setIsLoading(false);
     };
     
     //Search and Filter Start
@@ -503,9 +507,6 @@ export default function FamilySearch() {
                     <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                         <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
                             
-                            {filteredFamilies.length === 0 ? (
-                                <div>No data!</div>
-                            ) : (
                             <table className="min-w-full border-separate border-spacing-0">
                                 <thead>
                                     <tr>
@@ -572,11 +573,15 @@ export default function FamilySearch() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {isLoading && <p>Loading...</p>}
-                                    {errorMessage && <p>{errorMessage}</p>}
+                                    <tr>
+                                        <td className="py-4 pl-4 pr-3 text-lg">
+                                            {isLoading && <p>Loading...</p>}
+                                            {errorMessage && <p>{errorMessage}</p>}
+                                        </td>
+                                    </tr>
 
                                     {currentPageData.map((family, familyIdx) => (
-                                    <tr key={family.id}>
+                                    <tr key={family.id} className='transition duration-300 ease-in-out border-b hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-600'>
                                         <td
                                         className={classNames(
                                             familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
@@ -666,7 +671,7 @@ export default function FamilySearch() {
                                     ))}
                                 </tbody>
                             </table>
-                            )}
+                            
                             {/* Pagination */}
                             <nav className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6" aria-label="Pagination">
                                 <div className="hidden sm:block">

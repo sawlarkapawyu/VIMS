@@ -18,7 +18,7 @@ import logo from '/src/images/logos/logo.png';
 
 
 const navigation = [
-  { name: 'Dashboard', href: '/admin/dashboards', icon: HomeIcon, current: true },
+  { name: 'Dashboard', href: '/admin/dashboard', icon: HomeIcon, current: true },
   { name: 'Households', href: '/admin/households', icon: FolderIcon, current: false },
   { name: 'Families', href: '/admin/families', icon: UsersIcon, current: false },
   { name: 'Deaths', href: '/admin/deaths', icon: DocumentDuplicateIcon, current: false },

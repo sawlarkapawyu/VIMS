@@ -268,7 +268,7 @@ export default function Household() {
                         <button
                             type="button"
                             onClick={handleAddClick}
-                            className="flex items-center justify-center px-2 py-2 text-sm font-semibold text-white rounded-md shadow-sm bg-sky-600 hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
+                            className="flex items-center justify-center px-4 py-2 text-sm font-semibold text-white rounded-md shadow-sm bg-sky-600 hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
                         >
                         <PlusCircleIcon className="w-8 h-8 mr-2" />
                         Add Household
@@ -428,8 +428,14 @@ export default function Household() {
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    <tr>
+                                        <td className="py-4 pl-4 pr-3 text-lg">
+                                            {isLoading && <p>Loading...</p>}
+                                            {errorMessage && <p>{errorMessage}</p>}
+                                        </td>
+                                    </tr>
                                     {currentPageData.map((household, householdIdx) => (
-                                    <tr key={household.id}>
+                                    <tr key={household.id} className='transition duration-300 ease-in-out border-b hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-600'>
                                         <td
                                         className={classNames(
                                             householdIdx !== households.length - 1 ? 'border-b border-gray-200' : '',

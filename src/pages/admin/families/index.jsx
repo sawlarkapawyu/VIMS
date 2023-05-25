@@ -478,11 +478,14 @@ export default function Family() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {isLoading && <p>Loading...</p>}
-                                        {errorMessage && <p>{errorMessage}</p>}
-
+                                        <tr>
+                                            <td className="py-4 pl-4 pr-3 text-lg">
+                                                {isLoading && <p>Loading...</p>}
+                                                {errorMessage && <p>{errorMessage}</p>}
+                                            </td>
+                                        </tr>
                                         {currentPageData.map((family, familyIdx) => (
-                                        <tr key={family.id}>
+                                        <tr key={family.id} className='transition duration-300 ease-in-out border-b hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-600'>
                                             <td
                                             className={classNames(
                                                 familyIdx !== families.length - 1 ? 'border-b border-gray-200' : '',

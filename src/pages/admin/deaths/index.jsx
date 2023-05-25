@@ -21,6 +21,9 @@ export default function Deaths() {
     }, []);
 
     const fetchDeaths = async () => {
+        setIsLoading(true);
+        setErrorMessage(null);
+        
         const { data: deathsData, error: deathsError } = await supabase
           .from("deaths")
           .select(`
@@ -37,6 +40,7 @@ export default function Deaths() {
           throw deathsError;
         }
         setDeaths(deathsData);
+        setIsLoading(false);
         return deathsData;
     };
     
@@ -247,11 +251,15 @@ export default function Deaths() {
                                         </tr>
                                     </thead>
                                 <tbody>
-                                    {isLoading && <p>Loading...</p>}
-                                    {errorMessage && <p>{errorMessage}</p>}
+                                    <tr>
+                                        <td className="py-4 pl-4 pr-3 text-lg">
+                                            {isLoading && <p>Loading...</p>}
+                                            {errorMessage && <p>{errorMessage}</p>}
+                                        </td>
+                                    </tr>
                                     
                                     {currentPageData.map((death, deathIdx) => (
-                                    <tr key={death.id}>
+                                    <tr key={death.id} className='transition duration-300 ease-in-out border-b hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-600'>
                                         <td
                                         className={classNames(
                                             deathIdx !== deaths.length - 1 ? 'border-b border-gray-200' : '',
