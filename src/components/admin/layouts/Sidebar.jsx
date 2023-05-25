@@ -9,6 +9,7 @@ import {
   DocumentDuplicateIcon,
   FolderIcon,
   HomeIcon,
+  StarIcon,
   UsersIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline'
@@ -22,6 +23,7 @@ const navigation = [
   { name: 'Households', href: '/admin/households', icon: FolderIcon, current: false },
   { name: 'Families', href: '/admin/families', icon: UsersIcon, current: false },
   { name: 'Deaths', href: '/admin/deaths', icon: DocumentDuplicateIcon, current: false },
+  { name: 'Disability', href: '/admin/disabilities', icon: StarIcon, current: false },
   { name: 'Reports', href: '/admin/reports', icon: ChartPieIcon, current: false },
 ]
 const teams = [

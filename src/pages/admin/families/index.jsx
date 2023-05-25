@@ -64,7 +64,8 @@ export default function Family() {
             nationalities (name),
             religions (name),
             households (household_no),
-            household_no
+            household_no, 
+            hasLiving
         `)
         .eq('isDeath', 'No')
         .order('id', { ascending: false });
@@ -156,6 +157,7 @@ export default function Family() {
           console.log('Error fetching religions:', error.message);
         }
     }
+      
     async function fetchHousehold() {
         try {
           const { data, error } = await supabase.from('households').select('id, household_no');
@@ -189,7 +191,8 @@ export default function Family() {
         selectedEthnicity === '' ||
         family.ethnicities.name === selectedEthnicity;
 
-        const isMatchingReligion = selectedReligion === '' || family.religions.name === selectedReligion;
+        const isMatchingReligion = selectedReligion === '' || family.religions?.name === selectedReligion;
+
         const isMatchingHousehold = selectedHousehold === '' || family.households.household_no === selectedHousehold;
         
         return (
@@ -305,7 +308,19 @@ export default function Family() {
                                     </kbd>
                                 </div>
                             </div>
-
+                            
+                            <div>
+                                <select value={selectedHousehold} onChange={(e) => setSelectedHousehold(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
+                                    <option value="">All - Household No</option>
+                                    {/* Render Religions options */}
+                                    {households.map((household) => (
+                                        <option key={household.id} value={household.household_no}>
+                                        {household.household_no}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            
                             <div>
                                 <select value={selectedOccupation} onChange={(e) => setSelectedOccupation(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
                                     <option value="">All - Occupations</option>
@@ -352,19 +367,8 @@ export default function Family() {
                                         </option>
                                     ))}
                                 </select>
-                            </div>
-
-                            <div>
-                                <select value={selectedHousehold} onChange={(e) => setSelectedHousehold(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                                    <option value="">All - Household No</option>
-                                    {/* Render Religions options */}
-                                    {households.map((household) => (
-                                        <option key={household.id} value={household.household_no}>
-                                        {household.household_no}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
+                            </div>  
+                            
                         </div>
                         
                         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -467,8 +471,14 @@ export default function Family() {
                                                 scope="col"
                                                 className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-8 lg:pl-8"
                                             >
-                                                Remarks
+                                                hasLiving
                                             </th> 
+                                            <th
+                                                scope="col"
+                                                className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-8 lg:pl-8"
+                                            >
+                                                Remarks
+                                            </th>
                                             <th
                                                 scope="col"
                                                 className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-3 pr-4 backdrop-blur backdrop-filter sm:pr-6 lg:pr-8"
@@ -488,7 +498,7 @@ export default function Family() {
                                         <tr key={family.id} className='transition duration-300 ease-in-out border-b hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-600'>
                                             <td
                                             className={classNames(
-                                                familyIdx !== families.length - 1 ? 'border-b border-gray-200' : '',
+                                                familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
                                                 'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
                                             )}
                                             >
@@ -496,7 +506,7 @@ export default function Family() {
                                             </td>
                                             <td
                                             className={classNames(
-                                                familyIdx !== families.length - 1 ? 'border-b border-gray-200' : '',
+                                                familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
                                                 'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
                                             )}
                                             >
@@ -504,7 +514,7 @@ export default function Family() {
                                             </td>
                                             <td
                                             className={classNames(
-                                                familyIdx !== families.length - 1 ? 'border-b border-gray-200' : '',
+                                                familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
                                                 'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
                                             )}
                                             >
@@ -512,7 +522,7 @@ export default function Family() {
                                             </td>
                                             <td
                                             className={classNames(
-                                                familyIdx !== families.length - 1 ? 'border-b border-gray-200' : '',
+                                                familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
                                                 'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
                                             )}
                                             >
@@ -520,7 +530,7 @@ export default function Family() {
                                             </td>
                                             <td
                                             className={classNames(
-                                                familyIdx !== families.length - 1 ? 'border-b border-gray-200' : '',
+                                                familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
                                                 'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
                                             )}
                                             >
@@ -531,7 +541,7 @@ export default function Family() {
                                             </td>
                                             <td
                                             className={classNames(
-                                                familyIdx !== families.length - 1 ? 'border-b border-gray-200' : '',
+                                                familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
                                                 'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
                                             )}
                                             >
@@ -539,7 +549,7 @@ export default function Family() {
                                             </td>
                                             <td
                                             className={classNames(
-                                                familyIdx !== families.length - 1 ? 'border-b border-gray-200' : '',
+                                                familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
                                                 'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
                                             )}
                                             >
@@ -547,7 +557,7 @@ export default function Family() {
                                             </td>
                                             <td
                                             className={classNames(
-                                                familyIdx !== families.length - 1 ? 'border-b border-gray-200' : '',
+                                                familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
                                                 'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
                                             )}
                                             >
@@ -555,7 +565,7 @@ export default function Family() {
                                             </td>
                                             <td
                                             className={classNames(
-                                                familyIdx !== families.length - 1 ? 'border-b border-gray-200' : '',
+                                                familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
                                                 'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
                                             )}
                                             >
@@ -563,7 +573,7 @@ export default function Family() {
                                             </td>
                                             <td
                                             className={classNames(
-                                                familyIdx !== families.length - 1 ? 'border-b border-gray-200' : '',
+                                                familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
                                                 'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
                                             )}
                                             >
@@ -571,7 +581,7 @@ export default function Family() {
                                             </td>
                                             <td
                                             className={classNames(
-                                                familyIdx !== families.length - 1 ? 'border-b border-gray-200' : '',
+                                                familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
                                                 'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
                                             )}
                                             >
@@ -579,7 +589,7 @@ export default function Family() {
                                             </td>
                                             <td
                                             className={classNames(
-                                                familyIdx !== families.length - 1 ? 'border-b border-gray-200' : '',
+                                                familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
                                                 'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
                                             )}
                                             >
@@ -587,7 +597,7 @@ export default function Family() {
                                             </td>
                                             <td
                                             className={classNames(
-                                                familyIdx !== families.length - 1 ? 'border-b border-gray-200' : '',
+                                                familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
                                                 'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
                                             )}
                                             >
@@ -595,7 +605,7 @@ export default function Family() {
                                             </td>
                                             <td
                                             className={classNames(
-                                                familyIdx !== families.length - 1 ? 'border-b border-gray-200' : '',
+                                                familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
                                                 'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
                                             )}
                                             >
@@ -603,15 +613,23 @@ export default function Family() {
                                             </td>
                                             <td
                                             className={classNames(
-                                                familyIdx !== families.length - 1 ? 'border-b border-gray-200' : '',
+                                                familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
                                                 'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
                                             )}
                                             >
-                                            {family.religions.name}
+                                            {family.religions && family.religions.name}
                                             </td>
                                             <td
                                             className={classNames(
-                                                familyIdx !== families.length - 1 ? 'border-b border-gray-200' : '',
+                                                familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
+                                                'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
+                                            )}
+                                            >
+                                            {family.hasLiving}
+                                            </td>
+                                            <td
+                                            className={classNames(
+                                                familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
                                                 'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
                                             )}
                                             >
@@ -619,7 +637,7 @@ export default function Family() {
                                             </td>
                                             <td
                                             className={classNames(
-                                                familyIdx !== families.length - 1 ? 'border-b border-gray-200' : '',
+                                                familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
                                                 'relative whitespace-nowrap py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-8 lg:pr-8'
                                             )}
                                             >

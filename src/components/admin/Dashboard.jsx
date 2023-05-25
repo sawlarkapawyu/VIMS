@@ -651,7 +651,7 @@ const Dashboard = () => {
                             plugins: {
                             title: {
                                 display: true,
-                                text: 'Population Reation in Village',
+                                text: 'Population Ratio in Village',
                                 position: 'top',
                                 font: {
                                 weight: 'bold',

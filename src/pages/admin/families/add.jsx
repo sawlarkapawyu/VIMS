@@ -430,10 +430,7 @@ export default function HouseholdAdd() {
 
     // Handle create family
     const handleCreateFamily = async (e) => {
-        e.preventDefault();
-        
-        // Check if all required fields are filled
-        
+        e.preventDefault();        
         const { data: familyData, error: familyError } = await supabase
         .from("families")
         .insert([
@@ -444,6 +441,9 @@ export default function HouseholdAdd() {
             gender: gender,
             father_name: fatherName,
             mother_name: motherName,
+            hasLiving: 'ရှိ',
+            isDeath: 'No',
+            isDisability: 'No',
             remark: remark,
             relationship_id: selectedRelationship,
             occupation_id: selectedOccupation,

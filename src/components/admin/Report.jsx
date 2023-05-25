@@ -43,6 +43,10 @@ const Report = () => {
     const [selectedDeath, setSelectedDeath] = useState('');
     const [minAge, setMinAge] = useState('');
     const [maxAge, setMaxAge] = useState('');
+    const [hasLiving, setHasLiving] = useState([]);
+    const [selectedHasLiving, setSelectedHasLiving] = useState('');
+    const [isDisability, setDisability] = useState([]);
+    const [selectedDisability, setSelectedDisability] = useState('');
     
     function classNames(...classes) {
         return classes.filter(Boolean).join(' ')
@@ -68,7 +72,9 @@ const Report = () => {
                     father_name,
                     mother_name,
                     remark,
+                    hasLiving,
                     isDeath,
+                    isDisability,
                     relationships (id, name),
                     occupations (id, name),
                     educations (id, name),
@@ -100,7 +106,9 @@ const Report = () => {
                     father_name,
                     mother_name,
                     remark,
+                    hasLiving,
                     isDeath,
+                    isDisability,
                     relationships (id, name),
                     occupations (id, name),
                     educations (id, name),
@@ -146,19 +154,13 @@ const Report = () => {
     // Filtered faimiles based on search and filters
     const filterFamilies = families.filter((family) => {
         const isMatchingSearchQuery =
-        family.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        family.gender.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        family.father_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        family.mother_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        family.remark.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        family.date_of_birth.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        family.nrc_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-
-        family.occupations.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        family.educations.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        family.ethnicities.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        family.households.household_no.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        family.religions.name.toLowerCase().includes(searchQuery.toLowerCase());
+        (family.name && family.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (family.nrc_id && family.nrc_id.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (family.date_of_birth && family.date_of_birth.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (family.gender && family.gender.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (family.father_name && family.father_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (family.mother_name && family.mother_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (family.remark && family.remark.toLowerCase().includes(searchQuery.toLowerCase()));
 
         const isMatchingDeath =
         selectedDeath === '' || family.isDeath === selectedDeath;
@@ -173,27 +175,32 @@ const Report = () => {
         selectedEthnicity === '' ||
         family.ethnicities.name === selectedEthnicity;
 
-        const isMatchingReligion = selectedReligion === '' || family.religions.name === selectedReligion;
+        const isMatchingReligion = 
+        selectedReligion === '' || family.religions?.name === selectedReligion;
             
         const isMatchingGender =
         selectedGender === '' || family.gender === selectedGender;
         
         const isMatchingAge = checkAge(family.date_of_birth);
 
-            const isMatchingStateRegion =
-                selectedStateRegion === '' || family.households.state_regions.name === selectedStateRegion;
-        
-            const isMatchingDistrict = selectedDistrict === '' || family.households.districts.name === selectedDistrict;
-        
-            const isMatchingTownship =
-                selectedTownship === '' || family.households.townships.name === selectedTownship;
-        
-            const isMatchingWardVillageTract =
-                selectedWardVillageTract === '' || family.households.ward_village_tracts.name === selectedWardVillageTract;
-        
-            const isMatchingVillage = selectedVillage === '' || family.households.villages.name === selectedVillage;
+        const isMatchingStateRegion =
+            selectedStateRegion === '' || family.households.state_regions.name === selectedStateRegion;
+    
+        const isMatchingDistrict = selectedDistrict === '' || family.households.districts.name === selectedDistrict;
+    
+        const isMatchingTownship =
+            selectedTownship === '' || family.households.townships.name === selectedTownship;
+    
+        const isMatchingWardVillageTract =
+            selectedWardVillageTract === '' || family.households.ward_village_tracts.name === selectedWardVillageTract;
+    
+        const isMatchingVillage = selectedVillage === '' || family.households.villages.name === selectedVillage;
 
-            const isMatchingHousehold = selectedHousehold === '' || family.household_no === selectedHousehold;
+        const isMatchingHousehold = selectedHousehold === '' || family.household_no === selectedHousehold;
+
+        const isMatchingHasLiving = selectedHasLiving === '' || family.hasLiving === selectedHasLiving;
+
+        const isMatchingIsDisability = selectedDisability === '' || family.isDisability === selectedDisability;
 
         return (
             isMatchingDeath &&
@@ -209,6 +216,8 @@ const Report = () => {
             isMatchingDistrict &&
             isMatchingTownship &&
             isMatchingWardVillageTract &&
+            isMatchingHasLiving &&
+            isMatchingIsDisability &&
             isMatchingVillage
         );
     });
@@ -219,7 +228,7 @@ const Report = () => {
             await fetchOccupation();
             await fetchEducation();
             await fetchEthnicity();
-            await fetchRelition();
+            await fetchReligion();
             await fetchGenders();
             await fetchDeaths();
             await fetchHouseholds();
@@ -228,6 +237,8 @@ const Report = () => {
             await fetchTownships();
             await fetchWardVillageTracts();
             await fetchVillages();
+            await fetchHasLiving();
+            await fetchIsDisability();
           } catch (error) {
             console.error('Error fetching data:', error);
           }
@@ -235,6 +246,56 @@ const Report = () => {
       
         fetchData();
     }, []);
+
+    async function fetchIsDisability() {
+        try {
+          const { data, error } = await supabase
+            .from('families')
+            .select('id, name, isDisability');
+          
+          if (error) {
+            throw new Error(error.message);
+          }
+      
+          // Extract unique Disability values
+          const uniqueIsDisability = [...new Set(data.map(family => family.isDisability))];
+      
+          // Group families by the Disability property
+          const groupedFamilies = uniqueIsDisability.reduce((groups, isDisabilityValue) => {
+            groups[isDisabilityValue] = data.filter(family => family.isDisability === isDisabilityValue);
+            return groups;
+          }, {});
+      
+          setDisability(groupedFamilies);
+        } catch (error) {
+          console.log('Error fetching isDisability:', error.message);
+        }
+    }
+
+    async function fetchHasLiving() {
+        try {
+          const { data, error } = await supabase
+            .from('families')
+            .select('id, name, hasLiving');
+          
+          if (error) {
+            throw new Error(error.message);
+          }
+      
+          // Extract unique hasLiving values
+          const uniqueHasLiving = [...new Set(data.map(family => family.hasLiving))];
+      
+          // Group families by the hasLiving property
+          const groupedFamilies = uniqueHasLiving.reduce((groups, hasLivingValue) => {
+            groups[hasLivingValue] = data.filter(family => family.hasLiving === hasLivingValue);
+            return groups;
+          }, {});
+      
+          setHasLiving(groupedFamilies);
+        } catch (error) {
+          console.log('Error fetching hasLiving:', error.message);
+        }
+    }
     
     async function fetchDeaths() {
         try {
@@ -309,7 +370,7 @@ const Report = () => {
         }
     }
 
-    async function fetchRelition() {
+    async function fetchReligion() {
         try {
           const { data, error } = await supabase.from('religions').select('id, name');
           if (error) {
@@ -455,7 +516,7 @@ const Report = () => {
             </div>
 
             {showFilter && (
-            <div className="py-4 sm:grid sm:grid-cols-7 sm:gap-4">
+            <div className="py-4 sm:grid sm:grid-cols-6 sm:gap-4">
                 <div>
                     <select
                     value={selectedHousehold}
@@ -598,6 +659,34 @@ const Report = () => {
                         ))}
                     </select>
                 </div>
+                <div>
+                    <select
+                        value={selectedHasLiving}
+                        onChange={(e) => setSelectedHasLiving(e.target.value)}
+                        className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6"
+                    >
+                        <option value="">All - Has Living</option>
+                        {Object.keys(hasLiving).map((hasLivingValue) => (
+                        <option key={hasLivingValue} value={hasLivingValue}>
+                            {hasLivingValue} ({hasLiving[hasLivingValue].length})
+                        </option>
+                        ))}
+                    </select>
+                </div> 
+                <div>
+                    <select
+                        value={selectedDisability}
+                        onChange={(e) => setSelectedDisability(e.target.value)}
+                        className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6"
+                    >
+                        <option value="">All - Is Disability</option>
+                        {Object.keys(isDisability).map((isDisabilityValue) => (
+                        <option key={isDisabilityValue} value={isDisabilityValue}>
+                            {isDisabilityValue} ({isDisability[isDisabilityValue].length})
+                        </option>
+                        ))}
+                    </select>
+                </div> 
                 <div>
                     <select
                         value={selectedDeath}

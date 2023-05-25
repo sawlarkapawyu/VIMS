@@ -200,7 +200,7 @@ export default function HouseholdAdd() {
         e.preventDefault();
         
         // Check if all required fields are filled
-        if (!entryDate || !householdId || !houseNo || !familyHead || !selectedStateRegion || !selectedDistrict || !selectedTownship || !selectedWardVillageTract || !selectedVillage) {
+        if (!entryDate || !householdId || !houseNo || !selectedStateRegion || !selectedDistrict || !selectedTownship || !selectedWardVillageTract || !selectedVillage) {
             alert("Please fill all required fields!");
             return;
         }

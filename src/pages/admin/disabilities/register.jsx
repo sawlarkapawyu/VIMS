@@ -7,7 +7,7 @@ import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 
 
-export default function FamilySearch() {
+export default function DisibilitySearch() {
     const router = useRouter();
     const supabase = useSupabaseClient();
     const user = useUser();
@@ -35,6 +35,7 @@ export default function FamilySearch() {
     
     useEffect(() => {
         fetchFamilies();
+        fetchDisabilities();
     }, []);
 
     const fetchFamilies = async () => {
@@ -291,10 +292,7 @@ export default function FamilySearch() {
 
     //Modal Box with selected Id and register 
     const [selectedFamily, setSelectedFamily] = useState(null);
-    const [deathDate, setDeathDate] = useState('');
-    const [deathPlace, setDeathPlace] = useState('');
-    const [complainant, setComplainant] = useState('');
-    const [remark, setRemark] = useState('');
+    const [description, setDescription] = useState('');
       
     function handleRegistrationClick(familyId) {
         const selectedFamily = filteredFamilies.find(family => family.id === familyId);
@@ -305,14 +303,12 @@ export default function FamilySearch() {
     const handleRegister = async (e) => {
         e.preventDefault();
 
-        const { data: deathData, error: deathError } = await supabase
-        .from("deaths")
+        const { data: disabilityData, error: disabilityError } = await supabase
+        .from("disabilities")
         .insert([
         {
-            death_date: deathDate,
-            death_place: deathPlace,
-            complainant: complainant,
-            remark: remark,
+            type: selectedDisability,
+            description: description,
             family_id: selectedFamily.id
         },
         ]);
@@ -320,21 +316,21 @@ export default function FamilySearch() {
         // Update isDeath to 'Yes' in families table
         const { data: updateData, error: updateError } = await supabase
         .from("families")
-        .update({ isDeath: 'Yes' })
+        .update({ isDisability: 'Yes' })
         .eq('id', selectedFamily.id);
 
         if (updateError) {
         throw updateError;
         }
         
-        if (deathError) {
-            throw deathError;
+        if (disabilityError) {
+            throw disabilityError;
         }
         
         setSelectedFamily(null)
         fetchFamilies();
-        router.push('/admin/deaths');
-        console.log(deathData);
+        router.push('/admin/disabilities');
+        console.log(disabilityData);
         console.log(updateData);
     };
 
@@ -354,6 +350,61 @@ export default function FamilySearch() {
     }
     };
     // Pagination End
+
+    //Relationship
+    const [type_disabilities, setTypeDisabilities] = useState([]);
+    const [selectedDisability, setSelectedDisability] = useState('');
+    const [newDisability, setNewDisability] = useState('');
+    const [showModalDisability, setShowModalDisability] = useState(false);
+
+    const handleCloseModalDisability = () => {
+        setShowModalDisability(false);
+        setNewDisability('');
+    };
+
+    const fetchDisabilities = async () => {
+        const { data, error } = await supabase.from('type_of_disabilities').select('*');
+
+        if (error) {
+            console.log(error);
+        } else {
+            setTypeDisabilities(data);
+        }
+    };
+
+    const handleDisabilityChange = (e) => {
+        setSelectedDisability(e.target.value);
+        if (e.target.value === "new") {
+            setShowModalDisability(true);
+        }
+    };
+
+    const handleNewDisabilityChange = (e) => {
+        setNewDisability(e.target.value);
+    };
+    
+    const handleNewDisabilitySubmit = async () => {
+        if (newDisability) {
+          const { data, error } = await supabase.from('type_of_disabilities').insert({ name: newDisability });
+      
+          fetchDisabilities();
+      
+          // Close the modal box
+          setShowModalDisability(false);
+      
+          if (error) {
+            console.log(error);
+          } else {
+            if (data) {
+                setTypeDisabilities([...disabilities, data[0]]);
+                setSelectedDisability(data[0].id);
+            }
+            setNewDisability('');
+            setShowModalDisability(false);
+          }
+        }
+    };
+
 
     return (
         <>
@@ -387,7 +438,7 @@ export default function FamilySearch() {
                                 <div className="flex items-center">
                                     <ChevronRightIcon className="flex-shrink-0 w-5 h-5 text-gray-400" aria-hidden="true" />
                                     <a href="#" className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
-                                    Death
+                                    Disability
                                     </a>
                                 </div>
                                 </li>
@@ -407,7 +458,7 @@ export default function FamilySearch() {
                     <div className="py-4 sm:flex sm:items-center sm:justify-between sm:gap-3">
                         <div className="flex-1 min-w-0">
                             <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-                                Death Registration
+                                Disability Registration
                             </h2>
                             </div>
                             <div className="relative flex items-center mt-2 sm:mt-0">
@@ -568,7 +619,7 @@ export default function FamilySearch() {
                                             scope="col"
                                             className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-3 pr-4 backdrop-blur backdrop-filter sm:pr-6 lg:pr-8"
                                         >
-                                            <span className="sr-only">Death Register</span>
+                                            <span className="sr-only">Disability Register</span>
                                         </th>
                                     </tr>
                                 </thead>
@@ -705,47 +756,90 @@ export default function FamilySearch() {
                                 <Modal onClose={() => setSelectedFamily(null)}>
                                     <div className="grid max-w-4xl grid-cols-1 px-6 py-4 mx-auto gap-x-4 gap-y-8 sm:grid-cols-1">
                                         <div className="sm:col-span-4">
-                                            <div className="text-lg font-bold">Death Registration Form</div>
+                                            <div className="text-lg font-bold">Disability Registration Form</div>
                                             <hr className="my-2 border-gray-300" />
                                             <p>Death Date: {selectedFamily.name}</p>
                                             <p>Date of Birth: {selectedFamily.date_of_birth}</p>
                                             <p>Gender: {selectedFamily.gender}</p>
                                             <p>NRC ID: {selectedFamily.nrc_id}</p>
                                         </div>
+                                        {/* Type */}
                                         <div className="sm:col-span-4">
-                                            <input
-                                            type="date"
-                                            placeholder="Death Date"
-                                            value={deathDate}
-                                            onChange={(e) => setDeathDate(e.target.value)}
-                                            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
-                                            />
+                                            <label htmlFor="" className="block text-sm font-medium leading-6 text-gray-900">
+                                            T   ype of Disabilities
+                                            </label>
+                                            <div className="relative mt-2">
+                                                <select
+                                                    id="disability"
+                                                    value={selectedDisability}
+                                                    onChange={handleDisabilityChange}
+                                                    className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:max-w-xs sm:text-sm sm:leading-6"
+                                                >
+                                                    <option value="">Select Type</option>
+                                                    {type_disabilities.map((disability, index) => (
+                                                    <option key={index} value={disability.id}>
+                                                        {disability.name}
+                                                    </option>
+                                                    ))}
+                                                    <option disabled>──────────</option>
+                                                    <option value="new" className="font-medium text-blue-500">
+                                                        Add a new disability
+                                                    </option>
+                                                </select>
+                                            </div>
+                                            {showModalDisability && (
+                                                <div className="fixed inset-0 z-10 overflow-y-auto">
+                                                    <div className="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+                                                        <div className="fixed inset-0 transition-opacity" aria-hidden="true">
+                                                            <div className="absolute inset-0 bg-gray-300 opacity-75"></div>
+                                                        </div>
+                                                        <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                                                        <div className="inline-block px-4 pt-5 pb-4 overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+                                                        <div>
+                                                            <div className="mt-3 text-center sm:mt-5">
+                                                                <h3 className="text-lg font-medium leading-6 text-gray-900">Add a new disability</h3>
+                                                                <div className="mt-2">
+                                                                    <input
+                                                                    type="text"
+                                                                    name="newDisability"
+                                                                    id="newDisability"
+                                                                    value={newDisability}
+                                                                    onChange={handleNewDisabilityChange}
+                                                                    className="block w-full px-3 py-2 mt-2 mb-2 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                                    placeholder="Enter a new occupation"
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex justify-between mt-5 sm:mt-6">
+                                                                <button
+                                                                    type="button"
+                                                                    className="inline-block w-full py-2 text-base font-medium text-white border border-transparent rounded-md shadow-sm bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 sm:text-sm disabled:opacity-50"
+                                                                    disabled={!selectedDisability && !newDisability}
+                                                                    onClick={handleNewDisabilitySubmit}
+                                                                >
+                                                                    Submit
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    className="inline-block w-full px-4 py-2 ml-2 text-base font-medium text-gray-700 bg-gray-200 border border-transparent rounded-md shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:text-sm"
+                                                                    onClick={handleCloseModalDisability}
+                                                                >
+                                                                    Cancel
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            )}
                                         </div>
-                                        <div className="sm:col-span-4">
-                                            <input
-                                            type="text"
-                                            placeholder="Death Place"
-                                            value={deathPlace}
-                                            onChange={(e) => setDeathPlace(e.target.value)}
-                                            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
-                                            />
-                                        </div>
-                                        <div className="sm:col-span-4">
-                                            <input
-                                            type="text"
-                                            placeholder="Complainant"
-                                            value={complainant}
-                                            onChange={(e) => setComplainant(e.target.value)}
-                                            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
-                                            />
-                                        </div>
-
+                                        
                                         <div className="sm:col-span-4">
                                             <textarea
                                                 id="about"
-                                                placeholder="Remarks"
-                                                value={remark}
-                                                onChange={(e) => setRemark(e.target.value)}
+                                                placeholder="Descriptions"
+                                                value={description}
+                                                onChange={(e) => setDescription(e.target.value)}
                                                 rows={3}
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
                                             />
@@ -789,4 +883,3 @@ const Modal = ({ children }) => {
       </div>
     );
 };
-  

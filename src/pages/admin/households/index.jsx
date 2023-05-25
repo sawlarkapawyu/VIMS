@@ -69,7 +69,7 @@ export default function Household() {
             ward_village_tracts (id, name),
             villages (id, name)
         `)
-        .order('household_no', { ascending: true });
+        .order('id', { ascending: false });
 
         // Simulating a delay of 1 second
         setTimeout(() => {
