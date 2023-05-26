@@ -93,75 +93,124 @@ const Dashboard = () => {
         fetchData();
     }, [selectedDeath, minAge, maxAge]);
 
+    // const fetchFamilies = async () => {
+    //     setIsLoading(true);
+    //     setErrorMessage(null);
+      
+    //     if (selectedDeath === 'No') {
+    //         try {
+    //             const { data: familiesData, error: familiesError } = await supabase
+    //             .from('families')
+    //             .select(`
+    //                 id,
+    //                 name,
+    //                 date_of_birth,
+    //                 nrc_id,
+    //                 gender,
+    //                 father_name,
+    //                 mother_name,
+    //                 remark,
+    //                 isDeath,
+    //                 deaths(id),
+    //                 disabilities (id),
+    //                 relationships (id, name),
+    //                 occupations (id, name),
+    //                 educations (id, name),
+    //                 ethnicities (id, name),
+    //                 nationalities (id, name),
+    //                 religions (id, name),
+    //                 households (household_no, state_regions(name), townships(name), districts(name), ward_village_tracts(name), villages(name)),
+    //                 household_no
+    //             `)
+    //             .eq('isDeath', 'No');
+        
+    //             if (familiesError) throw new Error(familiesError.message);
+        
+    //             setFamilies(familiesData);
+    //             setIsLoading(false);
+    //         } catch (error) {
+    //             console.error('Error fetching families:', error);
+    //         }
+    //         } else {
+    //         try {
+    //             const { data: familiesData, error: familiesError } = await supabase
+    //             .from('families')
+    //             .select(`
+    //                 id,
+    //                 name,
+    //                 date_of_birth,
+    //                 nrc_id,
+    //                 gender,
+    //                 father_name,
+    //                 mother_name,
+    //                 remark,
+    //                 isDeath,
+    //                 deaths(id),
+    //                 disabilities (id),
+    //                 relationships (id, name),
+    //                 occupations (id, name),
+    //                 educations (id, name),
+    //                 ethnicities (id, name),
+    //                 nationalities (id, name),
+    //                 religions (id, name),
+    //                 households (household_no, state_regions(name), townships(name), districts(name), ward_village_tracts(name), villages(name)),
+    //                 household_no
+    //             `)
+    //             .eq('isDeath', selectedDeath);
+        
+    //             if (familiesError) throw new Error(familiesError.message);
+        
+    //             setFamilies(familiesData);
+    //             setIsLoading(false);
+    //         } catch (error) {
+    //             console.error('Error fetching families:', error);
+    //         }
+    //     }
+    // };
+
     const fetchFamilies = async () => {
         setIsLoading(true);
         setErrorMessage(null);
-        
-        if (selectedDeath === '') {
-            try {
-                const { data: familiesData, error: familiesError } = await supabase
-                    .from('families').select(`
-                    id, 
-                    name, 
-                    date_of_birth,
-                    nrc_id,
-                    gender,
-                    father_name,
-                    mother_name,
-                    remark,
-                    isDeath,
-                    relationships (id, name),
-                    occupations (id, name),
-                    educations (id, name),
-                    ethnicities (id, name),
-                    nationalities (id, name),
-                    religions (id, name),
-                    households (household_no, state_regions(name), townships(name), districts(name), ward_village_tracts(name), villages(name)),
-                    household_no
-                    `)
-                    .eq('isDeath', 'No');
-            
-                if (familiesError) throw new Error(familiesError.message);
-        
-                setFamilies(familiesData);
-                setIsLoading(false);
-            } catch (error) {
-                console.error('Error fetching families:', error);
-            }
+      
+        let query = supabase.from('families').select(`
+            id,
+            name,
+            date_of_birth,
+            nrc_id,
+            gender,
+            father_name,
+            mother_name,
+            remark,
+            isDeath,
+            deaths(id),
+            disabilities (id),
+            relationships (id, name),
+            occupations (id, name),
+            educations (id, name),
+            ethnicities (id, name),
+            nationalities (id, name),
+            religions (id, name),
+            households (household_no, state_regions(name), townships(name), districts(name), ward_village_tracts(name), villages(name)),
+            household_no
+            `);
+      
+        if (selectedDeath === 'No') {
+          query = query.eq('isDeath', 'No');
+        } else if (selectedDeath === 'Yes') {
+          query = query.eq('isDeath', 'Yes');
         }
-        else {
-            try {
-                const { data: familiesData, error: familiesError } = await supabase
-                    .from('families').select(`
-                    id, 
-                    name, 
-                    date_of_birth,
-                    nrc_id,
-                    gender,
-                    father_name,
-                    mother_name,
-                    remark,
-                    isDeath,
-                    relationships (id, name),
-                    occupations (id, name),
-                    educations (id, name),
-                    ethnicities (id, name),
-                    nationalities (id, name),
-                    religions (id, name),
-                    households (household_no, state_regions(name), townships(name), districts(name), ward_village_tracts(name), villages(name)),
-                    household_no
-                    `)
-                    .eq('isDeath', selectedDeath);
-            
-                if (familiesError) throw new Error(familiesError.message);
-        
-                setFamilies(familiesData);
-                
-                setIsLoading(false);
-                
-            } catch (error) {
-                console.error('Error fetching families:', error);
-            }
+      
+        try {
+          const { data: familiesData, error: familiesError } = await query;
+      
+          if (familiesError) {
+            throw new Error(familiesError.message);
+          }
+      
+          setFamilies(familiesData);
+          setIsLoading(false);
+        } catch (error) {
+          console.error('Error fetching families:', error);
         }
     };
 
@@ -262,13 +311,17 @@ const Dashboard = () => {
     const householdCounts = {};
     let totalFamilies = 0;
     let totalHouseholds = 0;
+    let totalDeaths = 0;
+    let totalDisabilities = 0;
 
     filterFamilies.forEach((family) => {
-        const villageName = family.households?.villages?.name;
-        const gender = family.gender;
-        const isDeath = family.isDeath;
-        const householdNo = family.households?.household_no;
-    
+    const villageName = family.households?.villages?.name;
+    const gender = family.gender;
+    const isDeath = family.isDeath;
+    const deaths = family.deaths?.length;
+    const disabilities = family.disabilities?.length; // Update disabilities variable
+    const householdNo = family.households?.household_no;
+        
     if (villageName && isDeath === 'No') {
         if (!villageSet.has(villageName)) {
         villageSet.add(villageName);
@@ -277,9 +330,12 @@ const Dashboard = () => {
             femaleCount: 0,
             familyCount: 0,
             householdCount: 0,
+            deathCount: 0,
+            disabilityCount: 0,
         };
         }
 
+        // Gender
         if (gender === 'ကျား') {
         villageCounts[villageName].maleCount++;
         } else if (gender === 'မ') {
@@ -288,6 +344,16 @@ const Dashboard = () => {
 
         villageCounts[villageName].familyCount++;
         totalFamilies++;
+    
+        if (deaths) {
+            villageCounts[villageName].deathCount++;
+            totalDeaths++;
+        }
+
+        if (disabilities) {
+        villageCounts[villageName].disabilityCount += disabilities;
+        totalDisabilities += disabilities;
+        }
 
         if (householdNo) {
         if (!householdCounts[villageName]) {
@@ -304,52 +370,62 @@ const Dashboard = () => {
 
         householdCounts[householdNo]++;
     }
-    if (selectedDeath === 'Yes') {
+
+    if (isDeath === 'Yes') {
         if (!villageSet.has(villageName)) {
-            villageSet.add(villageName);
-            villageCounts[villageName] = {
-                maleCount: 0,
-                femaleCount: 0,
-                familyCount: 0,
-                householdCount: 0,
-            };
-            }
-    
-            if (gender === 'ကျား') {
-            villageCounts[villageName].maleCount++;
-            } else if (gender === 'မ') {
-            villageCounts[villageName].femaleCount++;
-            }
-    
-            villageCounts[villageName].familyCount++;
-            totalFamilies++;
-    
-            if (householdNo) {
-            if (!householdCounts[villageName]) {
-                householdCounts[villageName] = new Set();
-            }
-            householdCounts[villageName].add(householdNo);
-            villageCounts[villageName].householdCount = householdCounts[villageName].size;
-            }
-    
-            if (householdNo && !householdCounts[householdNo]) {
-            householdCounts[householdNo] = 0;
-            totalHouseholds++;
-            }
-    
-            householdCounts[householdNo]++;
+        villageSet.add(villageName);
+        villageCounts[villageName] = {
+            maleCount: 0,
+            femaleCount: 0,
+            familyCount: 0,
+            householdCount: 0,
+            deathCount: 0,
+            disabilityCount: 0,
+        };
         }
+
+        if (gender === 'ကျား') {
+        villageCounts[villageName].maleCount++;
+        } else if (gender === 'မ') {
+        villageCounts[villageName].femaleCount++;
+        }
+
+        if (deaths) {
+        villageCounts[villageName].deathCount++;
+        totalDeaths++;
+        }
+
+        villageCounts[villageName].familyCount++;
+        totalFamilies++;
+
+        if (disabilities) {
+        villageCounts[villageName].disabilityCount += disabilities;
+        totalDisabilities += disabilities;
+        }
+
+        if (householdNo) {
+        if (!householdCounts[villageName]) {
+            householdCounts[villageName] = new Set();
+        }
+        householdCounts[villageName].add(householdNo);
+        villageCounts[villageName].householdCount = householdCounts[villageName].size;
+        }
+
+        if (householdNo && !householdCounts[householdNo]) {
+        householdCounts[householdNo] = 0;
+        totalHouseholds++;
+        }
+
+        householdCounts[householdNo]++;
+    }
     });
 
     const sortedVillages = Object.keys(villageCounts).sort((a, b) => {
-        return villageCounts[b].familyCount - villageCounts[a].familyCount;
-
+    return villageCounts[b].familyCount - villageCounts[a].familyCount;
     });
-    
     // Calculate total gender counts, family count, and household count for each village end
     
     //Chart start
-    
     const barChartLabels = sortedVillages;
     const barChartData = sortedVillages.map((village) => villageCounts[village].familyCount);
     const barChartDataHousehold = sortedVillages.map((village) => villageCounts[village].householdCount);
@@ -547,7 +623,7 @@ const Dashboard = () => {
     
     return (
         <div className='py-4'>
-            <section className="grid gap-6 py-4 md:grid-cols-2 xl:grid-cols-4">
+            <section className="grid gap-6 py-4 md:grid-cols-2 xl:grid-cols-5">
                 <div className="relative flex items-center p-8 bg-white rounded-lg shadow hover:bg-gray-100">
                     <div className="inline-flex items-center justify-center flex-shrink-0 w-16 h-16 mr-6 text-blue-700 bg-blue-100 rounded-full">
                         <svg
@@ -598,8 +674,26 @@ const Dashboard = () => {
                         </svg>
                     </div>
                     <div>
-                        <span className="inline-block text-2xl font-bold">{totalNumberofDeaths}</span>
+                        <span className="inline-block text-2xl font-bold">{totalDeaths}</span>
                         <span className="block text-gray-500">Total Deaths</span>
+                    </div>
+                    <div className="absolute bottom-0 left-0 w-full h-1 bg-blue-400" />
+                </div>
+                <div className="relative flex items-center p-8 bg-white rounded-lg shadow hover:bg-gray-100">
+                    <div className="inline-flex items-center justify-center flex-shrink-0 w-16 h-16 mr-6 text-blue-400 bg-blue-100 rounded-full">
+                        <svg
+                        aria-hidden="true"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        className="w-6 h-6"
+                        >
+                        <DocumentIcon className="inline w-6 h-6 mr-2"></DocumentIcon>
+                        </svg>
+                    </div>
+                    <div>
+                        <span className="inline-block text-2xl font-bold">{totalDisabilities}</span>
+                        <span className="block text-gray-500">Total Disabilities</span>
                     </div>
                     <div className="absolute bottom-0 left-0 w-full h-1 bg-blue-400" />
                 </div>
@@ -626,120 +720,119 @@ const Dashboard = () => {
 
           
             {/* Chart */}
-            <section className="grid grid-cols-3 gap-4 py-4">
+            <section className="grid grid-cols-1 gap-4 py-4 md:grid-cols-3">
                 <div className="relative flex items-center col-span-2 p-8 bg-white rounded-lg shadow hover:bg-gray-100">
                     <div className="w-full mx-auto overflow-hidden">
-                        <Bar
+                    <Bar
                         data={{
-                            labels: barChartLabels,
-                            datasets: [
+                        labels: barChartLabels,
+                        datasets: [
                             {
-                                label: 'Populations',
-                                data: barChartData,
-                                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            label: 'Populations',
+                            data: barChartData,
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
                             },
                             {
-                                label: 'Households',
-                                data: barChartDataHousehold,
-                                backgroundColor: 'rgba(155, 99, 132, 0.6)',
+                            label: 'Households',
+                            data: barChartDataHousehold,
+                            backgroundColor: 'rgba(155, 99, 132, 0.6)',
                             },
-                            ],
+                        ],
                         }}
                         options={{
-                            indexAxis: 'x',
-                            responsive: true,
-                            plugins: {
+                        indexAxis: 'x',
+                        responsive: true,
+                        plugins: {
                             title: {
-                                display: true,
-                                text: 'Population Ratio in Village',
-                                position: 'top',
-                                font: {
+                            display: true,
+                            text: 'Population Ratio in Village',
+                            position: 'top',
+                            font: {
                                 weight: 'bold',
                                 size: 18,
-                                },
+                            },
                             },
                             legend: {
-                                display: true,
-                                position: 'bottom',
+                            display: true,
+                            position: 'bottom',
                             },
                             datalabels: {
-                                anchor: 'end',
-                                align: 'top',
-                                formatter: (value) => value,
-                                color: 'black',
-                                font: {
+                            anchor: 'end',
+                            align: 'top',
+                            formatter: (value) => value,
+                            color: 'black',
+                            font: {
                                 weight: 'bold',
-                                },
+                            },
                             },
                             tooltip: {
-                                callbacks: {
+                            callbacks: {
                                 title: (context) => barChartLabels[context[0].dataIndex],
                                 label: (context) => `Count: ${context.raw}`,
-                                },
                             },
                             },
-                            scales: {
+                        },
+                        scales: {
                             y: {
-                                display: true,
-                                title: {
+                            display: true,
+                            title: {
                                 display: true,
                                 text: 'Total Population',
                                 font: {
-                                    weight: 'bold',
-                                    size: 14,
-                                },
+                                weight: 'bold',
+                                size: 14,
                                 },
                             },
                             },
+                        },
                         }}
-                        />
-
+                    />
                     </div>
                 </div>
-                <div className="relative flex items-center p-8 bg-white rounded-lg shadow hover:bg-gray-100">
-                    <div className="w-4/5 mx-auto overflow-hidden">
-                        <Pie
+                <div className="relative flex items-center col-span-1 p-8 bg-white rounded-lg shadow hover:bg-gray-100">
+                    <div className="w-full mx-auto overflow-hidden">
+                    <Pie
                         data={{
-                            labels: ['Male', 'Female'],
-                            datasets: [
+                        labels: ['Male', 'Female'],
+                        datasets: [
                             {
-                                data: genderData,
-                                backgroundColor: ['rgba(255, 205, 86, 0.6)', 'rgba(255, 99, 132, 0.6)'],
+                            data: genderData,
+                            backgroundColor: ['rgba(255, 205, 86, 0.6)', 'rgba(255, 99, 132, 0.6)'],
                             },
-                            ],
+                        ],
                         }}
                         options={{
-                            responsive: true,
-                            plugins: {
+                        responsive: true,
+                        plugins: {
                             title: {
-                                display: true,
-                                text: 'Gender Ratio',
-                                position: 'top',
-                                font: {
+                            display: true,
+                            text: 'Gender Ratio',
+                            position: 'top',
+                            font: {
                                 weight: 'bold',
                                 size: 18,
-                                },
+                            },
                             },
                             legend: {
-                                position: 'bottom',
-                                reverse: true,
-                                labels: {
+                            position: 'bottom',
+                            reverse: true,
+                            labels: {
                                 usePointStyle: true,
-                                },
+                            },
                             },
                             tooltip: {
-                                callbacks: {
+                            callbacks: {
                                 label: (context) => `${context.label}: ${context.formattedValue}`,
-                                },
                             },
                             },
-                            layout: {
+                        },
+                        layout: {
                             padding: {
-                                bottom: 30, // Adjust bottom padding to make room for axis title
+                            bottom: 30, // Adjust bottom padding to make room for axis title
                             },
-                            },
+                        },
                         }}
-                        />
+                    />
                     </div>
                 </div>
             </section>
@@ -917,6 +1010,18 @@ const Dashboard = () => {
                                 >
                                     Total Household
                                 </th>
+                                <th
+                                    scope="col"
+                                    className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
+                                >
+                                    Total Death
+                                </th>
+                                <th
+                                    scope="col"
+                                    className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
+                                >
+                                    Total Disability
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -971,6 +1076,22 @@ const Dashboard = () => {
                                     )}
                                     >
                                     {counts.householdCount}
+                                    </td>
+                                    <td
+                                    className={classNames(
+                                        familyIdx !== villageName.length - 1 ? "border-b border-gray-200" : "",
+                                        "whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8"
+                                    )}
+                                    >
+                                    {counts.deathCount}
+                                    </td>
+                                    <td
+                                    className={classNames(
+                                        familyIdx !== villageName.length - 1 ? "border-b border-gray-200" : "",
+                                        "whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8"
+                                    )}
+                                    >
+                                    {counts.disabilityCount}
                                     </td>
                                 </tr>
                                 );
