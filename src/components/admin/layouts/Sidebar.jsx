@@ -13,14 +13,14 @@ import {
   UsersIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline'
-import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid'
+import { BuildingOfficeIcon, ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import Image from 'next/image';
 import logo from '/src/images/logos/logo.png';
 
 
 const navigation = [
   { name: 'Dashboard', href: '/admin/dashboard', icon: HomeIcon, current: true },
-  { name: 'Households', href: '/admin/households', icon: FolderIcon, current: false },
+  { name: 'Households', href: '/admin/households', icon: BuildingOfficeIcon, current: false },
   { name: 'Families', href: '/admin/families', icon: UsersIcon, current: false },
   { name: 'Deaths', href: '/admin/deaths', icon: DocumentDuplicateIcon, current: false },
   { name: 'Disability', href: '/admin/disabilities', icon: StarIcon, current: false },

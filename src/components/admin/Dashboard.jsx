@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 import { UsersIcon, UserGroupIcon, HomeIcon, DocumentIcon } from '@heroicons/react/24/outline';
+import DropdownSelect from 'react-dropdown-select';
 
 import { Bar, Pie } from 'react-chartjs-2';
 import { Chart, LinearScale, CategoryScale, BarController, BarElement, ArcElement, Tooltip, Legend, Title } from 'chart.js';
@@ -68,6 +69,8 @@ const Dashboard = () => {
     const [selectedDeath, setSelectedDeath] = useState('');
     const [minAge, setMinAge] = useState('');
     const [maxAge, setMaxAge] = useState('');
+    const [hasLiving, setHasLiving] = useState([]);
+    const [selectedHasLiving, setSelectedHasLiving] = useState([]);
     
       useEffect(() => {
         const fetchData = async () => {
@@ -85,6 +88,7 @@ const Dashboard = () => {
             await fetchTownships();
             await fetchWardVillageTracts();
             await fetchVillages();
+            await fetchHasLiving();
           } catch (error) {
             console.error('Error fetching data:', error);
           }
@@ -92,81 +96,6 @@ const Dashboard = () => {
       
         fetchData();
     }, [selectedDeath, minAge, maxAge]);
-
-    // const fetchFamilies = async () => {
-    //     setIsLoading(true);
-    //     setErrorMessage(null);
-      
-    //     if (selectedDeath === 'No') {
-    //         try {
-    //             const { data: familiesData, error: familiesError } = await supabase
-    //             .from('families')
-    //             .select(`
-    //                 id,
-    //                 name,
-    //                 date_of_birth,
-    //                 nrc_id,
-    //                 gender,
-    //                 father_name,
-    //                 mother_name,
-    //                 remark,
-    //                 isDeath,
-    //                 deaths(id),
-    //                 disabilities (id),
-    //                 relationships (id, name),
-    //                 occupations (id, name),
-    //                 educations (id, name),
-    //                 ethnicities (id, name),
-    //                 nationalities (id, name),
-    //                 religions (id, name),
-    //                 households (household_no, state_regions(name), townships(name), districts(name), ward_village_tracts(name), villages(name)),
-    //                 household_no
-    //             `)
-    //             .eq('isDeath', 'No');
-        
-    //             if (familiesError) throw new Error(familiesError.message);
-        
-    //             setFamilies(familiesData);
-    //             setIsLoading(false);
-    //         } catch (error) {
-    //             console.error('Error fetching families:', error);
-    //         }
-    //         } else {
-    //         try {
-    //             const { data: familiesData, error: familiesError } = await supabase
-    //             .from('families')
-    //             .select(`
-    //                 id,
-    //                 name,
-    //                 date_of_birth,
-    //                 nrc_id,
-    //                 gender,
-    //                 father_name,
-    //                 mother_name,
-    //                 remark,
-    //                 isDeath,
-    //                 deaths(id),
-    //                 disabilities (id),
-    //                 relationships (id, name),
-    //                 occupations (id, name),
-    //                 educations (id, name),
-    //                 ethnicities (id, name),
-    //                 nationalities (id, name),
-    //                 religions (id, name),
-    //                 households (household_no, state_regions(name), townships(name), districts(name), ward_village_tracts(name), villages(name)),
-    //                 household_no
-    //             `)
-    //             .eq('isDeath', selectedDeath);
-        
-    //             if (familiesError) throw new Error(familiesError.message);
-        
-    //             setFamilies(familiesData);
-    //             setIsLoading(false);
-    //         } catch (error) {
-    //             console.error('Error fetching families:', error);
-    //         }
-    //     }
-    // };
 
     const fetchFamilies = async () => {
         setIsLoading(true);
@@ -183,6 +112,7 @@ const Dashboard = () => {
             remark,
             isDeath,
             deaths(id),
+            hasLiving,
             disabilities (id),
             relationships (id, name),
             occupations (id, name),
@@ -234,6 +164,17 @@ const Dashboard = () => {
         setMaxAge(inputMaxAge);
     };
     
+    //Multi Select hasLiving start
+    const options = Object.keys(hasLiving).map((hasLivingValue) => ({
+        value: hasLivingValue,
+        label: `${hasLivingValue} (${hasLiving[hasLivingValue].length})`,
+    }));
+
+    const handleSelectChange = (selectedItems) => {
+    const selectedValues = selectedItems.map((item) => item.value);
+    setSelectedHasLiving(selectedValues);
+    };
+    //Multi Select hasLiving End
     
     // Filtered faimiles based on search and filters
     const filterFamilies = families.filter((family) => {
@@ -287,6 +228,8 @@ const Dashboard = () => {
 
         const isMatchingHousehold = selectedHousehold === '' || family.household_no === selectedHousehold;
         
+        const isMatchingHasLiving = selectedHasLiving.length === 0 || selectedHasLiving.includes(family.hasLiving);
+
         return (
             isMatchingDeath &&
             isMatchingOccupation &&
@@ -301,6 +244,7 @@ const Dashboard = () => {
             isMatchingDistrict &&
             isMatchingTownship &&
             isMatchingWardVillageTract &&
+            isMatchingHasLiving &&
             isMatchingVillage
         );
     });
@@ -436,6 +380,31 @@ const Dashboard = () => {
     ];
     //Chart End
     
+    async function fetchHasLiving() {
+        try {
+          const { data, error } = await supabase
+            .from('families')
+            .select('id, name, hasLiving');
+          
+          if (error) {
+            throw new Error(error.message);
+          }
+      
+          // Extract unique hasLiving values
+          const uniqueHasLiving = [...new Set(data.map(family => family.hasLiving))];
+      
+          // Group families by the hasLiving property
+          const groupedFamilies = uniqueHasLiving.reduce((groups, hasLivingValue) => {
+            groups[hasLivingValue] = data.filter(family => family.hasLiving === hasLivingValue);
+            return groups;
+          }, {});
+      
+          setHasLiving(groupedFamilies);
+        } catch (error) {
+          console.log('Error fetching hasLiving:', error.message);
+        }
+    }
+
     async function fetchDeaths() {
         try {
           const { data, error } = await supabase
@@ -856,11 +825,11 @@ const Dashboard = () => {
                     Filter
                 </button>
                 </div>
-                <p className="text-gray-500">Total Results: {filterFamilies.length}</p>
+                <p className="text-gray-500">Total Population Result: {filterFamilies.length}</p>
             </div>
 
             {showFilter && (
-            <div className="py-4 sm:grid sm:grid-cols-9 sm:gap-4">
+            <div className="py-4 sm:grid sm:grid-cols-5 sm:gap-4">
                 <div>
                     <select
                     value={selectedHousehold}
@@ -969,6 +938,26 @@ const Dashboard = () => {
                     onChange={handleMaxAgeChange}
                     className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6"
                     placeholder="Max Age"
+                    />
+                </div>
+                <div>
+                    <DropdownSelect
+                        multi
+                        values={selectedHasLiving}
+                        options={options}
+                        onChange={handleSelectChange}
+                        placeholder="Select hasLiving"
+                        style={{
+                        zIndex: 40,
+                        marginTop: 9,
+                        borderRadius: '0.375rem',
+                        padding: '0.375rem 0.75rem',
+                        color: '#4b5563',
+                        ring: '1px inset #e2e8f0',
+                        focusRing: '2px solid #93c5fd',
+                        lineHeight: '1.25rem',
+                        fontSize: '1rem',
+                        }}
                     />
                 </div>
             </div>

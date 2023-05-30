@@ -5,6 +5,8 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
+import DropdownSelect from 'react-dropdown-select';
+import { formatDate, classNames } from '/src/pages/utilities/tools.js';
 
 const Report = () => {
     const router = useRouter();
@@ -44,14 +46,10 @@ const Report = () => {
     const [minAge, setMinAge] = useState('');
     const [maxAge, setMaxAge] = useState('');
     const [hasLiving, setHasLiving] = useState([]);
-    const [selectedHasLiving, setSelectedHasLiving] = useState('');
+    const [selectedHasLiving, setSelectedHasLiving] = useState([]);
     const [isDisability, setDisability] = useState([]);
     const [selectedDisability, setSelectedDisability] = useState('');
     
-    function classNames(...classes) {
-        return classes.filter(Boolean).join(' ')
-    }
-
     useEffect(() => {
         fetchFamilies();
       }, [selectedDeath, minAge, maxAge]);
@@ -149,19 +147,30 @@ const Report = () => {
         const inputMaxAge = e.target.value !== '' ? parseInt(e.target.value) : '';
         setMaxAge(inputMaxAge);
     };
+
+    //Multi Select hasLiving start
+    const options = Object.keys(hasLiving).map((hasLivingValue) => ({
+        value: hasLivingValue,
+        label: `${hasLivingValue} (${hasLiving[hasLivingValue].length})`,
+    }));
+
+    const handleSelectChange = (selectedItems) => {
+    const selectedValues = selectedItems.map((item) => item.value);
+    setSelectedHasLiving(selectedValues);
+    };
+    //Multi Select hasLiving End
     
-    
-    // Filtered faimiles based on search and filters
+    // Filtered faimiles based on search and filters  
     const filterFamilies = families.filter((family) => {
         const isMatchingSearchQuery =
-        (family.name && family.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (family.nrc_id && family.nrc_id.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (family.date_of_birth && family.date_of_birth.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (family.gender && family.gender.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (family.father_name && family.father_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (family.mother_name && family.mother_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (family.remark && family.remark.toLowerCase().includes(searchQuery.toLowerCase()));
-
+        (family.name && family?.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (family.nrc_id && family?.nrc_id.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (family.date_of_birth && formatDate(family.date_of_birth).startsWith(searchQuery)) ||
+        (family.gender && family?.gender.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (family.father_name && family?.father_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (family.mother_name && family?.mother_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (family.remark && family?.remark.toLowerCase().includes(searchQuery.toLowerCase()));
+        
         const isMatchingDeath =
         selectedDeath === '' || family.isDeath === selectedDeath;
 
@@ -198,8 +207,8 @@ const Report = () => {
 
         const isMatchingHousehold = selectedHousehold === '' || family.household_no === selectedHousehold;
 
-        const isMatchingHasLiving = selectedHasLiving === '' || family.hasLiving === selectedHasLiving;
-
+        const isMatchingHasLiving = selectedHasLiving.length === 0 || selectedHasLiving.includes(family.hasLiving);
+        
         const isMatchingIsDisability = selectedDisability === '' || family.isDisability === selectedDisability;
 
         return (
@@ -661,20 +670,6 @@ const Report = () => {
                 </div>
                 <div>
                     <select
-                        value={selectedHasLiving}
-                        onChange={(e) => setSelectedHasLiving(e.target.value)}
-                        className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6"
-                    >
-                        <option value="">All - Has Living</option>
-                        {Object.keys(hasLiving).map((hasLivingValue) => (
-                        <option key={hasLivingValue} value={hasLivingValue}>
-                            {hasLivingValue} ({hasLiving[hasLivingValue].length})
-                        </option>
-                        ))}
-                    </select>
-                </div> 
-                <div>
-                    <select
                         value={selectedDisability}
                         onChange={(e) => setSelectedDisability(e.target.value)}
                         className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6"
@@ -720,6 +715,27 @@ const Report = () => {
                     placeholder="Max Age"
                     />
                 </div>
+                <div>
+                    <DropdownSelect
+                        multi
+                        values={selectedHasLiving}
+                        options={options}
+                        onChange={handleSelectChange}
+                        placeholder="Select hasLiving"
+                        style={{
+                        zIndex: 40,
+                        marginTop: 9,
+                        borderRadius: '0.375rem',
+                        padding: '0.375rem 0.75rem',
+                        color: '#4b5563',
+                        ring: '1px inset #e2e8f0',
+                        focusRing: '2px solid #93c5fd',
+                        fontSize: '0.875rem',
+                        lineHeight: '1.25rem',
+                        }}
+                    />
+                </div>
+
             </div>
            
             )}
@@ -831,7 +847,7 @@ const Report = () => {
                                     'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
                                 )}
                                 >
-                                    {new Date(family.date_of_birth).toLocaleDateString()}
+                                    {formatDate(family.date_of_birth)}
                                 </td>
                                 <td
                                 className={classNames(

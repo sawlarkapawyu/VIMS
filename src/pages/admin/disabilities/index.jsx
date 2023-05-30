@@ -6,6 +6,7 @@ import { PlusCircleIcon } from '@heroicons/react/24/outline';
 
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
+import { formatDate, classNames } from '/src/pages/utilities/tools.js';
 
 export default function Disability() {
     const router = useRouter();
@@ -42,10 +43,6 @@ export default function Disability() {
         return disibilityData;
     };
     
-    function classNames(...classes) {
-        return classes.filter(Boolean).join(' ')
-    }
-
     const handleRegisterClick = () => {
         router.push('/admin/disabilities/register');
     };
@@ -56,12 +53,20 @@ export default function Disability() {
     // Filtered disabilities based on search and filters
     const filteredDisabilities = disabilities.filter((disability) => {
         const isMatchingSearchQuery =
-        disability.type_of_disabilities.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        disability.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        disability.families.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        disability.families.date_of_birth.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        disability.families.nrc_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        disability.families.gender.toLowerCase().includes(searchQuery.toLowerCase())
+        // disability.type_of_disabilities.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        // disability.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        // disability.families.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        // disability.families.date_of_birth.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        // disability.families.nrc_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        // disability.families.gender.toLowerCase().includes(searchQuery.toLowerCase())
+
+        (disability.natype_of_disabilities.name && disability.type_of_disabilities.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (disability.description && disability.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (disability.families.name && disability.families.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (disability.families.date_of_birth && formatDate(disability.families.date_of_birth).startsWith(searchQuery)) ||
+        (disability.families.nrc_id && disability.families.nrc_id.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (disability.families.gender && disability.families.gender.toLowerCase().includes(searchQuery.toLowerCase()));
+
         return (
         isMatchingSearchQuery
         );

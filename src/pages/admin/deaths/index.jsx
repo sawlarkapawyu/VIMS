@@ -6,6 +6,7 @@ import { PlusCircleIcon } from '@heroicons/react/24/outline';
 
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
+import { formatDate, classNames } from '/src/pages/utilities/tools.js';
 
 export default function Deaths() {
     const router = useRouter();
@@ -43,10 +44,6 @@ export default function Deaths() {
         setIsLoading(false);
         return deathsData;
     };
-    
-    function classNames(...classes) {
-        return classes.filter(Boolean).join(' ')
-    }
 
     const handleRegisterClick = () => {
         router.push('/admin/deaths/register');
@@ -58,14 +55,24 @@ export default function Deaths() {
     // Filtered deaths based on search and filters
     const filteredDeaths = deaths.filter((death) => {
         const isMatchingSearchQuery =
-        death.death_date.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        death.death_place.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        death.complainant.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        death.remark.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        death.families.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        death.families.date_of_birth.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        death.families.nrc_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        death.families.gender.toLowerCase().includes(searchQuery.toLowerCase())
+        // death.death_date.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        // death.death_place.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        // death.complainant.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        // death.remark.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        // death.families.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        // death.families.date_of_birth.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        // death.families.nrc_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        // death.families.gender.toLowerCase().includes(searchQuery.toLowerCase())
+
+        (death.death_date && death.death_date.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (death.death_place && death.death_place.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (death.complainant && death.complainant.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (death.remark && death.remark.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (death.families.name && death.families.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (death.families.date_of_birth && formatDate(death.families.date_of_birth).startsWith(searchQuery)) ||
+        (death.families.nrc_id && death.families.nrc_id.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (death.families.gender && death.families.gender.toLowerCase().includes(searchQuery.toLowerCase()));
+
         return (
         isMatchingSearchQuery
         );

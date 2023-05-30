@@ -5,6 +5,7 @@ import React, { useState, useEffect } from "react";
 
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
+import { formatDate } from '/src/pages/utilities/tools.js';
 
 
 export default function DisibilitySearch() {
@@ -83,7 +84,7 @@ export default function DisibilitySearch() {
           const isMatchingSearchTerm =
             (family.name && family.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
             (family.nrc_id && family.nrc_id.toLowerCase().includes(searchTerm.toLowerCase())) ||
-            (family.date_of_birth && family.date_of_birth.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (family.date_of_birth && formatDate(family.date_of_birth).startsWith(searchTerm)) ||
             (family.gender && family.gender.toLowerCase().includes(searchTerm.toLowerCase())) ||
             (family.father_name && family.father_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
             (family.household_no && family.household_no.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -663,7 +664,7 @@ export default function DisibilitySearch() {
                                             'whitespace-nowrap hidden px-3 py-4 text-sm text-gray-500 lg:table-cell'
                                         )}
                                         >
-                                            {new Date(family.date_of_birth).toLocaleDateString()}
+                                             {formatDate(family.date_of_birth)}
                                         </td>
                                         <td
                                         className={classNames(

@@ -6,11 +6,13 @@ import React, { useState, useEffect } from "react";
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 import { ArrowUturnLeftIcon } from '@heroicons/react/24/outline';
+import { getDateValue } from '/src/pages/utilities/tools.js';
 
-export default function HouseholdAdd() {
+export default function HouseholdEdit() {
     const router = useRouter();
     const supabase = useSupabaseClient();
     const user = useUser();
+    const { id } = router.query; // Retrieve the `id` parameter from the route
 
     const [name, setName] = useState('');
     const [dob, setDob] = useState('');
@@ -18,15 +20,7 @@ export default function HouseholdAdd() {
     const [fatherName, setFatherName] = useState('');
     const [motherName, setMotherName] = useState('');
     const [remark, setRemark] = useState('');
-
-    useEffect(() => {
-        fetchOccupations();
-        fetchEducations();
-        fetchRelationships();
-        fetchEthnicities();
-        fetchNationalities();
-        fetchReligions();
-    }, []);
+    const [haveLiving, setHaveLiving] = useState("");
 
     //Occupation
     const [occupations, setOccupations] = useState([]);
@@ -140,7 +134,7 @@ export default function HouseholdAdd() {
 
     //Relationship
     const [relationships, setRelationships] = useState([]);
-    const [selectedRelationship, setSelectedRelationship] = useState('');
+    const [selectedRelationship, setSelectedRelationship] = useState(null);
     const [newRelationship, setNewRelationship] = useState('');
     const [showModalRelationship, setShowModalRelationship] = useState(false);
 
@@ -149,13 +143,26 @@ export default function HouseholdAdd() {
         setNewRelationship('');
     };
 
-    const fetchRelationships = async () => {
-        const { data, error } = await supabase.from('relationships').select('*');
+    // const fetchRelationships = async () => {
+    //     const { data: relationshipData, error } = await supabase.from('relationships').select('id, name');
 
-        if (error) {
+    //     if (error) {
+    //         console.log(error);
+    //     } else {
+    //         setRelationships(relationshipData);
+    //     }
+    // };
+    
+    const fetchRelationships = async () => {
+        try {
+          const { data, error } = await supabase.from('relationships').select('id, name');
+          if (error) {
             console.log(error);
-        } else {
-            setRelationships(data);
+          } else {
+            setRelationships(data || []); // Ensure data is an array or set it to an empty array
+          }
+        } catch (error) {
+          console.error(error);
         }
     };
 
@@ -429,23 +436,101 @@ export default function HouseholdAdd() {
     //     else console.log(families);
     // }
 
-    // Handle create family
-    const handleCreateFamily = async (e) => {
-        e.preventDefault();        
+    useEffect(() => {
+        fetchOccupations();
+        fetchEducations();
+        fetchRelationships();
+        fetchEthnicities();
+        fetchNationalities();
+        fetchReligions();
+        
+        const fetchFamilyData = async () => {
+            const { data: familyData, error: familyError } = await supabase
+                .from('families')
+                .select(`
+                id,
+                name,
+                date_of_birth,
+                nrc_id,
+                gender,
+                father_name,
+                mother_name,
+                remark,
+                hasLiving,
+                isDeath,
+                relationship_id,
+                occupation_id,
+                education_id,
+                ethnicity_id,
+                nationality_id,
+                religion_id,
+                household_no
+                `)
+                .eq('id', id)
+                .single();
+        
+            if (familyError) {
+                throw familyError;
+            }
+            setName(familyData.name);
+            setDob(familyData.date_of_birth);
+            setNrc(familyData.nrc_id);
+            setGender(familyData.gender);
+            setFatherName(familyData.father_name);
+            setMotherName(familyData.mother_name);
+            setRemark(familyData.remark);
+            setHaveLiving(familyData.hasLiving);
+            
+            setSelectedRelationship(familyData.relationship_id);
+            setSelectedOccupation(familyData.occupation_id);
+            setSelectedEthnicity(familyData.ethnicity_id);
+            setSelectedEducation(familyData.education_id);
+            setSelectedNationality(familyData.nationality_id);
+            setSelectedReligion(familyData.religion_id);
+            setSelectedHousehold(familyData.household_no);
+            };
+    
+        if (id) {
+            fetchFamilyData();
+        }
+    }, [id]);
+    
+    // Handle edit household
+    const handleEditFamily = async (e) => {
+        e.preventDefault();
+
+        // Check if all required fields are filled
+        if (
+        !name ||
+        !dob ||
+        !nrc ||
+        !gender ||
+        !fatherName ||
+        !motherName ||
+        !remark ||
+        !selectedRelationship ||
+        !selectedOccupation ||
+        !selectedEducation ||
+        !selectedEthnicity ||
+        !selectedNationality ||
+        !selectedReligion ||
+        !selectedHousehold
+        ) {
+        alert('Please fill all required fields!');
+        return;
+        }
+
         const { data: familyData, error: familyError } = await supabase
-        .from("families")
-        .insert([
-        {
+        .from('families')
+        .update({
             name: name,
             date_of_birth: dob,
             nrc_id: nrc,
             gender: gender,
             father_name: fatherName,
             mother_name: motherName,
-            hasLiving: 'ရှိ',
-            isDeath: 'No',
-            isDisability: 'No',
             remark: remark,
+            hasLiving: haveLiving,
             relationship_id: selectedRelationship,
             occupation_id: selectedOccupation,
             education_id: selectedEducation,
@@ -453,14 +538,17 @@ export default function HouseholdAdd() {
             nationality_id: selectedNationality,
             religion_id: selectedReligion,
             household_no: selectedHousehold
-        },
-        ]);
+        })
+        .eq('id', id)
+        .single();
 
-    if (familyError) {
-        throw familyError;
-    }
-    router.push('/admin/families');
-    console.log(familyData);
+        if (familyError) {
+        alert('Failed to update family!');
+        console.error(familyError);
+        } else {
+        alert('Family updated successfully!');
+        router.push('/admin/families');
+        }
     };
 
 
@@ -539,7 +627,7 @@ export default function HouseholdAdd() {
                 </div>
                 
                 <div className="grid grid-cols-1 pt-10 gap-x-8 gap-y-8 md:grid-cols-3">
-                    <form onSubmit={handleCreateFamily} className="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-3">
+                    <form onSubmit={handleEditFamily} className="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-3">
                         <div className="grid grid-cols-1 px-3 py-3 md:grid-cols-3"> {/* Updated className */}
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
                                 <label htmlFor="name" className="block text-sm font-medium leading-6 text-gray-900">
@@ -583,7 +671,7 @@ export default function HouseholdAdd() {
                                     <input
                                         type="date"
                                         id="dob"
-                                        value={dob}
+                                        value={getDateValue(dob)}
                                         onChange={(e) => setDob(e.target.value)}
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
                                     />
@@ -667,7 +755,7 @@ export default function HouseholdAdd() {
                                         onChange={handleRelationshipChange}
                                         className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
                                     >
-                                        <option value="">Select an relationship</option>
+                                        <option value="">Select a relationship</option>
                                         {relationships.map((relationship) => (
                                         <option key={relationship.id} value={relationship.id}>
                                             {relationship.name}
@@ -675,10 +763,11 @@ export default function HouseholdAdd() {
                                         ))}
                                         <option disabled>──────────</option>
                                         <option value="new" className="font-medium text-blue-500">
-                                            Add a new relationship
+                                        Add a new relationship
                                         </option>
                                     </select>
                                 </div>
+                                
                                 {showModalRelationship && (
                                     <div className="fixed inset-0 z-10 overflow-y-auto">
                                         <div className="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
@@ -725,7 +814,7 @@ export default function HouseholdAdd() {
                                 </div>
                                 )}
                             </div>
-                            
+
                             {/* Occupation */}
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
                                 <label htmlFor="" className="block text-sm font-medium leading-6 text-gray-900">
@@ -738,7 +827,7 @@ export default function HouseholdAdd() {
                                         onChange={handleOccupationChange}
                                         className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
                                     >
-                                        <option value="">Select an occupation</option>
+                                        <option value="">Select occupation</option>
                                         {occupations.map((occupation) => (
                                         <option key={occupation.id} value={occupation.id}>
                                             {occupation.name}
@@ -1091,6 +1180,7 @@ export default function HouseholdAdd() {
                                         type="text"
                                         id="searchTerm"
                                         name="searchTerm"
+                                        // value={selectedHousehold ? selectedHousehold.id : ""}
                                         value={selectedHousehold || searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                         placeholder='အိမ်ထောင်စုနံပါတ်ရှာရိုက်ထည့်ရန် - ဥပမာ (HH-KWL-111)'
@@ -1122,6 +1212,26 @@ export default function HouseholdAdd() {
                                     )}
                                 </div>
                             </div>
+
+                            {/* hasLiving */}
+                            <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
+                                <label htmlFor="hasLiving" className="block text-sm font-medium leading-6 text-gray-900">
+                                    hasLiving
+                                </label>
+                                <div className="mt-2">
+                                    <select
+                                    name="hasLiving" 
+                                    value={haveLiving}
+                                    onChange={(e) => setHaveLiving(e.target.value)} 
+                                    className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
+                                    >
+                                    <option value="">Select hasLiving</option>
+                                    <option value="ရှိ">ရှိ</option>
+                                    <option value="နိုင်ငံခြား">နိုင်ငံခြား</option>
+                                    <option value="အခြား">အခြား</option>
+                                    </select>
+                                </div>
+                            </div>
                             
                             {/* Remark */}
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
@@ -1139,6 +1249,7 @@ export default function HouseholdAdd() {
                                     />
                                 </div>
                             </div>
+
                         </div> 
                         <div className="flex items-center justify-end px-4 py-4 border-t gap-x-6 border-gray-900/10 sm:px-8">
                             <button type="button" className="text-sm font-semibold leading-6 text-gray-900">

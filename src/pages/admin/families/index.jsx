@@ -4,7 +4,8 @@ import Sidebar from '@/components/admin/layouts/Sidebar'
 import React, { useState, useEffect } from "react";
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
-import { PlusCircleIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { PlusCircleIcon, ChevronLeftIcon, ChevronRightIcon, DocumentPlusIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { formatDate, classNames } from '/src/pages/utilities/tools.js';
 
 export default function Family() {
     const router = useRouter();
@@ -77,10 +78,6 @@ export default function Family() {
         }
 
         setIsLoading(false);
-    }
-
-    function classNames(...classes) {
-    return classes.filter(Boolean).join(' ')
     }
     
     const handleAddClick = () => {
@@ -175,7 +172,7 @@ export default function Family() {
         const isMatchingSearchQuery =
         (family.name && family.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
         (family.nrc_id && family.nrc_id.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (family.date_of_birth && family.date_of_birth.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (family.date_of_birth && formatDate(family.date_of_birth).startsWith(searchQuery)) ||
         (family.gender && family.gender.toLowerCase().includes(searchQuery.toLowerCase())) ||
         (family.father_name && family.father_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
         (family.mother_name && family.mother_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
@@ -222,6 +219,31 @@ export default function Family() {
     };
     // Pagination End
 
+    //Delete
+    const handleDeleteFamily = async (familyId) => {
+        const confirmed = window.confirm("Are you sure you want to delete this household?");
+        
+        if (confirmed) {
+          try {
+            const { error } = await supabase
+              .from('families')
+              .delete()
+              .eq('id', familyId);
+        
+            if (error) {
+              alert('Failed to delete family!');
+              console.error(error);
+            } else {
+              alert('Family deleted successfully!');
+              window.location.reload();
+              router.push('/admin/families');
+            }
+          } catch (error) {
+            alert('An error occurred while deleting the family!');
+            console.error(error);
+          }
+        }
+    };
     return (
         <>
             <Head>
@@ -275,9 +297,7 @@ export default function Family() {
                     <div className="sm:flex sm:items-center">
                         <div className="sm:flex-auto">
                             <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">Families</h2>
-                            <p className="mt-2 text-sm text-gray-700">
-                                A list of all the users in your account including their name, title, email and role.
-                            </p>
+                            
                         </div>
                         <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
                             <button
@@ -285,8 +305,8 @@ export default function Family() {
                                 onClick={handleAddClick}
                                 className="flex items-center justify-center px-2 py-2 text-sm font-semibold text-white rounded-md shadow-sm bg-sky-600 hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
                             >
-                            <PlusCircleIcon className="w-8 h-8 mr-2" />
-                            Add Family
+                            <DocumentPlusIcon className="w-6 h-6 mr-2"/>
+                            Add New
                             </button>
                         </div>
                     </div>
@@ -375,7 +395,7 @@ export default function Family() {
                             <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
                                 
                                 <table className="min-w-full border-separate border-spacing-0">
-                                    <thead>
+                                    <thead className='bg-gray-300'>
                                         <tr>
                                             <th
                                                 scope="col"
@@ -485,6 +505,12 @@ export default function Family() {
                                             >
                                                 <span className="sr-only">Edit</span>
                                             </th>
+                                            <th
+                                                scope="col"
+                                                className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-3 pr-4 backdrop-blur backdrop-filter sm:pr-6 lg:pr-8"
+                                            >
+                                                <span className="sr-only">Delete</span>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -526,7 +552,7 @@ export default function Family() {
                                                 'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
                                             )}
                                             >
-                                            {new Date(family.date_of_birth).toLocaleDateString()}
+                                            {formatDate(family.date_of_birth)}
                                             </td>
                                             <td
                                             className={classNames(
@@ -635,15 +661,28 @@ export default function Family() {
                                             >
                                             {family.remark}
                                             </td>
-                                            <td
-                                            className={classNames(
+                                            <td className={classNames(
                                                 familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
                                                 'relative whitespace-nowrap py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-8 lg:pr-8'
-                                            )}
-                                            >
-                                            <a href="#" className="text-indigo-600 hover:text-indigo-900">
-                                                Edit<span className="sr-only">, {family.id}</span>
-                                            </a>
+                                            )}>
+                                                <a href={`/admin/families/${family.id}`} className="text-sky-600 hover:text-sky-900">
+                                                    <PencilSquareIcon className="inline-block w-4 h-4 mr-1 align-text-bottom" aria-hidden="true" />
+                                                    <span className="inline-block align-middle">Edit</span>
+                                                    <span className="sr-only">, {family.id}</span>
+                                                </a>
+                                            </td>
+                                            <td className={classNames(
+                                                familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
+                                                'relative whitespace-nowrap py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-8 lg:pr-8'
+                                                )}>
+                                                <button
+                                                    onClick={() => handleDeleteFamily(family.id)}
+                                                    className="text-red-600 hover:text-red-400"
+                                                >
+                                                    <TrashIcon className="inline-block w-4 h-4 mr-1 align-text-bottom" aria-hidden="true" />
+                                                    <span className="inline-block align-middle">Trash</span>
+                                                    <span className="sr-only">{family.id}</span>
+                                                </button>
                                             </td>
                                         </tr>
                                         ))}

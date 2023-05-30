@@ -1,9 +1,8 @@
 import Head from 'next/head'
 import Sidebar from '@/components/admin/layouts/Sidebar'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
+import { ArrowUturnLeftIcon } from '@heroicons/react/24/outline';
 import React, { useState, useEffect } from "react";
-
-
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 
@@ -198,36 +197,54 @@ export default function HouseholdAdd() {
     // Handle create household
     const handleCreateHousehold = async (e) => {
         e.preventDefault();
-        
+
         // Check if all required fields are filled
-        if (!entryDate || !householdId || !houseNo || !selectedStateRegion || !selectedDistrict || !selectedTownship || !selectedWardVillageTract || !selectedVillage) {
-            alert("Please fill all required fields!");
-            return;
+        if (
+        !entryDate ||
+        !householdId ||
+        !houseNo ||
+        !selectedStateRegion ||
+        !selectedDistrict ||
+        !selectedTownship ||
+        !selectedWardVillageTract ||
+        !selectedVillage
+        ) {
+        alert('Please fill all required fields!');
+        return;
         }
-        
+
+        try {
         const { data: householdData, error: householdError } = await supabase
-        .from("households")
-        .insert([
-        {
-            entry_date: entryDate,
-            household_no: householdId,
-            house_no: houseNo,
-            state_region_id: selectedStateRegion.id,
-            district_id: selectedDistrict.id,
-            township_id: selectedTownship.id,
-            ward_village_tract_id: selectedWardVillageTract.id,
-            village_id: selectedVillage
-        },
-        ]);
+            .from('households')
+            .insert([
+            {
+                entry_date: entryDate,
+                household_no: householdId,
+                house_no: houseNo,
+                state_region_id: selectedStateRegion.id,
+                district_id: selectedDistrict.id,
+                township_id: selectedTownship.id,
+                ward_village_tract_id: selectedWardVillageTract.id,
+                village_id: selectedVillage,
+            },
+            ]);
 
-    if (householdError) {
-        throw householdError;
-    }
+        if (householdError) {
+            throw householdError;
+        }
 
-    router.push('/admin/households');
-    console.log(householdData);
+        // Show success alert
+        alert('Household created successfully!');
+
+        // Redirect to '/admin/households'
+        router.push('/admin/households');
+        console.log(householdData);
+        } catch (error) {
+        console.error(error);
+        // Show error alert
+        alert('An error occurred while creating the household.');
+        }
     };
-
 
     const handleBackClick = () => {
         router.push('/admin/households');
@@ -297,7 +314,7 @@ export default function HouseholdAdd() {
                             onClick={handleBackClick}
                             className="inline-flex items-center px-3 py-2 ml-3 text-sm font-semibold text-white rounded-md shadow-sm bg-sky-600 hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
                         >
-                            Go to Index
+                            <ArrowUturnLeftIcon className="w-5 h-5 mr-2" /> Go Back
                         </button>
                         </div>
                     </div>
@@ -316,6 +333,7 @@ export default function HouseholdAdd() {
                                         id="householdId"
                                         value={householdId}
                                         onChange={(e) => setHouseholdId(e.target.value)}
+                                        placeholder='HH-KWL-111'
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
                                     />
                                 </div>
@@ -346,6 +364,7 @@ export default function HouseholdAdd() {
                                         id="houseNo"
                                         value={houseNo}
                                         onChange={(e) => setHouseNo(e.target.value)}
+                                        placeholder='မရ-၀၁-၁၁၁'
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
                                     />
                                 </div>
@@ -360,7 +379,7 @@ export default function HouseholdAdd() {
                                         id="stateRegions"
                                         value={selectedStateRegion ? selectedStateRegion.id : ""}
                                         onChange={handleStateRegionChange} 
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:max-w-xs sm:text-sm sm:leading-6">
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6">
                                         <option value="">Select state/region</option>
                                         {stateRegions.map((sr) => (
                                         <option key={sr.id} value={sr.id}>
@@ -380,7 +399,7 @@ export default function HouseholdAdd() {
                                         id="districts"
                                         value={selectedDistrict ? selectedDistrict.id :"" }
                                         onChange={handleDistrictChange} 
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:max-w-xs sm:text-sm sm:leading-6">
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6">
                                         <option value="">Select district</option>
                                         {districts.map((d) => (
                                         <option key={d.id} value={d.id}>
@@ -400,7 +419,7 @@ export default function HouseholdAdd() {
                                         id="townships"
                                         value={selectedTownship ? selectedDistrict.id: ""}
                                         onChange={handleTownshipChange} 
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:max-w-xs sm:text-sm sm:leading-6">
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6">
                                         <option value="">Select township</option>
                                         {townships.map((t) => (
                                         <option key={t.id} value={t.id}>
@@ -420,7 +439,7 @@ export default function HouseholdAdd() {
                                         id="wardVillageTracts"
                                         value={selectedWardVillageTract ? selectedWardVillageTract.id : ""}
                                         onChange={handleWardVillageTractChange} 
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:max-w-xs sm:text-sm sm:leading-6">
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6">
                                         <option value="">Select ward/village tract</option>
                                         {wardVillageTracts.map((wvt) => (
                                         <option key={wvt.id} value={wvt.id}>
@@ -440,7 +459,7 @@ export default function HouseholdAdd() {
                                         id="selectedVillage"
                                         value={selectedVillage}
                                         onChange={handleVillageChange} 
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:max-w-xs sm:text-sm sm:leading-6">
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6">
                                         <option value="">Select village</option>
                                         {villages.map((v) => (
                                         <option key={v.id} value={v.id}>

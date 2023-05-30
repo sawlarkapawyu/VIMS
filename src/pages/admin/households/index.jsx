@@ -3,7 +3,8 @@ import Sidebar from '@/components/admin/layouts/Sidebar'
 import React, { useState, useEffect } from "react";
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
-import { PlusCircleIcon, ChevronRightIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
+import { ChevronRightIcon, ChevronLeftIcon, TrashIcon, PencilSquareIcon, DocumentPlusIcon } from '@heroicons/react/24/outline';
+import { formatDate, classNames } from '/src/pages/utilities/tools.js';
 
 export default function Household() {
     const router = useRouter();
@@ -26,7 +27,7 @@ export default function Household() {
     const [selectedWardVillageTract, setSelectedWardVillageTract] = useState('');
     const [villages, setVillages] = useState([]);
     const [selectedVillage, setSelectedVillage] = useState('');
-    
+      
     // useEffect(() => {
     //     fetchHouseholds();
     //     fetchStateRegions();
@@ -149,14 +150,15 @@ export default function Household() {
     // Filtered households based on search and filters
     const filteredHouseholds = households.filter((household) => {
         const isMatchingSearchQuery =
-        household.household_no.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        household.entry_date.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        household.house_no.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        household.state_regions.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        household.districts.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        household.townships.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        household.ward_village_tracts.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        household.villages.name.toLowerCase().includes(searchQuery.toLowerCase());
+        (household.household_no && household?.household_no.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (household.entry_date && formatDate(household.entry_date).startsWith(searchQuery)) ||
+        (household.house_no && household?.house_no.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (household.state_regions?.name && household?.state_regions?.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (household.districts?.name && household?.districts?.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (household.townships.name && household?.townships?.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (household.ward_village_tracts.name && household?.ward_village_tracts?.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (household.villages.name && household?.villages?.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
 
         const isMatchingStateRegion =
         selectedStateRegion === '' || household.state_regions.name === selectedStateRegion;
@@ -183,14 +185,10 @@ export default function Household() {
         );
     });
     
-    function classNames(...classes) {
-    return classes.filter(Boolean).join(' ')
-    }
-    
     const handleAddClick = () => {
         router.push('/admin/households/add');
     };
-
+    
     // Pagination Start
     const [currentPage, setCurrentPage] = useState(0);
     const [perPage] = useState(10);
@@ -207,6 +205,32 @@ export default function Household() {
     }
     };
     // Pagination End
+    
+    //Delete
+    const handleDeleteHousehold = async (householdId) => {
+        const confirmed = window.confirm("Are you sure you want to delete this household?");
+        
+        if (confirmed) {
+          try {
+            const { error } = await supabase
+              .from('households')
+              .delete()
+              .eq('id', householdId);
+        
+            if (error) {
+              alert('Failed to delete household!');
+              console.error(error);
+            } else {
+              alert('Household deleted successfully!');
+              window.location.reload();
+              router.push('/admin/households');
+            }
+          } catch (error) {
+            alert('An error occurred while deleting the household!');
+            console.error(error);
+          }
+        }
+    };
     
     return (
         <>
@@ -260,9 +284,9 @@ export default function Household() {
                 <div className="sm:flex sm:items-center">
                     <div className="sm:flex-auto">
                         <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">Households</h2>
-                        <p className="mt-2 text-sm text-gray-700">
+                        {/* <p className="mt-2 text-sm text-gray-700">
                             A list of all the users in your account including their name, title, email and role.
-                        </p>
+                        </p> */}
                     </div>
                     <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
                         <button
@@ -270,8 +294,8 @@ export default function Household() {
                             onClick={handleAddClick}
                             className="flex items-center justify-center px-4 py-2 text-sm font-semibold text-white rounded-md shadow-sm bg-sky-600 hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
                         >
-                        <PlusCircleIcon className="w-8 h-8 mr-2" />
-                        Add Household
+                        <DocumentPlusIcon className="w-6 h-6 mr-2"/>
+                        Add New
                         </button>
                     </div>
                 </div>
@@ -363,7 +387,7 @@ export default function Household() {
                         <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
                             
                             <table className="min-w-full border-separate border-spacing-0">
-                                <thead>
+                                <thead className='bg-gray-300'>
                                     <tr>
                                         <th
                                             scope="col"
@@ -425,6 +449,12 @@ export default function Household() {
                                         >
                                             <span className="sr-only">Edit</span>
                                         </th>
+                                        <th
+                                            scope="col"
+                                            className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-3 pr-4 backdrop-blur backdrop-filter sm:pr-6 lg:pr-8"
+                                        >
+                                            <span className="sr-only">Delete</span>
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -459,7 +489,13 @@ export default function Household() {
                                             'whitespace-nowrap hidden px-3 py-4 text-sm text-gray-500 sm:table-cell'
                                         )}
                                         >
-                                        {new Date(household.entry_date).toLocaleDateString()}
+                                        {formatDate(household.entry_date)}
+                                        {/* {new Date(household.entry_date).toLocaleDateString('my-MM', {
+                                            year: 'numeric',
+                                            month: 'numeric',
+                                            day: 'numeric',
+                                            numberingSystem: 'Myanmar',
+                                        })} */}
                                         </td>
                                         <td
                                         className={classNames(
@@ -509,15 +545,28 @@ export default function Household() {
                                         >
                                         {household.state_regions.name}
                                         </td>
-                                        <td
-                                        className={classNames(
+                                        <td className={classNames(
                                             householdIdx !== households.length - 1 ? 'border-b border-gray-200' : '',
                                             'relative whitespace-nowrap py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-8 lg:pr-8'
-                                        )}
-                                        >
-                                        <a href="#" className="text-sky-600 hover:text-sky-900">
-                                            Edit<span className="sr-only">, {household.id}</span>
-                                        </a>
+                                        )}>
+                                            <a href={`/admin/households/${household.id}`} className="text-sky-600 hover:text-sky-900">
+                                                <PencilSquareIcon className="inline-block w-4 h-4 mr-1 align-text-bottom" aria-hidden="true" />
+                                                <span className="inline-block align-middle">Edit</span>
+                                                <span className="sr-only">, {household.id}</span>
+                                            </a>
+                                        </td>
+                                        <td className={classNames(
+                                            householdIdx !== households.length - 1 ? 'border-b border-gray-200' : '',
+                                            'relative whitespace-nowrap py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-8 lg:pr-8'
+                                            )}>
+                                            <button
+                                                onClick={() => handleDeleteHousehold(household.id)}
+                                                className="text-red-600 hover:text-red-400"
+                                            >
+                                                <TrashIcon className="inline-block w-4 h-4 mr-1 align-text-bottom" aria-hidden="true" />
+                                                <span className="inline-block align-middle">Trash</span>
+                                                <span className="sr-only">{household.id}</span>
+                                            </button>
                                         </td>
                                     </tr>
                                     ))}
