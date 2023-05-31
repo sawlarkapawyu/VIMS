@@ -37,6 +37,7 @@
     "react-dom": "18.2.0",
     "react-dropdown-select": "^4.9.3",
     "react-paginate": "^8.2.0",
+    "react-router-dom": "^6.11.2",
     "react-to-print": "^2.14.12",
     "tailwindcss": "^3.3.0"
   },

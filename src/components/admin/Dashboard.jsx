@@ -2,12 +2,13 @@ import { GridFilterListIcon } from '@mui/x-data-grid';
 import React, { useState, useEffect } from "react";
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
-import { UsersIcon, UserGroupIcon, HomeIcon, DocumentIcon } from '@heroicons/react/24/outline';
+import { UsersIcon, UserGroupIcon, HomeIcon, DocumentIcon, HomeModernIcon, DocumentDuplicateIcon, StarIcon } from '@heroicons/react/24/outline';
 import DropdownSelect from 'react-dropdown-select';
 
 import { Bar, Pie } from 'react-chartjs-2';
 import { Chart, LinearScale, CategoryScale, BarController, BarElement, ArcElement, Tooltip, Legend, Title } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { UserIcon } from '@heroicons/react/20/solid';
 
 Chart.register(LinearScale, CategoryScale, BarController, BarElement, ArcElement, ChartDataLabels, Tooltip, Legend, Title);
 
@@ -620,7 +621,7 @@ const Dashboard = () => {
                         stroke="currentColor"
                         className="w-6 h-6"
                         >
-                        <HomeIcon className="inline w-6 h-6 mr-2" />
+                        <HomeModernIcon className="inline w-6 h-6 mr-2" />
                         </svg>
                     </div>
                     <div>
@@ -639,7 +640,7 @@ const Dashboard = () => {
                         stroke="currentColor"
                         className="w-6 h-6"
                         >
-                        <DocumentIcon className="inline w-6 h-6 mr-2"></DocumentIcon>
+                        <DocumentDuplicateIcon className="inline w-6 h-6 mr-2" />
                         </svg>
                     </div>
                     <div>
@@ -657,7 +658,7 @@ const Dashboard = () => {
                         stroke="currentColor"
                         className="w-6 h-6"
                         >
-                        <DocumentIcon className="inline w-6 h-6 mr-2"></DocumentIcon>
+                        <StarIcon className="inline w-6 h-6 mr-2" />
                         </svg>
                     </div>
                     <div>
@@ -676,7 +677,7 @@ const Dashboard = () => {
                         stroke="currentColor"
                         className="w-6 h-6"
                         >
-                        <UsersIcon className="inline w-6 h-6 mr-2" />
+                        <UserIcon className="inline w-6 h-6 mr-2" />
                         </svg>
                     </div>
                     <div>

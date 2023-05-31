@@ -1,11 +1,12 @@
 import Head from 'next/head'
 import Sidebar from '@/components/admin/layouts/Sidebar'
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
+import { ChevronLeftIcon, ChevronRightIcon, ClipboardDocumentCheckIcon } from '@heroicons/react/20/solid'
 import React, { useState, useEffect } from "react";
 
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 import { formatDate } from '/src/pages/utilities/tools.js';
+import { UserMinusIcon } from '@heroicons/react/24/outline';
 
 
 export default function DisibilitySearch() {
@@ -352,7 +353,7 @@ export default function DisibilitySearch() {
     };
     // Pagination End
 
-    //Relationship
+    //Disability
     const [type_disabilities, setTypeDisabilities] = useState([]);
     const [selectedDisability, setSelectedDisability] = useState('');
     const [newDisability, setNewDisability] = useState('');
@@ -410,7 +411,7 @@ export default function DisibilitySearch() {
     return (
         <>
             <Head>
-                <title>VIMS - Death Register</title>
+                <title>VIMS - Disability Register</title>
                 <meta
                 name="description"
                 content="Most bookkeeping software is accurate, but hard to use. We make the opposite trade-off, and hope you don’t get audited."
@@ -715,8 +716,10 @@ export default function DisibilitySearch() {
                                             'relative whitespace-nowrap py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-8 lg:pr-8'
                                         )}
                                         >
-                                        <a href="#" onClick={() => handleRegistrationClick(family.id)} className="text-sky-600 hover:text-sky-900">
-                                            Register<span className="sr-only">, {family.name}</span>
+                                        <a href="#" onClick={() => handleRegistrationClick(family.id)} className="text-red-600 hover:text-sky-900">
+                                            <ClipboardDocumentCheckIcon className="inline-block w-4 h-4 mr-1 align-text-bottom" aria-hidden="true" />
+                                            <span className="inline-block align-middle">Register</span>
+                                            <span className="sr-only">, {family.name}</span>
                                         </a>
                                         </td>
                                     </tr>
@@ -759,22 +762,23 @@ export default function DisibilitySearch() {
                                         <div className="sm:col-span-4">
                                             <div className="text-lg font-bold">Disability Registration Form</div>
                                             <hr className="my-2 border-gray-300" />
-                                            <p>Death Date: {selectedFamily.name}</p>
-                                            <p>Date of Birth: {selectedFamily.date_of_birth}</p>
-                                            <p>Gender: {selectedFamily.gender}</p>
-                                            <p>NRC ID: {selectedFamily.nrc_id}</p>
+                                            <p><span className="font-semibold">Death Date:</span> {selectedFamily.name}</p>
+                                            <p><span className="font-semibold">Date of Birth:</span> {selectedFamily.date_of_birth}</p>
+                                            <p><span className="font-semibold">Gender:</span> {selectedFamily.gender}</p>
+                                            <p><span className="font-semibold">NRC ID:</span> {selectedFamily.nrc_id}</p>
+                                            <p><span className="font-semibold">Address:</span> {`${selectedFamily.households.villages.name}\n${selectedFamily.households.ward_village_tracts.name}\n${selectedFamily.households.townships.name}, ${selectedFamily.households.districts.name},${selectedFamily.households.state_regions.name}`}</p>
                                         </div>
                                         {/* Type */}
                                         <div className="sm:col-span-4">
                                             <label htmlFor="" className="block text-sm font-medium leading-6 text-gray-900">
-                                            T   ype of Disabilities
+                                            Type of Disabilities
                                             </label>
                                             <div className="relative mt-2">
                                                 <select
                                                     id="disability"
                                                     value={selectedDisability}
                                                     onChange={handleDisabilityChange}
-                                                    className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:max-w-xs sm:text-sm sm:leading-6"
+                                                    className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
                                                 >
                                                     <option value="">Select Type</option>
                                                     {type_disabilities.map((disability, index) => (

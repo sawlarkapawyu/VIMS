@@ -9,25 +9,28 @@ import {
   DocumentDuplicateIcon,
   FolderIcon,
   HomeIcon,
+  HomeModernIcon,
+  Squares2X2Icon,
   StarIcon,
+  UserGroupIcon,
   UsersIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline'
-import { BuildingOfficeIcon, ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid'
+import { BuildingOfficeIcon, ChevronDownIcon, MagnifyingGlassIcon, Square3Stack3DIcon } from '@heroicons/react/20/solid'
 import Image from 'next/image';
 import logo from '/src/images/logos/logo.png';
 
 
 const navigation = [
-  { name: 'Dashboard', href: '/admin/dashboard', icon: HomeIcon, current: true },
-  { name: 'Households', href: '/admin/households', icon: BuildingOfficeIcon, current: false },
-  { name: 'Families', href: '/admin/families', icon: UsersIcon, current: false },
+  { name: 'Dashboard', href: '/admin/dashboard', icon: Squares2X2Icon, current: true },
+  { name: 'Households', href: '/admin/households', icon: HomeModernIcon, current: false },
+  { name: 'Families', href: '/admin/families', icon: UserGroupIcon, current: false },
   { name: 'Deaths', href: '/admin/deaths', icon: DocumentDuplicateIcon, current: false },
-  { name: 'Disability', href: '/admin/disabilities', icon: StarIcon, current: false },
+  { name: 'Disabilities', href: '/admin/disabilities', icon: StarIcon, current: false },
   { name: 'Reports', href: '/admin/reports', icon: ChartPieIcon, current: false },
 ]
 const teams = [
-  { id: 1, name: 'Heroicons', href: '#', initial: 'H', current: false },
+  { id: 1, name: 'Help', href: '#', initial: '?', current: false },
   { id: 2, name: 'Tailwind Labs', href: '#', initial: 'T', current: false },
   { id: 3, name: 'Workcation', href: '#', initial: 'W', current: false },
 ]

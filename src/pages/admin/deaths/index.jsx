@@ -2,8 +2,7 @@ import Head from 'next/head'
 import Sidebar from '@/components/admin/layouts/Sidebar'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
 import React, { useState, useEffect } from "react";
-import { PlusCircleIcon } from '@heroicons/react/24/outline';
-
+import { FolderPlusIcon, PencilSquareIcon, PlusCircleIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 import { formatDate, classNames } from '/src/pages/utilities/tools.js';
@@ -28,18 +27,20 @@ export default function Deaths() {
         const { data: deathsData, error: deathsError } = await supabase
           .from("deaths")
           .select(`
+            id,
             death_date,
             death_place,
             complainant,
             remark,
-            families (name, date_of_birth, nrc_id, gender)
-            
+            family_id,
+            families (name, date_of_birth, nrc_id, gender, households (household_no, state_regions(name), townships(name), districts(name), ward_village_tracts(name), villages(name)))
           `)
           .order("inserted_at", { ascending: false });
         
         if (deathsError) {
           throw deathsError;
         }
+
         setDeaths(deathsData);
         setIsLoading(false);
         return deathsData;
@@ -55,15 +56,6 @@ export default function Deaths() {
     // Filtered deaths based on search and filters
     const filteredDeaths = deaths.filter((death) => {
         const isMatchingSearchQuery =
-        // death.death_date.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        // death.death_place.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        // death.complainant.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        // death.remark.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        // death.families.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        // death.families.date_of_birth.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        // death.families.nrc_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        // death.families.gender.toLowerCase().includes(searchQuery.toLowerCase())
-
         (death.death_date && death.death_date.toLowerCase().includes(searchQuery.toLowerCase())) ||
         (death.death_place && death.death_place.toLowerCase().includes(searchQuery.toLowerCase())) ||
         (death.complainant && death.complainant.toLowerCase().includes(searchQuery.toLowerCase())) ||
@@ -94,6 +86,69 @@ export default function Deaths() {
     }
     };
     // Pagination End
+
+    //Delete
+    const [families, setFamilies] = useState([]);
+    useEffect(() => {
+        fetchFamilies();
+      }, []);
+      
+      const fetchFamilies = async () => {
+        try {
+          const { data: familiesData, error: familiesError } = await supabase
+            .from('families')
+            .select('*');
+      
+          if (familiesError) {
+            throw new Error(familiesError.message);
+          }
+      
+          setFamilies(familiesData);
+        } catch (error) {
+          console.error('Error fetching families:', error);
+        }
+    };
+          
+    const handleDeleteDeath = async (familyId) => {
+        const selectedFamily = deaths.find((family) => family.id === familyId);
+        
+        const confirmed = window.confirm('Are you sure you want to delete?');
+      
+        if (confirmed) {
+          try {
+            const { error: deleteError } = await supabase
+              .from('deaths')
+              .delete()
+              .eq('id', selectedFamily.id);
+      
+            if (deleteError) {
+              alert('Failed to delete!');
+              console.error(deleteError);
+            } else {
+              const { error: updateError } = await supabase
+                .from('families')
+                .update({ isDeath: 'No' })
+                .eq('id', selectedFamily.family_id); // Update based on the actual column name of the family ID
+      
+              if (updateError) {
+                alert('Failed to update the isDeath field in the families table!');
+                console.error(updateError);
+              } else {
+                alert('Deleted successfully!');
+                window.location.reload();
+                router.push('/admin/deaths');
+              }
+            }
+          } catch (error) {
+            alert('An error occurred while deleting!');
+            console.error(error);
+          }
+        }
+    };
+      
+      
+      
+      
 
     return (
         <>
@@ -157,8 +212,8 @@ export default function Deaths() {
                                 onClick={handleRegisterClick}
                                 className="flex items-center justify-center px-2 py-2 text-sm font-semibold text-white rounded-md shadow-sm bg-sky-600 hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
                             >
-                            <PlusCircleIcon className="w-8 h-8 mr-2" />
-                            Go To Register
+                            <FolderPlusIcon className="w-6 h-6 mr-2"></FolderPlusIcon>
+                            Register
                             </button>
                         </div>
                     </div>
@@ -251,119 +306,170 @@ export default function Deaths() {
                                         </th>
                                         <th
                                             scope="col"
+                                            className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
+                                        >
+                                            Household No
+                                        </th>
+                                        <th
+                                            scope="col"
+                                            className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
+                                        >
+                                            Address
+                                        </th>
+                                        <th
+                                            scope="col"
                                             className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-3 pr-4 backdrop-blur backdrop-filter sm:pr-6 lg:pr-8"
                                         >
                                             <span className="sr-only">Edit</span>
                                         </th>
+                                        <th
+                                            scope="col"
+                                            className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-3 pr-4 backdrop-blur backdrop-filter sm:pr-6 lg:pr-8"
+                                        >
+                                            <span className="sr-only">Delete</span>
+                                        </th>
                                         </tr>
                                     </thead>
                                 <tbody>
+                                {currentPageData.length === 0 ? (
                                     <tr>
                                         <td className="py-4 pl-4 pr-3 text-lg">
-                                            {isLoading && <p>Loading...</p>}
-                                            {errorMessage && <p>{errorMessage}</p>}
+                                            {isLoading ? 'Loading...' : 'No records found.'}
                                         </td>
                                     </tr>
-                                    
-                                    {currentPageData.map((death, deathIdx) => (
-                                    <tr key={death.id} className='transition duration-300 ease-in-out border-b hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-600'>
-                                        <td
-                                        className={classNames(
-                                            deathIdx !== deaths.length - 1 ? 'border-b border-gray-200' : '',
-                                            'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
-                                        )}
-                                        >
-                                        {(currentPage * perPage) + deathIdx + 1}
-                                        </td>
-                                        <td
-                                        className={classNames(
-                                            deathIdx !== deaths.length - 1 ? 'border-b border-gray-200' : '',
-                                            'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
-                                        )}
-                                        >
-                                        {death.families.name}
-                                        </td>
-                                        <td
-                                        className={classNames(
-                                            deathIdx !== deaths.length - 1 ? 'border-b border-gray-200' : '',
-                                            'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
-                                        )}
-                                        >
-                                        {death.families.gender}
-                                        </td>
-                                        <td
-                                        className={classNames(
-                                            deathIdx !== deaths.length - 1 ? 'border-b border-gray-200' : '',
-                                            'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
-                                        )}
-                                        >
-                                        {new Date(death.families.date_of_birth).toLocaleDateString()}
-                                        </td>
-                                        <td
-                                        className={classNames(
-                                            deathIdx !== deaths.length - 1 ? 'border-b border-gray-200' : '',
-                                            'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
-                                        )}
-                                        >
-                                            {Math.floor(
-                                            (new Date() - new Date(death.families.date_of_birth)) /
-                                                (365.25 * 24 * 60 * 60 * 1000)
+                                ) : (
+                                    currentPageData.map((death, deathIdx) => (
+                                        <tr key={deathIdx} className="transition duration-300 ease-in-out border-b hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-600">
+                                            <td
+                                            className={classNames(
+                                                deathIdx !== deaths.length - 1 ? 'border-b border-gray-200' : '',
+                                                'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
                                             )}
-                                        </td>
-                                        <td
-                                        className={classNames(
-                                            deathIdx !== deaths.length - 1 ? 'border-b border-gray-200' : '',
-                                            'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
-                                        )}
-                                        >
-                                        {death.families.nrc_id}
-                                        </td>
-                                        <td
-                                        className={classNames(
-                                            deathIdx !== deaths.length - 1 ? 'border-b border-gray-200' : '',
-                                            'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
-                                        )}
-                                        >
-                                        {new Date(death.death_date).toLocaleDateString()}
-                                        </td>
-                                        <td
-                                        className={classNames(
-                                            deathIdx !== deaths.length - 1 ? 'border-b border-gray-200' : '',
-                                            'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
-                                        )}
-                                        >
-                                        {death.death_place}
-                                        </td>
-                                        <td
-                                        className={classNames(
-                                            deathIdx !== deaths.length - 1 ? 'border-b border-gray-200' : '',
-                                            'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
-                                        )}
-                                        >
-                                        {death.complainant}
-                                        </td>
-                                        <td
-                                        className={classNames(
-                                            deathIdx !== deaths.length - 1 ? 'border-b border-gray-200' : '',
-                                            'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
-                                        )}
-                                        >
-                                        {death.remark}
-                                        </td>
-                                        <td
-                                        className={classNames(
-                                            deathIdx !== deaths.length - 1 ? 'border-b border-gray-200' : '',
-                                            'relative whitespace-nowrap py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-8 lg:pr-8'
-                                        )}
-                                        >
-                                        <a href="#" className="text-indigo-600 hover:text-indigo-900">
-                                            Edit<span className="sr-only">, {death.name}</span>
-                                        </a>
-                                        </td>
-                                    </tr>
-                                    ))}
+                                            >
+                                            {(currentPage * perPage) + deathIdx + 1}
+                                            </td>
+                                            <td
+                                            className={classNames(
+                                                deathIdx !== deaths.length - 1 ? 'border-b border-gray-200' : '',
+                                                'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
+                                            )}
+                                            >
+                                            {death.families.name}
+                                            </td>
+                                            <td
+                                            className={classNames(
+                                                deathIdx !== deaths.length - 1 ? 'border-b border-gray-200' : '',
+                                                'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
+                                            )}
+                                            >
+                                            {death.families.gender}
+                                            </td>
+                                            <td
+                                            className={classNames(
+                                                deathIdx !== deaths.length - 1 ? 'border-b border-gray-200' : '',
+                                                'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
+                                            )}
+                                            >
+                                            {formatDate(death.families.date_of_birth)}
+                                            </td>
+                                            <td
+                                            className={classNames(
+                                                deathIdx !== deaths.length - 1 ? 'border-b border-gray-200' : '',
+                                                'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
+                                            )}
+                                            >
+                                                {Math.floor(
+                                                (new Date() - new Date(death.families.date_of_birth)) /
+                                                    (365.25 * 24 * 60 * 60 * 1000)
+                                                )}
+                                            </td>
+                                            <td
+                                            className={classNames(
+                                                deathIdx !== deaths.length - 1 ? 'border-b border-gray-200' : '',
+                                                'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
+                                            )}
+                                            >
+                                            {death.families.nrc_id}
+                                            </td>
+                                            <td
+                                            className={classNames(
+                                                deathIdx !== deaths.length - 1 ? 'border-b border-gray-200' : '',
+                                                'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
+                                            )}
+                                            >
+                                            {new Date(death.death_date).toLocaleDateString()}
+                                            </td>
+                                            <td
+                                            className={classNames(
+                                                deathIdx !== deaths.length - 1 ? 'border-b border-gray-200' : '',
+                                                'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
+                                            )}
+                                            >
+                                            {death.death_place}
+                                            </td>
+                                            <td
+                                            className={classNames(
+                                                deathIdx !== deaths.length - 1 ? 'border-b border-gray-200' : '',
+                                                'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
+                                            )}
+                                            >
+                                            {death.complainant}
+                                            </td>
+                                            <td
+                                            className={classNames(
+                                                deathIdx !== deaths.length - 1 ? 'border-b border-gray-200' : '',
+                                                'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
+                                            )}
+                                            >
+                                            {death.remark}
+                                            </td>
+                                            <td
+                                            className={classNames(
+                                                deathIdx !== deaths.length - 1 ? 'border-b border-gray-200' : '',
+                                                'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
+                                            )}
+                                            >
+                                            {death.families.households.household_no}
+                                            </td>
+                                            <td
+                                            className={classNames(
+                                                deathIdx !== deaths.length - 1 ? 'border-b border-gray-200' : '',
+                                                'whitespace-pre-line px-3 py-1 text-sm text-gray-500'
+                                            )}
+                                            >
+                                            {`${death.families.households.villages.name}\n${death.families.households.ward_village_tracts.name}\n${death.families.households.townships.name}, ${death.families.households.districts.name},${death.families.households.state_regions.name}`}
+                                            </td>
+                                            <td
+                                                className={classNames(
+                                                    deathIdx !== deaths.length - 1 ? 'border-b border-gray-200' : '',
+                                                    'relative whitespace-nowrap py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-8 lg:pr-8'
+                                                )}
+                                                >
+                                                <a href={`/admin/deaths/${death.id}`} className="text-sky-600 hover:text-sky-900">
+                                                    <PencilSquareIcon className="inline-block w-4 h-4 mr-1 align-text-bottom" aria-hidden="true" />
+                                                    <span className="inline-block align-middle">Edit</span>
+                                                    <span className="sr-only">, {death.id}</span>
+                                                </a>
+                                            </td>
+                                            <td className={classNames(
+                                                deathIdx !== deaths.length - 1 ? 'border-b border-gray-200' : '',
+                                                'relative whitespace-nowrap py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-8 lg:pr-8'
+                                                )}>
+                                                <button
+                                                    onClick={() => handleDeleteDeath(death.id)}
+                                                    className="text-red-600 hover:text-red-400"
+                                                >
+                                                    <TrashIcon className="inline-block w-4 h-4 mr-1 align-text-bottom" aria-hidden="true" />
+                                                    <span className="inline-block align-middle">Trash</span>
+                                                    <span className="sr-only">{death.id}</span>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                                 </tbody>
                             </table>
+
                             {/* Pagination */}
                             <nav className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6" aria-label="Pagination">
                                 <div className="hidden sm:block">
@@ -399,3 +505,14 @@ export default function Deaths() {
         </>
     )
 }
+
+const Modal = ({ children }) => {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-gray-800 opacity-75"></div>
+        <div className="z-50 max-w-4xl p-6 mx-auto bg-white rounded-lg">
+          {children}
+        </div>
+      </div>
+    );
+};

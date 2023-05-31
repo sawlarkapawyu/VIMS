@@ -6,6 +6,8 @@ import React, { useState, useEffect } from "react";
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 import { formatDate } from '/src/pages/utilities/tools.js';
+import { UserMinusIcon } from '@heroicons/react/24/outline';
+import { getDateValue } from '/src/pages/utilities/tools.js';
 
 
 export default function FamilySearch() {
@@ -334,6 +336,7 @@ export default function FamilySearch() {
         
         setSelectedFamily(null)
         fetchFamilies();
+        // alert('Death registered successfully!');
         router.push('/admin/deaths');
         console.log(deathData);
         console.log(updateData);
@@ -409,6 +412,7 @@ export default function FamilySearch() {
                         <div className="flex-1 min-w-0">
                             <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
                                 Death Registration
+                                <span className="px-4 text-sm">({filteredFamilies.length} Results)</span>
                             </h2>
                             </div>
                             <div className="relative flex items-center mt-2 sm:mt-0">
@@ -431,6 +435,17 @@ export default function FamilySearch() {
 
                     
                     <div className="py-4 sm:grid sm:grid-cols-6 sm:gap-4">
+                        <div>
+                            <select value={selectedHousehold} onChange={handleHousehlodChange} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
+                                <option value="">All - Household No</option>
+                                {/* Render Religions options */}
+                                {households.map((household) => (
+                                    <option key={household.id} value={household.household_no}>
+                                    {household.household_no}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                         <div>
                             <select
                             value={selectedStateRegion}
@@ -489,17 +504,6 @@ export default function FamilySearch() {
                                     {villages.map((village) => (
                                     <option key={village.id} value={village.name}>
                                     {village.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <div>
-                            <select value={selectedHousehold} onChange={handleHousehlodChange} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                                <option value="">All - Household No</option>
-                                {/* Render Religions options */}
-                                {households.map((household) => (
-                                    <option key={household.id} value={household.household_no}>
-                                    {household.household_no}
                                     </option>
                                 ))}
                             </select>
@@ -664,8 +668,10 @@ export default function FamilySearch() {
                                             'relative whitespace-nowrap py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-8 lg:pr-8'
                                         )}
                                         >
-                                        <a href="#" onClick={() => handleRegistrationClick(family.id)} className="text-sky-600 hover:text-sky-900">
-                                            Register<span className="sr-only">, {family.name}</span>
+                                        <a href="#" onClick={() => handleRegistrationClick(family.id)} className="text-red-600 hover:text-sky-900">
+                                            <UserMinusIcon className="inline-block w-4 h-4 mr-1 align-text-bottom" aria-hidden="true" />
+                                            <span className="inline-block align-middle">Register</span>
+                                            <span className="sr-only">, {family.name}</span>
                                         </a>
                                         </td>
                                     </tr>
@@ -708,10 +714,11 @@ export default function FamilySearch() {
                                         <div className="sm:col-span-4">
                                             <div className="text-lg font-bold">Death Registration Form</div>
                                             <hr className="my-2 border-gray-300" />
-                                            <p>Death Date: {selectedFamily.name}</p>
-                                            <p>Date of Birth: {selectedFamily.date_of_birth}</p>
-                                            <p>Gender: {selectedFamily.gender}</p>
-                                            <p>NRC ID: {selectedFamily.nrc_id}</p>
+                                            <p><span className="font-semibold">Death Date:</span> {selectedFamily.name}</p>
+                                            <p><span className="font-semibold">Date of Birth:</span> {getDateValue(selectedFamily.date_of_birth)}</p>
+                                            <p><span className="font-semibold">Gender:</span> {selectedFamily.gender}</p>
+                                            <p><span className="font-semibold">NRC ID:</span> {selectedFamily.nrc_id}</p>
+                                            <p><span className="font-semibold">Address:</span> {`${selectedFamily.households.villages.name}\n${selectedFamily.households.ward_village_tracts.name}\n${selectedFamily.households.townships.name}, ${selectedFamily.households.districts.name},${selectedFamily.households.state_regions.name}`}</p>
                                         </div>
                                         <div className="sm:col-span-4">
                                             <input
@@ -755,9 +762,9 @@ export default function FamilySearch() {
                                         <div className="flex justify-between sm:col-span-4">
                                             <button
                                                 type="submit"
-                                                className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
+                                                className="px-4 py-2 text-white rounded bg-sky-500 hover:bg-blue-600"
                                             >
-                                                Register
+                                                Submit
                                             </button>
                                             <button
                                                 className="px-4 py-2 text-white bg-gray-800 rounded hover:bg-gray-700"
