@@ -7,6 +7,7 @@ import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 import DropdownSelect from 'react-dropdown-select';
 import { formatDate, classNames } from '/src/pages/utilities/tools.js';
+import { useTranslation } from 'react-i18next';
 
 const Report = () => {
     const router = useRouter();
@@ -14,7 +15,8 @@ const Report = () => {
     const user = useUser();
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
-    
+    const { t } = useTranslation(['common', 'report','vims']);
+
     const [families, setFamilies] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -521,7 +523,7 @@ const Report = () => {
                     Filter
                 </button>
                 </div>
-                <p className="text-gray-500">Total Results: {filterFamilies.length}</p>
+                <p className="text-gray-500">{t("vims.TotalResults")}: {filterFamilies.length}</p>
             </div>
 
             {showFilter && (
@@ -749,61 +751,61 @@ const Report = () => {
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    No
+                                    {t("vims.No")}
                                 </th>
                                 <th
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    Name
+                                    {t("vims.Name")}
                                 </th>
                                 <th
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    NRC ID
+                                    {t("vims.NRC")}
                                 </th>
                                 <th
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    Date of Birth
+                                    {t("vims.DOB")}
                                 </th>
                                 <th
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    Age
+                                    {t("vims.Age")}
                                 </th>
                                 <th
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    Gender
+                                    {t("vims.Gender")}
                                 </th>
                                 <th
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    Father Name
+                                    {t("vims.FatherName")}
                                 </th>
                                 <th
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    Mother Name
+                                    {t("vims.MotherName")}
                                 </th>
                                 <th
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    Household No
+                                    {t("vims.HouseholdNo")}
                                 </th>
                                 <th
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    Address
+                                    {t("vims.Address")}
                                 </th>
                             </tr>
                         </thead>
@@ -839,7 +841,7 @@ const Report = () => {
                                     'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
                                 )}
                                 >
-                                {family.nrc_id}
+                                    {family.nrc_id || 'NA'}
                                 </td>
                                 <td
                                 className={classNames(
@@ -874,7 +876,7 @@ const Report = () => {
                                     'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
                                 )}
                                 >
-                                {family.father_name}
+                                {family.father_name || 'NA'}
                                 </td>
                                 <td
                                 className={classNames(
@@ -882,7 +884,7 @@ const Report = () => {
                                     'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
                                 )}
                                 >
-                                {family.mother_name}
+                                {family.mother_name || 'NA'}
                                 </td>
                                 <td
                                 className={classNames(

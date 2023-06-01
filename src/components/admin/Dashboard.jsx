@@ -4,6 +4,7 @@ import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 import { UsersIcon, UserGroupIcon, HomeIcon, DocumentIcon, HomeModernIcon, DocumentDuplicateIcon, StarIcon } from '@heroicons/react/24/outline';
 import DropdownSelect from 'react-dropdown-select';
+import { useTranslation } from 'react-i18next';
 
 import { Bar, Pie } from 'react-chartjs-2';
 import { Chart, LinearScale, CategoryScale, BarController, BarElement, ArcElement, Tooltip, Legend, Title } from 'chart.js';
@@ -19,10 +20,18 @@ const Dashboard = () => {
     const user = useUser();
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+    const { t } = useTranslation(['common', 'dashboard']);
+
+    useEffect(() => {
+        let dir = router.locale == "mm" ? "mm" : "mm";
+        let lang = router.locale == "mm" ? "mm" : "en";
+        document.querySelector("html").setAttribute("dir", dir);
+        document.querySelector("html").setAttribute("lang", lang);
+    }, [router.locale]);
 
     const [totalNumberofDeaths, setTotalNumberofDeaths] = useState(0);
     const [totalNumberofUsers, setTotalNumberofUsers] = useState(0);
-    
+
     useEffect(() => {
     // Fetch data from Supabase
     const fetchData = async () => {
@@ -608,7 +617,7 @@ const Dashboard = () => {
                     </div>
                     <div>
                         <span className="block text-2xl font-bold">{totalFamilies}</span>
-                        <span className="block text-gray-500">Total Populations</span>
+                        <span className="block text-gray-500">{t("dashboard.TotalPopulations")}</span>
                     </div>
                     <div className="absolute bottom-0 left-0 w-full h-1 bg-blue-700" />
                 </div>
@@ -626,7 +635,7 @@ const Dashboard = () => {
                     </div>
                     <div>
                         <span className="block text-2xl font-bold">{totalHouseholds}</span>
-                        <span className="block text-gray-500">Total Households</span>
+                        <span className="block text-gray-500">{t("dashboard.TotalHouseholds")}</span>
                     </div>
                     <div className="absolute bottom-0 left-0 w-full h-1 bg-blue-900" />
                 </div>
@@ -645,7 +654,7 @@ const Dashboard = () => {
                     </div>
                     <div>
                         <span className="inline-block text-2xl font-bold">{totalDeaths}</span>
-                        <span className="block text-gray-500">Total Deaths</span>
+                        <span className="block text-gray-500">{t("dashboard.TotalDeaths")}</span>
                     </div>
                     <div className="absolute bottom-0 left-0 w-full h-1 bg-blue-400" />
                 </div>
@@ -663,7 +672,7 @@ const Dashboard = () => {
                     </div>
                     <div>
                         <span className="inline-block text-2xl font-bold">{totalDisabilities}</span>
-                        <span className="block text-gray-500">Total Disabilities</span>
+                        <span className="block text-gray-500">{t("dashboard.TotalDisabilities")}</span>
                     </div>
                     <div className="absolute bottom-0 left-0 w-full h-1 bg-blue-400" />
                 </div>
@@ -682,7 +691,7 @@ const Dashboard = () => {
                     </div>
                     <div>
                         <span className="block text-2xl font-bold">1</span>
-                        <span className="block text-gray-500">Total Users</span>
+                        <span className="block text-gray-500">{t("dashboard.TotalUsers")}</span>
                     </div>
                     <div className="absolute bottom-0 left-0 w-full h-1 bg-blue-200" />
                 </div>
@@ -1095,3 +1104,4 @@ const Dashboard = () => {
 )};
 
 export default Dashboard;
+

@@ -7,6 +7,8 @@ import { useRouter } from 'next/router';
 import { PlusCircleIcon, ChevronLeftIcon, ChevronRightIcon, DocumentPlusIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { formatDate, classNames } from '/src/pages/utilities/tools.js';
 
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+
 export default function Family() {
     const router = useRouter();
     const supabase = useSupabaseClient();
@@ -722,4 +724,12 @@ export default function Family() {
         
         </>
     )
+}
+
+export async function getStaticProps({ locale }) {
+    return {
+      props: {
+        ...(await serverSideTranslations(locale, ["common"])),
+      },
+    };
 }

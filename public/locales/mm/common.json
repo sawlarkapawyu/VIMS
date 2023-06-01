@@ -1,0 +1,37 @@
+{
+    "sidebar": {
+        "Dashboard": "အနှစ်ချုပ်ကြည့်ရန်",
+        "Households": "အိမ်ထောင်စုစာရင်းများ",
+        "Families": "လူဉီးရေစာရင်းများ",
+        "Deaths": "သေဆုံးမှုဆိုင်ရာ အချက်အလက်",
+        "Disabilities": "မသန်စွမ်း အချက်အလက်",
+        "Reports": "အစီရင်ခံစာများ"
+    },
+    "dashboard": {
+        "TotalPopulations": "စုစုပေါင်း လူဦးရေများ",
+        "TotalHouseholds": "စုစုပေါင်း အိမ်ထောင်စုများ",
+        "TotalDeaths": "စုစုပေါင်း သေဆုံးမှု",
+        "TotalDisabilities": "စုစုပေါင်း မသန်စွမ်းသူများ",
+        "TotalUsers": "စုစုပေါင်း အသုံးပြုသူများ"
+    },
+    "report": {
+        "Reports": "အစီရင်ခံစာများ"
+    },
+    "vims": {
+        "No": "စဉ်",
+        "Name": "အမည်",
+        "NRC": "မှတ်ပုံတင် နံပါတ်",
+        "DOB": "မွေးနေ့",
+        "Age": "အသက်",
+        "Gender": "လိင်", 
+        "FatherName": "အဖ အမည်", 
+        "MotherName": "အမိ အမည်", 
+        "HouseholdNo": "အိမ်ထောင်စု နံပါတ်",
+        "Address": "နေရပ်လိပ်စာ",
+        "TotalResults": "စုစုပေါင်းရလဒ်"
+    },
+    "header": {
+      "Home": "Home",
+      "About": "About"
+    }
+}

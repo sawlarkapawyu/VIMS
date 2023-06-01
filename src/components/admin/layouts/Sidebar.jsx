@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useState, useEffect } from 'react'
 import { Dialog, Menu, Transition } from '@headlessui/react'
 import {
   Bars3Icon,
@@ -19,16 +19,12 @@ import {
 import { BuildingOfficeIcon, ChevronDownIcon, MagnifyingGlassIcon, Square3Stack3DIcon } from '@heroicons/react/20/solid'
 import Image from 'next/image';
 import logo from '/src/images/logos/logo.png';
+import { useRouter } from "next/router";
+import LocaleSwitcher from "./locale-switcher";
+import { useTranslation } from "next-i18next";
+import Link from "next/link";
 
 
-const navigation = [
-  { name: 'Dashboard', href: '/admin/dashboard', icon: Squares2X2Icon, current: true },
-  { name: 'Households', href: '/admin/households', icon: HomeModernIcon, current: false },
-  { name: 'Families', href: '/admin/families', icon: UserGroupIcon, current: false },
-  { name: 'Deaths', href: '/admin/deaths', icon: DocumentDuplicateIcon, current: false },
-  { name: 'Disabilities', href: '/admin/disabilities', icon: StarIcon, current: false },
-  { name: 'Reports', href: '/admin/reports', icon: ChartPieIcon, current: false },
-]
 const teams = [
   { id: 1, name: 'Help', href: '#', initial: '?', current: false },
   { id: 2, name: 'Tailwind Labs', href: '#', initial: 'T', current: false },
@@ -45,7 +41,25 @@ function classNames(...classes) {
 
 export default function Sidebar({children}) {
     const [sidebarOpen, setSidebarOpen] = useState(false)
-  
+    const router = useRouter();
+    const { t } = useTranslation("");
+    
+    useEffect(() => {
+      let dir = router.locale == "mm" ? "mm" : "mm";
+      let lang = router.locale == "mm" ? "mm" : "en";
+      document.querySelector("html").setAttribute("dir", dir);
+      document.querySelector("html").setAttribute("lang", lang);
+    }, [router.locale]);
+    
+    const navigation = [
+      { name: t("sidebar.Dashboard"), href: '/admin/dashboard', icon: Squares2X2Icon, current: true },
+      { name: t("sidebar.Households"), href: '/admin/households', icon: HomeModernIcon, current: false },
+      { name: t("sidebar.Families"), href: '/admin/families', icon: UserGroupIcon, current: false },
+      { name: t("sidebar.Deaths"), href: '/admin/deaths', icon: DocumentDuplicateIcon, current: false },
+      { name: t("sidebar.Disabilities"), href: '/admin/disabilities', icon: StarIcon, current: false },
+      { name: t("sidebar.Reports"), href: '/admin/reports', icon: ChartPieIcon, current: false },
+    ]
+
     return (
       <>
         {/*
@@ -113,25 +127,28 @@ export default function Sidebar({children}) {
                           <li>
                             <ul role="list" className="-mx-2 space-y-1">
                               {navigation.map((item) => (
-                                <li key={item.name}>
-                                  <a
-                                    href={item.href}
-                                    className={classNames(
-                                      item.current
-                                        ? 'bg-sky-700 text-white'
-                                        : 'text-sky-200 hover:text-white hover:bg-sky-700',
-                                      'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
-                                    )}
+                                <li key={item.name} className={`nav-link ${router?.pathname === '/' ? 'active' : ''}`}>
+                                  <Link href={`/${router.locale}${item.href}`}
+                                        className={classNames(
+                                          item.current
+                                            ? 'current'
+                                            : '',
+                                          item.current
+                                            ? 'bg-sky-700 text-white'
+                                            : 'text-sky-200 hover:text-white hover:bg-sky-700',
+                                          'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
+                                        )}
                                   >
-                                    <item.icon
-                                      className={classNames(
-                                        item.current ? 'text-white' : 'text-sky-200 group-hover:text-white',
-                                        'h-6 w-6 shrink-0'
-                                      )}
-                                      aria-hidden="true"
-                                    />
-                                    {item.name}
-                                  </a>
+                                      <item.icon
+                                        className={classNames(
+                                          item.current ? 'text-white' : 'text-sky-200 group-hover:text-white',
+                                          'h-6 w-6 shrink-0'
+                                        )}
+                                        aria-hidden="true"
+                                      />
+                                      {item.name}
+                                   
+                                  </Link>
                                 </li>
                               ))}
                             </ul>
@@ -197,29 +214,28 @@ export default function Sidebar({children}) {
                 <ul role="list" className="flex flex-col flex-1 gap-y-7">
                   <li>
                     <ul role="list" className="-mx-2 space-y-1">
-                      {navigation.map((item) => (
-                        <li key={item.name}>
-                          <a
-                            href={item.href}
-                            className={classNames(
+                        {navigation.map((item) => (
+                          <li key={item.name}>
+                            <Link href={`/${router.locale}${item.href}`}
+                              className={classNames(
                               item.current
                                 ? 'bg-sky-700 text-white'
                                 : 'text-sky-200 hover:text-white hover:bg-sky-700',
                               'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
-                            )}
-                          >
-                            <item.icon
-                              className={classNames(
-                                item.current ? 'text-white' : 'text-sky-200 group-hover:text-white',
-                                'h-6 w-6 shrink-0'
-                              )}
-                              aria-hidden="true"
-                            />
-                            {item.name}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
+                            )}>
+                                <item.icon
+                                  className={classNames(
+                                    item.current ? 'text-white' : 'text-sky-200 group-hover:text-white',
+                                    'h-6 w-6 shrink-0'
+                                  )}
+                                  aria-hidden="true"
+                                />
+                                {item.name}
+                             
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
                   </li>
                   <li>
                     <div className="text-xs font-semibold leading-6 text-sky-200">Your teams</div>
@@ -293,6 +309,25 @@ export default function Sidebar({children}) {
                     <span className="sr-only">View notifications</span>
                     <BellIcon className="w-6 h-6" aria-hidden="true" />
                   </button>
+                  {/* Language */}
+                  <LocaleSwitcher/>
+                  {/* Language flags */}
+                  {/* <div className="flex items-center gap-x-2">
+                    <button type="button" className="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500">
+                      <img
+                        className="w-6 h-6 rounded-full"
+                        src="/src/images/flags/mm.png"
+                        alt="English"
+                      />
+                    </button>
+                    <button type="button" className="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500">
+                      <img
+                        className="w-6 h-6 rounded-full"
+                        src="/src/images/flags/en.png"
+                        alt="Myanmar"
+                      />
+                    </button>
+                  </div> */}
   
                   {/* Separator */}
                   <div className="hidden lg:block lg:h-6 lg:w-px lg:bg-gray-900/10" aria-hidden="true" />

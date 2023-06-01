@@ -3,8 +3,12 @@ import { Header } from '@/components/Header'
 import Sidebar from '@/components/admin/layouts/Sidebar'
 import Reports from '@/components/admin/Report'
 import { PlusCircleIcon, ChevronRightIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from "react-i18next";
 
 export default function Home() {
+    const { t } = useTranslation('common','report');
+
   return (
     <>
         <Head>
@@ -56,7 +60,7 @@ export default function Home() {
             </div>
             <div className="py-4 sm:flex sm:items-center">
                 <div className="sm:flex-auto">
-                    <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">Reports</h2>
+                    <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">{t("report.Reports")}</h2>
                 </div>
             </div>
             <Reports />
@@ -65,4 +69,12 @@ export default function Home() {
       
     </>
   )
+}
+
+export async function getStaticProps({ locale }) {
+    return {
+      props: {
+        ...(await serverSideTranslations(locale, ['common', 'report','vims'])),
+      },
+    };
 }

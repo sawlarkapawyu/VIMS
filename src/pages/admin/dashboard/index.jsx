@@ -2,10 +2,12 @@ import Head from 'next/head'
 import Sidebar from '@/components/admin/layouts/Sidebar'
 import Dashboards from '@/components/admin/Dashboard';
 import { useRouter } from 'next/router';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'react-i18next';
 
 export default function Dashboard() {
     const router = useRouter();
-    
+    const { t } = useTranslation('dashboard');
     const handleClick = () => {
         router.push('/admin/reports');
     };
@@ -45,3 +47,12 @@ export default function Dashboard() {
         </>
     )
 }
+
+export async function getStaticProps({ locale }) {
+    return {
+      props: {
+        ...(await serverSideTranslations(locale, ["common", "sidebar", "dashboard"])),
+      },
+    };
+}
+  

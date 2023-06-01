@@ -1,0 +1,38 @@
+{
+    "sidebar": {
+      "Dashboard": "Dashboard",
+      "Households": "Households",
+      "Families": "Families",
+      "Deaths": "Deaths",
+      "Disabilities": "Disabilities",
+      "Reports": "Reports"
+    },
+    "dashboard": {
+      "TotalPopulations": "Total Populations",
+      "TotalHouseholds": "Total Households",
+      "TotalDeaths": "Total Deaths",
+      "TotalDisabilities": "Total Disabilities",
+      "TotalUsers": "Total Users"
+    },
+    "report": {
+      "Reports": "Reports"
+    },
+    "vims": {
+      "No": "No",
+      "Name": "Name",
+      "NRC": "NRC ID",
+      "DOB": "Date of Birth",
+      "Age": "Age",
+      "Gender": "Gender", 
+      "FatherName": "Father Name", 
+      "MotherName": "Mother Name", 
+      "HouseholdNo": "Household No",
+      "Address": "Address",
+      "TotalResults": "Total Results"
+    },
+    "header": {
+      "Home": "Home",
+      "About": "About"
+    }
+}
+  

@@ -7,6 +7,8 @@ import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 import { formatDate, classNames } from '/src/pages/utilities/tools.js';
 
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+
 export default function Deaths() {
     const router = useRouter();
     const supabase = useSupabaseClient();
@@ -516,3 +518,11 @@ const Modal = ({ children }) => {
       </div>
     );
 };
+
+export async function getStaticProps({ locale }) {
+    return {
+      props: {
+        ...(await serverSideTranslations(locale, ["common"])),
+      },
+    };
+}

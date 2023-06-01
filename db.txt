@@ -146,4 +146,7 @@ CREATE TABLE type_of_disabilities (
 );
 
 
+Ref: https://www.techomoro.com/multi-language-next-js-website-using-i18next-rtl-support/
+https://www.npmjs.com/package/next-i18next
+
 
