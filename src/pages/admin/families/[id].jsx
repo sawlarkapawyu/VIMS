@@ -7,20 +7,23 @@ import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 import { ArrowUturnLeftIcon } from '@heroicons/react/24/outline';
 import { getDateValue } from '/src/pages/utilities/tools.js';
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useTranslation } from "next-i18next";
 
 export default function HouseholdEdit() {
     const router = useRouter();
     const supabase = useSupabaseClient();
     const user = useUser();
     const { id } = router.query; // Retrieve the `id` parameter from the route
-
+    const { t } = useTranslation("");
+    
     const [name, setName] = useState('');
     const [dob, setDob] = useState('');
     const [gender, setGender] = useState('');
     const [fatherName, setFatherName] = useState('');
     const [motherName, setMotherName] = useState('');
     const [remark, setRemark] = useState('');
-    const [haveLiving, setHaveLiving] = useState("");
+    const [resident, setResident] = useState("");
 
     //Occupation
     const [occupations, setOccupations] = useState([]);
@@ -456,7 +459,7 @@ export default function HouseholdEdit() {
                 father_name,
                 mother_name,
                 remark,
-                hasLiving,
+                resident,
                 isDeath,
                 relationship_id,
                 occupation_id,
@@ -479,7 +482,7 @@ export default function HouseholdEdit() {
             setFatherName(familyData.father_name);
             setMotherName(familyData.mother_name);
             setRemark(familyData.remark);
-            setHaveLiving(familyData.hasLiving);
+            setResident(familyData.resident);
             
             setSelectedRelationship(familyData.relationship_id);
             setSelectedOccupation(familyData.occupation_id);
@@ -530,7 +533,7 @@ export default function HouseholdEdit() {
             father_name: fatherName,
             mother_name: motherName,
             remark: remark,
-            hasLiving: haveLiving,
+            resident: resident,
             relationship_id: selectedRelationship,
             occupation_id: selectedOccupation,
             education_id: selectedEducation,
@@ -571,7 +574,7 @@ export default function HouseholdEdit() {
                         <nav className="sm:hidden" aria-label="Back">
                         <a href="#" className="flex items-center text-sm font-medium text-gray-500 hover:text-gray-700">
                             <ChevronLeftIcon className="flex-shrink-0 w-5 h-5 mr-1 -ml-1 text-gray-400" aria-hidden="true" />
-                            Back
+                            {t("other.Back")}
                         </a>
                         </nav>
                         <nav className="hidden sm:flex" aria-label="Breadcrumb">
@@ -579,7 +582,7 @@ export default function HouseholdEdit() {
                             <li>
                             <div className="flex">
                                 <a href="#" className="text-sm font-medium text-gray-500 hover:text-gray-700">
-                                Admin
+                                {t("other.Admin")}
                                 </a>
                             </div>
                             </li>
@@ -587,7 +590,7 @@ export default function HouseholdEdit() {
                             <div className="flex items-center">
                                 <ChevronRightIcon className="flex-shrink-0 w-5 h-5 text-gray-400" aria-hidden="true" />
                                 <a href="#" className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
-                                Families
+                                {t("sidebar.Families")}
                                 </a>
                             </div>
                             </li>
@@ -595,7 +598,7 @@ export default function HouseholdEdit() {
                             <div className="flex items-center">
                                 <ChevronRightIcon className="flex-shrink-0 w-5 h-5 text-gray-400" aria-hidden="true" />
                                 <a href="#" aria-current="page" className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
-                                Add
+                                    {t("other.Edit")}
                                 </a>
                             </div>
                             </li>
@@ -604,8 +607,8 @@ export default function HouseholdEdit() {
                     </div>
                     <div className="mt-2 md:flex md:items-center md:justify-between">
                         <div className="flex-1 min-w-0">
-                        <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-                            Families
+                        <h2 className="py-4 text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+                            {t("sidebar.Families")}
                         </h2>
                         </div>
                         <div className="flex flex-shrink-0 mt-4 md:ml-4 md:mt-0">
@@ -620,7 +623,7 @@ export default function HouseholdEdit() {
                             onClick={handleBackClick}
                             className="inline-flex items-center px-3 py-2 ml-3 text-sm font-semibold text-white rounded-md shadow-sm bg-sky-600 hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
                         >
-                            <ArrowUturnLeftIcon className="w-5 h-5 mr-2" /> Go Back
+                            <ArrowUturnLeftIcon className="w-5 h-5 mr-2" /> {t("other.Back")}
                         </button>
                         </div>
                     </div>
@@ -631,7 +634,7 @@ export default function HouseholdEdit() {
                         <div className="grid grid-cols-1 px-3 py-3 md:grid-cols-3"> {/* Updated className */}
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
                                 <label htmlFor="name" className="block text-sm font-medium leading-6 text-gray-900">
-                                Name
+                                    {t("Name")}
                                 </label>
                                 <div className="mt-2">
                                     <input
@@ -639,7 +642,6 @@ export default function HouseholdEdit() {
                                         id="name"
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
-                                        placeholder='အမည်ရိုက်ထည့်ရန်'
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
                                     />
                                 </div>
@@ -648,7 +650,7 @@ export default function HouseholdEdit() {
                             {/* Gender */}
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
                                 <label htmlFor="gender" className="block text-sm font-medium leading-6 text-gray-900">
-                                Gender
+                                    {t("Gender")}
                                 </label>
                                 <div className="mt-2">
                                     <select name="gender" 
@@ -656,7 +658,7 @@ export default function HouseholdEdit() {
                                         onChange={(e) => setGender(e.target.value)} 
                                         className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
                                     >
-                                        <option value="">Select gender</option>
+                                        <option value="">{t("other.Choose")}</option>
                                         <option value="ကျား">ကျား</option>
                                         <option value="မ">မ</option>
                                     </select>
@@ -665,7 +667,7 @@ export default function HouseholdEdit() {
                             {/* DOB */}
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
                                 <label htmlFor="name" className="block text-sm font-medium leading-6 text-gray-900">
-                                Date Of Birth
+                                    {t("DOB")}
                                 </label>
                                 <div className="mt-2">
                                     <input
@@ -681,7 +683,7 @@ export default function HouseholdEdit() {
                             {/* NRC */}
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
                                 <label htmlFor="nrc" className="block text-sm font-medium leading-6 text-gray-900">
-                                    NRC Number
+                                    {t("NRC")}
                                 </label>
                                 <div className="relative mt-2">
                                     <input
@@ -690,7 +692,6 @@ export default function HouseholdEdit() {
                                         name="nrc"
                                         value={nrc}
                                         onChange={handleNrcInput}
-                                        placeholder="မှတ်ပုံတင်နံပါတ် ရိုက်ထည့်ရန် - ဥပမာ (၃/ကကရ(နိုင်)၁၁၁၁၁၁)"
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
                                     />
                                     {nrcCodes.filter((code) => code.name.includes(searchTermNrc)).length > 0 && (
@@ -713,7 +714,7 @@ export default function HouseholdEdit() {
                             
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
                                 <label htmlFor="father_name" className="block text-sm font-medium leading-6 text-gray-900">
-                                Father Name
+                                    {t("FatherName")}
                                 </label>
                                 <div className="mt-2">
                                     <input
@@ -721,7 +722,6 @@ export default function HouseholdEdit() {
                                         id="father_name"
                                         value={fatherName}
                                         onChange={(e) => setFatherName(e.target.value)}
-                                        placeholder='အဖအမည်ရိုက်ထည့်ရန်'
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
                                     />
                                 </div>
@@ -729,7 +729,7 @@ export default function HouseholdEdit() {
 
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
                                 <label htmlFor="mother_name" className="block text-sm font-medium leading-6 text-gray-900">
-                                Mother Name
+                                    {t("MotherName")}
                                 </label>
                                 <div className="mt-2">
                                     <input
@@ -737,7 +737,6 @@ export default function HouseholdEdit() {
                                         id="mother_name"
                                         value={motherName}
                                         onChange={(e) => setMotherName(e.target.value)}
-                                        placeholder='အမိအမည်ရိုက်ထည့်ရန်'
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
                                     />
                                 </div>
@@ -746,7 +745,7 @@ export default function HouseholdEdit() {
                             {/* Relationship */}
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
                                 <label htmlFor="" className="block text-sm font-medium leading-6 text-gray-900">
-                                Relationship
+                                    {t("Relationship")}
                                 </label>
                                 <div className="relative mt-2">
                                     <select
@@ -755,7 +754,7 @@ export default function HouseholdEdit() {
                                         onChange={handleRelationshipChange}
                                         className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
                                     >
-                                        <option value="">Select a relationship</option>
+                                        <option value="">{t("other.Choose")}</option>
                                         {relationships.map((relationship) => (
                                         <option key={relationship.id} value={relationship.id}>
                                             {relationship.name}
@@ -763,7 +762,7 @@ export default function HouseholdEdit() {
                                         ))}
                                         <option disabled>──────────</option>
                                         <option value="new" className="font-medium text-blue-500">
-                                        Add a new relationship
+                                            {t("other.Add")}
                                         </option>
                                     </select>
                                 </div>
@@ -775,10 +774,10 @@ export default function HouseholdEdit() {
                                                 <div className="absolute inset-0 bg-gray-300 opacity-75"></div>
                                             </div>
                                             <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                                            <div className="inline-block px-4 pt-5 pb-4 overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:w-full sm:p-6">
+                                            <div className="inline-block px-4 pt-5 pb-4 overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:p-6">
                                             <div>
                                                 <div className="mt-3 text-center sm:mt-5">
-                                                    <h3 className="text-lg font-medium leading-6 text-gray-900">Add a new relationship</h3>
+                                                    <h3 className="text-lg font-medium leading-6 text-gray-900">{t("other.Add")} - {t("Relationship")}</h3>
                                                     <div className="mt-2">
                                                         <input
                                                         type="text"
@@ -787,7 +786,6 @@ export default function HouseholdEdit() {
                                                         value={newRelationship}
                                                         onChange={handleNewRelationshipChange}
                                                         className="block w-full px-3 py-2 mt-2 mb-2 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                                        placeholder="Enter a new relationship"
                                                         />
                                                     </div>
                                                 </div>
@@ -798,14 +796,14 @@ export default function HouseholdEdit() {
                                                         disabled={!selectedRelationship && !newRelationship}
                                                         onClick={handleNewRelationshipSubmit}
                                                     >
-                                                        Submit
+                                                        {t("other.Submit")}
                                                     </button>
                                                     <button
                                                         type="button"
                                                         className="inline-block w-full px-4 py-2 ml-2 text-base font-medium text-gray-700 bg-gray-200 border border-transparent rounded-md shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:text-sm"
                                                         onClick={handleCloseModalRelationship}
                                                     >
-                                                        Cancel
+                                                        {t("other.Cancel")}
                                                     </button>
                                                 </div>
                                             </div>
@@ -818,7 +816,7 @@ export default function HouseholdEdit() {
                             {/* Occupation */}
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
                                 <label htmlFor="" className="block text-sm font-medium leading-6 text-gray-900">
-                                    Occupation
+                                    {t("Occupation")}
                                 </label>
                                 <div className="relative mt-2">
                                     <select
@@ -827,7 +825,7 @@ export default function HouseholdEdit() {
                                         onChange={handleOccupationChange}
                                         className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
                                     >
-                                        <option value="">Select occupation</option>
+                                        <option value="">{t("other.Choose")}</option>
                                         {occupations.map((occupation) => (
                                         <option key={occupation.id} value={occupation.id}>
                                             {occupation.name}
@@ -835,7 +833,7 @@ export default function HouseholdEdit() {
                                         ))}
                                         <option disabled>──────────</option>
                                         <option value="new" className="font-medium text-blue-500">
-                                            Add a new occupation
+                                            {t("other.Add")}
                                         </option>
                                     </select>
                                 </div>
@@ -846,10 +844,10 @@ export default function HouseholdEdit() {
                                                 <div className="absolute inset-0 bg-gray-300 opacity-75"></div>
                                             </div>
                                             <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                                            <div className="inline-block px-4 pt-5 pb-4 overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:w-full sm:p-6">
+                                            <div className="inline-block px-4 pt-5 pb-4 overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:p-6">
                                             <div>
                                                 <div className="mt-3 text-center sm:mt-5">
-                                                    <h3 className="text-lg font-medium leading-6 text-gray-900">Add a new occupation</h3>
+                                                    <h3 className="text-lg font-medium leading-6 text-gray-900">{t("other.Add")} - {t("Occupation")}</h3>
                                                     <div className="mt-2">
                                                         <input
                                                         type="text"
@@ -858,7 +856,6 @@ export default function HouseholdEdit() {
                                                         value={newOccupation}
                                                         onChange={handleNewOccupationChange}
                                                         className="block w-full px-3 py-2 mt-2 mb-2 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                                        placeholder="Enter a new occupation"
                                                         />
                                                     </div>
                                                 </div>
@@ -869,14 +866,14 @@ export default function HouseholdEdit() {
                                                         disabled={!selectedOccupation && !newOccupation}
                                                         onClick={handleNewOccupationSubmit}
                                                     >
-                                                        Submit
+                                                        {t("other.Submit")}
                                                     </button>
                                                     <button
                                                         type="button"
                                                         className="inline-block w-full px-4 py-2 ml-2 text-base font-medium text-gray-700 bg-gray-200 border border-transparent rounded-md shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:text-sm"
                                                         onClick={handleCloseModalOccupation}
                                                     >
-                                                        Cancel
+                                                        {t("other.Cancel")}
                                                     </button>
                                                 </div>
                                             </div>
@@ -889,7 +886,7 @@ export default function HouseholdEdit() {
                             {/* Education */}
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
                                 <label htmlFor="" className="block text-sm font-medium leading-6 text-gray-900">
-                                    Education
+                                    {t("Education")}
                                 </label>
                                 <div className="relative mt-2">
                                     <select
@@ -898,7 +895,7 @@ export default function HouseholdEdit() {
                                         onChange={handleEducationChange}
                                         className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
                                     >
-                                        <option value="">Select an education</option>
+                                        <option value="">{t("other.Choose")}</option>
                                         {educations.map((education) => (
                                         <option key={education.id} value={education.id}>
                                             {education.name}
@@ -906,7 +903,7 @@ export default function HouseholdEdit() {
                                         ))}
                                         <option disabled>──────────</option>
                                         <option value="new" className="font-medium text-blue-500">
-                                            Add a new education
+                                            {t("other.Add")}
                                         </option>
                                     </select>
                                 </div>
@@ -917,10 +914,10 @@ export default function HouseholdEdit() {
                                                 <div className="absolute inset-0 bg-gray-300 opacity-75"></div>
                                             </div>
                                             <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                                            <div className="inline-block px-4 pt-5 pb-4 overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:w-full sm:p-6">
+                                            <div className="inline-block px-4 pt-5 pb-4 overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:p-6">
                                             <div>
                                                 <div className="mt-3 text-center sm:mt-5">
-                                                    <h3 className="text-lg font-medium leading-6 text-gray-900">Add a new education</h3>
+                                                    <h3 className="text-lg font-medium leading-6 text-gray-900">{t("other.Add")} - {t("Education")}</h3>
                                                     <div className="mt-2">
                                                         <input
                                                         type="text"
@@ -929,7 +926,6 @@ export default function HouseholdEdit() {
                                                         value={newEducation}
                                                         onChange={handleNewEducationChange}
                                                         className="block w-full px-3 py-2 mt-2 mb-2 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                                        placeholder="Enter a new education"
                                                         />
                                                     </div>
                                                 </div>
@@ -940,14 +936,14 @@ export default function HouseholdEdit() {
                                                         disabled={!selectedEducation && !newEducation}
                                                         onClick={handleNewEducationSubmit}
                                                     >
-                                                        Submit
+                                                        {t("other.Submit")}
                                                     </button>
                                                     <button
                                                         type="button"
                                                         className="inline-block w-full px-4 py-2 ml-2 text-base font-medium text-gray-700 bg-gray-200 border border-transparent rounded-md shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:text-sm"
                                                         onClick={handleCloseModalEducation}
                                                     >
-                                                        Cancel
+                                                        {t("other.Cancel")}
                                                     </button>
                                                 </div>
                                             </div>
@@ -960,7 +956,7 @@ export default function HouseholdEdit() {
                             {/* Ethnicity */}
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
                                 <label htmlFor="" className="block text-sm font-medium leading-6 text-gray-900">
-                                Ethnicity
+                                    {t("Ethnicity")}
                                 </label>
                                 <div className="relative mt-2">
                                     <select
@@ -969,7 +965,7 @@ export default function HouseholdEdit() {
                                         onChange={handleEthnicityhipChange}
                                         className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
                                     >
-                                        <option value="">Select an ethnicity</option>
+                                        <option value="">{t("other.Choose")}</option>
                                         {ethnicities.map((ethnicity) => (
                                         <option key={ethnicity.id} value={ethnicity.id}>
                                             {ethnicity.name}
@@ -977,7 +973,7 @@ export default function HouseholdEdit() {
                                         ))}
                                         <option disabled>──────────</option>
                                         <option value="new" className="font-medium text-blue-500">
-                                            Add a new ethnicity
+                                            {t("other.Add")}
                                         </option>
                                     </select>
                                 </div>
@@ -991,7 +987,7 @@ export default function HouseholdEdit() {
                                             <div className="inline-block px-4 pt-5 pb-4 overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
                                             <div>
                                                 <div className="mt-3 text-center sm:mt-5">
-                                                    <h3 className="text-lg font-medium leading-6 text-gray-900">Add a new ethnicity</h3>
+                                                    <h3 className="text-lg font-medium leading-6 text-gray-900">{t("other.Add")} - {t("Ethnicity")}</h3>
                                                     <div className="mt-2">
                                                         <input
                                                         type="text"
@@ -1000,7 +996,6 @@ export default function HouseholdEdit() {
                                                         value={newEthnicity}
                                                         onChange={handleNewEthnicityChange}
                                                         className="block w-full px-3 py-2 mt-2 mb-2 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                                        placeholder="Enter a new ethnicity"
                                                         />
                                                     </div>
                                                 </div>
@@ -1011,14 +1006,14 @@ export default function HouseholdEdit() {
                                                         disabled={!selectedEthnicity && !newEthnicity}
                                                         onClick={handleNewEthnicitySubmit}
                                                     >
-                                                        Submit
+                                                        {t("other.Submit")}
                                                     </button>
                                                     <button
                                                         type="button"
                                                         className="inline-block w-full px-4 py-2 ml-2 text-base font-medium text-gray-700 bg-gray-200 border border-transparent rounded-md shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:text-sm"
                                                         onClick={handleCloseModalEthnicity}
                                                     >
-                                                        Cancel
+                                                        {t("other.Cancel")}
                                                     </button>
                                                 </div>
                                             </div>
@@ -1031,7 +1026,7 @@ export default function HouseholdEdit() {
                             {/* Nationality */}
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
                                 <label htmlFor="" className="block text-sm font-medium leading-6 text-gray-900">
-                                Nationality
+                                    {t("Nationality")}
                                 </label>
                                 <div className="relative mt-2">
                                     <select
@@ -1040,7 +1035,7 @@ export default function HouseholdEdit() {
                                         onChange={handleNationalityChange}
                                         className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
                                     >
-                                        <option value="">Select a nationality</option>
+                                        <option value="">{t("other.Choose")}</option>
                                         {nationalities.map((nationality) => (
                                         <option key={nationality.id} value={nationality.id}>
                                             {nationality.name}
@@ -1048,7 +1043,7 @@ export default function HouseholdEdit() {
                                         ))}
                                         <option disabled>──────────</option>
                                         <option value="new" className="font-medium text-blue-500">
-                                            Add a new nationality
+                                            {t("other.Add")}
                                         </option>
                                     </select>
                                 </div>
@@ -1062,7 +1057,7 @@ export default function HouseholdEdit() {
                                             <div className="inline-block px-4 pt-5 pb-4 overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
                                             <div>
                                                 <div className="mt-3 text-center sm:mt-5">
-                                                    <h3 className="text-lg font-medium leading-6 text-gray-900">Add a new nationality</h3>
+                                                    <h3 className="text-lg font-medium leading-6 text-gray-900">{t("other.Add")} - {t("Nationality")}</h3>
                                                     <div className="mt-2">
                                                         <input
                                                         type="text"
@@ -1071,7 +1066,6 @@ export default function HouseholdEdit() {
                                                         value={newNationality}
                                                         onChange={handleNewNationalityChange}
                                                         className="block w-full px-3 py-2 mt-2 mb-2 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                                        placeholder="Enter a new ethnicity"
                                                         />
                                                     </div>
                                                 </div>
@@ -1082,14 +1076,14 @@ export default function HouseholdEdit() {
                                                         disabled={!selectedNationality && !newNationality}
                                                         onClick={handleNewNationalitySubmit}
                                                     >
-                                                        Submit
+                                                        {t("other.Submit")}
                                                     </button>
                                                     <button
                                                         type="button"
                                                         className="inline-block w-full px-4 py-2 ml-2 text-base font-medium text-gray-700 bg-gray-200 border border-transparent rounded-md shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:text-sm"
                                                         onClick={handleCloseModalNationality}
                                                     >
-                                                        Cancel
+                                                        {t("other.Cancel")}
                                                     </button>
                                                 </div>
                                             </div>
@@ -1102,7 +1096,7 @@ export default function HouseholdEdit() {
                             {/* Religion */}
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
                                 <label htmlFor="" className="block text-sm font-medium leading-6 text-gray-900">
-                                Religion
+                                    {t("Religion")}
                                 </label>
                                 <div className="relative mt-2">
                                     <select
@@ -1111,7 +1105,7 @@ export default function HouseholdEdit() {
                                         onChange={handleReligionChange}
                                         className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
                                     >
-                                        <option value="">Select a religion</option>
+                                        <option value="">{t("other.Choose")}</option>
                                         {religions.map((religion) => (
                                         <option key={religion.id} value={religion.id}>
                                             {religion.name}
@@ -1119,7 +1113,7 @@ export default function HouseholdEdit() {
                                         ))}
                                         <option disabled>──────────</option>
                                         <option value="new" className="font-medium text-blue-500">
-                                            Add a new religion
+                                            {t("other.Add")}
                                         </option>
                                     </select>
                                 </div>
@@ -1133,7 +1127,7 @@ export default function HouseholdEdit() {
                                             <div className="inline-block px-4 pt-5 pb-4 overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
                                             <div>
                                                 <div className="mt-3 text-center sm:mt-5">
-                                                    <h3 className="text-lg font-medium leading-6 text-gray-900">Add a new religion</h3>
+                                                    <h3 className="text-lg font-medium leading-6 text-gray-900">{t("other.Add")} - {t("Religion")}</h3>
                                                     <div className="mt-2">
                                                         <input
                                                         type="text"
@@ -1142,7 +1136,6 @@ export default function HouseholdEdit() {
                                                         value={newReligion}
                                                         onChange={handleNewReligionChange}
                                                         className="block w-full px-3 py-2 mt-2 mb-2 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                                        placeholder="Enter a new religion"
                                                         />
                                                     </div>
                                                 </div>
@@ -1153,14 +1146,14 @@ export default function HouseholdEdit() {
                                                         disabled={!selectedReligion && !newReligion}
                                                         onClick={handleNewReligionSubmit}
                                                     >
-                                                        Submit
+                                                        {t("other.Submit")}
                                                     </button>
                                                     <button
                                                         type="button"
                                                         className="inline-block w-full px-4 py-2 ml-2 text-base font-medium text-gray-700 bg-gray-200 border border-transparent rounded-md shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:text-sm"
                                                         onClick={handleCloseModalReligion}
                                                     >
-                                                        Cancel
+                                                        {t("other.Cancel")}
                                                     </button>
                                                 </div>
                                             </div>
@@ -1173,7 +1166,7 @@ export default function HouseholdEdit() {
                             {/* Household */}
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
                                 <label htmlFor="householdId" className="block text-sm font-medium leading-6 text-gray-900">
-                                    Household No
+                                    {t("HouseholdNo")}
                                 </label>
                                 <div className="relative mt-2">
                                     <input
@@ -1183,7 +1176,6 @@ export default function HouseholdEdit() {
                                         // value={selectedHousehold ? selectedHousehold.id : ""}
                                         value={selectedHousehold || searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                        placeholder='အိမ်ထောင်စုနံပါတ်ရှာရိုက်ထည့်ရန် - ဥပမာ (HH-KWL-111)'
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
                                     />
                                     {searchTerm && !selectedHousehold && (
@@ -1206,26 +1198,26 @@ export default function HouseholdEdit() {
                                         className="text-sm text-gray-500 underline hover:text-gray-700 focus:outline-none focus:underline"
                                         onClick={() => setSelectedHousehold(null)}
                                         >
-                                        Search again
+                                        {t("filter.Search")}
                                         </button>
                                     </div>
                                     )}
                                 </div>
                             </div>
 
-                            {/* hasLiving */}
+                            {/* resident */}
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
-                                <label htmlFor="hasLiving" className="block text-sm font-medium leading-6 text-gray-900">
-                                    hasLiving
+                                <label htmlFor="resident" className="block text-sm font-medium leading-6 text-gray-900">
+                                    resident
                                 </label>
                                 <div className="mt-2">
                                     <select
-                                    name="hasLiving" 
-                                    value={haveLiving}
-                                    onChange={(e) => setHaveLiving(e.target.value)} 
+                                    name="resident" 
+                                    value={resident}
+                                    onChange={(e) => setResident(e.target.value)} 
                                     className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
                                     >
-                                    <option value="">Select hasLiving</option>
+                                    <option value="">Select resident</option>
                                     <option value="ရှိ">ရှိ</option>
                                     <option value="နိုင်ငံခြား">နိုင်ငံခြား</option>
                                     <option value="အခြား">အခြား</option>
@@ -1236,7 +1228,7 @@ export default function HouseholdEdit() {
                             {/* Remark */}
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
                                 <label htmlFor="remark" className="block text-sm font-medium leading-6 text-gray-900">
-                                Remark
+                                    {t("Remarks")}
                                 </label>
                                 <div className="mt-2">
                                     <input
@@ -1244,7 +1236,6 @@ export default function HouseholdEdit() {
                                         id="remark"
                                         value={remark}
                                         onChange={(e) => setRemark(e.target.value)}
-                                        placeholder='မှတ်ချက်ရှိပါက ရိုက်ထည့်ရန်'
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
                                     />
                                 </div>
@@ -1253,13 +1244,13 @@ export default function HouseholdEdit() {
                         </div> 
                         <div className="flex items-center justify-end px-4 py-4 border-t gap-x-6 border-gray-900/10 sm:px-8">
                             <button type="button" className="text-sm font-semibold leading-6 text-gray-900">
-                            Cancel
+                            {t("other.Cancel")}
                             </button>
                             <button
                             type="submit"
                             className="px-3 py-2 text-sm font-semibold text-white rounded-md shadow-sm bg-sky-600 hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
                             >
-                            Save
+                            {t("other.Submit")}
                             </button>
                         </div>
                     </form>
@@ -1268,4 +1259,21 @@ export default function HouseholdEdit() {
         
         </>
     )
+}
+
+export async function getStaticPaths() {
+    return {
+      paths: [
+        '/admin/families/[id]',
+      ],
+      fallback: true,
+    }
+}
+
+export async function getStaticProps({ locale }) {
+    return {
+      props: {
+        ...(await serverSideTranslations(locale, ["common"])),
+      },
+    };
 }

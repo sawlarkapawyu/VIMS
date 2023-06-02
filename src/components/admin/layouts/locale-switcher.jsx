@@ -25,16 +25,16 @@ export default function LocaleSwitcher() {
             : null;
             
         return (
-          <span key={"locale-" + locale}>
-            <Link href={{ pathname, query }} as={asPath} locale={locale} className="flex items-center">
+          <span key={"locale-" + locale} className="inline-flex items-center">
+            <Link href={{ pathname, query }} as={asPath} locale={locale} className="flex items-center px-1">
             <Image
                   src={flagUrl}
                   alt={locale}
                   width={30}
-                  height={22}
+                  height={23}
                   className="mr-2 rounded"
                 />
-                {locale === "en" ? "English" : locale === "mm" ? "Myanmar" : null}
+              <span>{locale === "en" ? "English" : locale === "mm" ? "Myanmar" : null}</span>
                 
             </Link>
           </span>

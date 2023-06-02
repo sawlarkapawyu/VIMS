@@ -7,13 +7,16 @@ import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 import { ArrowUturnLeftIcon } from '@heroicons/react/24/outline';
 import { getDateValue } from '/src/pages/utilities/tools.js';
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useTranslation } from "next-i18next";
 
 export default function DeathEdit() {
     const router = useRouter();
     const supabase = useSupabaseClient();
     const user = useUser();
     const { id } = router.query;
-
+    const { t } = useTranslation("");
+    
     const [deaths, setDeaths] = useState(null);
     const [deathDate, setDeathDate] = useState('');
     const [deathPlace, setDeathPlace] = useState('');
@@ -92,7 +95,7 @@ export default function DeathEdit() {
                         <nav className="sm:hidden" aria-label="Back">
                         <a href="#" className="flex items-center text-sm font-medium text-gray-500 hover:text-gray-700">
                             <ChevronLeftIcon className="flex-shrink-0 w-5 h-5 mr-1 -ml-1 text-gray-400" aria-hidden="true" />
-                            Back
+                            {t("other.Back")}
                         </a>
                         </nav>
                         <nav className="hidden sm:flex" aria-label="Breadcrumb">
@@ -100,7 +103,7 @@ export default function DeathEdit() {
                             <li>
                             <div className="flex">
                                 <a href="#" className="text-sm font-medium text-gray-500 hover:text-gray-700">
-                                Admin
+                                {t("other.Admin")}
                                 </a>
                             </div>
                             </li>
@@ -108,7 +111,7 @@ export default function DeathEdit() {
                             <div className="flex items-center">
                                 <ChevronRightIcon className="flex-shrink-0 w-5 h-5 text-gray-400" aria-hidden="true" />
                                 <a href="#" className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
-                                Deaths
+                                {t("sidebar.Deaths")}
                                 </a>
                             </div>
                             </li>
@@ -116,7 +119,7 @@ export default function DeathEdit() {
                             <div className="flex items-center">
                                 <ChevronRightIcon className="flex-shrink-0 w-5 h-5 text-gray-400" aria-hidden="true" />
                                 <a href="#" aria-current="page" className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
-                                Edit
+                                {t("other.Edit")}
                                 </a>
                             </div>
                             </li>
@@ -125,8 +128,8 @@ export default function DeathEdit() {
                     </div>
                     <div className="mt-2 md:flex md:items-center md:justify-between">
                         <div className="flex-1 min-w-0">
-                        <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-                            Deaths
+                        <h2 className="py-4 text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+                            {t("sidebar.Deaths")}
                         </h2>
                         </div>
                         <div className="flex flex-shrink-0 mt-4 md:ml-4 md:mt-0">
@@ -141,7 +144,7 @@ export default function DeathEdit() {
                             onClick={handleBackClick}
                             className="inline-flex items-center px-3 py-2 ml-3 text-sm font-semibold text-white rounded-md shadow-sm bg-sky-600 hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
                         >
-                            <ArrowUturnLeftIcon className="w-5 h-5 mr-2" /> Go Back
+                            <ArrowUturnLeftIcon className="w-5 h-5 mr-2" /> {t("other.Back")}
                         </button>
                         </div>
                     </div>
@@ -151,17 +154,17 @@ export default function DeathEdit() {
                     <form onSubmit={handleEditDeath} className="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2">
                         {deaths && (
                         <div className="grid grid-cols-1 px-6 py-6 md:grid-cols-1">
-                            <p><span className="font-semibold">Name:</span> {deaths.families.name}</p>
-                            <p><span className="font-semibold">Date of Birth:</span> {getDateValue(deaths.families.date_of_birth)}</p>
-                            <p><span className="font-semibold">Gender:</span> {deaths.families.gender}</p>
-                            <p><span className="font-semibold">NRC ID:</span> {deaths.families.nrc_id}</p>
-                            <p><span className="font-semibold">Address:</span> {`${deaths.families.households.villages.name}\n${deaths.families.households.ward_village_tracts.name}\n${deaths.families.households.townships.name}, ${deaths.families.households.districts.name},${deaths.families.households.state_regions.name}`}</p>
+                            <p><span className="font-semibold">{t("Name")}:</span> {deaths.families.name}</p>
+                            <p><span className="font-semibold">{t("DOB")}:</span> {getDateValue(deaths.families.date_of_birth)}</p>
+                            <p><span className="font-semibold">{t("Gender")}:</span> {deaths.families.gender}</p>
+                            <p><span className="font-semibold">{t("NRC")}:</span> {deaths.families.nrc_id}</p>
+                            <p><span className="font-semibold">{t("Address")}:</span> {`${deaths.families.households.villages.name}\n${deaths.families.households.ward_village_tracts.name}\n${deaths.families.households.townships.name}, ${deaths.families.households.districts.name},${deaths.families.households.state_regions.name}`}</p>
                         </div>
                          )}
                         <div className="grid grid-cols-1 px-3 py-3 border-t md:grid-cols-2"> {/* Updated className */}
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
                                 <label htmlFor="deathDate" className="block text-sm font-medium leading-6 text-gray-900">
-                                Death Date
+                                    {t("DeathDate")}
                                 </label>
                                 <div className="mt-2">
                                     <input
@@ -175,7 +178,7 @@ export default function DeathEdit() {
                             </div>
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
                                 <label htmlFor="deathPlace" className="block text-sm font-medium leading-6 text-gray-900">
-                                Death Place
+                                    {t("DeathPlace")}
                                 </label>
                                 <div className="mt-2">
                                     <input
@@ -189,7 +192,7 @@ export default function DeathEdit() {
                             </div>
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
                                 <label htmlFor="complainant" className="block text-sm font-medium leading-6 text-gray-900">
-                                Complainant
+                                    {t("Complainant")}
                                 </label>
                                 <div className="mt-2">
                                     <input
@@ -204,7 +207,7 @@ export default function DeathEdit() {
                             {/* Remark */}
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
                                 <label htmlFor="remark" className="block text-sm font-medium leading-6 text-gray-900">
-                                Remark
+                                    {t("Remarks")}
                                 </label>
                                 <div className="mt-2">
                                     <input
@@ -220,13 +223,14 @@ export default function DeathEdit() {
                         </div> 
                         <div className="flex items-center justify-end px-4 py-4 border-t gap-x-6 border-gray-900/10 sm:px-8">
                             <button type="button" className="text-sm font-semibold leading-6 text-gray-900">
-                            Cancel
+                            
+                                {t("other.Cancel")}
                             </button>
                             <button
                             type="submit"
                             className="px-3 py-2 text-sm font-semibold text-white rounded-md shadow-sm bg-sky-600 hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
                             >
-                            Submit
+                                {t("other.Submit")}
                             </button>
                         </div>
                     </form>
@@ -235,4 +239,21 @@ export default function DeathEdit() {
         
         </>
     )
+}
+
+export async function getStaticPaths() {
+    return {
+      paths: [
+        '/admin/deaths/[id]',
+      ],
+      fallback: true,
+    }
+}
+
+export async function getStaticProps({ locale }) {
+    return {
+      props: {
+        ...(await serverSideTranslations(locale, ["common"])),
+      },
+    };
 }

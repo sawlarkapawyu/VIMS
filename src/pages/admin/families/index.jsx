@@ -2,18 +2,20 @@ import Head from 'next/head'
 
 import Sidebar from '@/components/admin/layouts/Sidebar'
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 import { PlusCircleIcon, ChevronLeftIcon, ChevronRightIcon, DocumentPlusIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { formatDate, classNames } from '/src/pages/utilities/tools.js';
 
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useTranslation } from "next-i18next";
 
 export default function Family() {
     const router = useRouter();
     const supabase = useSupabaseClient();
     const user = useUser();
-    
+    const { t } = useTranslation("");
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [families, setFamilies] = useState([]);
@@ -68,7 +70,7 @@ export default function Family() {
             religions (name),
             households (household_no),
             household_no, 
-            hasLiving
+            resident
         `)
         .eq('isDeath', 'No')
         .order('id', { ascending: false });
@@ -263,7 +265,7 @@ export default function Family() {
                         <nav className="sm:hidden" aria-label="Back">
                             <a href="#" className="flex items-center text-sm font-medium text-gray-500 hover:text-gray-700">
                                 <ChevronLeftIcon className="flex-shrink-0 w-5 h-5 mr-1 -ml-1 text-gray-400" aria-hidden="true" />
-                                Back
+                                {t("other.Back")}
                             </a>
                             </nav>
                             <nav className="hidden sm:flex" aria-label="Breadcrumb">
@@ -271,7 +273,7 @@ export default function Family() {
                                 <li>
                                 <div className="flex">
                                     <a href="#" className="text-sm font-medium text-gray-500 hover:text-gray-700">
-                                    Admin
+                                    {t("other.Admin")}
                                     </a>
                                 </div>
                                 </li>
@@ -279,7 +281,7 @@ export default function Family() {
                                 <div className="flex items-center">
                                     <ChevronRightIcon className="flex-shrink-0 w-5 h-5 text-gray-400" aria-hidden="true" />
                                     <a href="#" className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
-                                    Family
+                                    {t("sidebar.Families")}
                                     </a>
                                 </div>
                                 </li>
@@ -287,7 +289,7 @@ export default function Family() {
                                 <div className="flex items-center">
                                     <ChevronRightIcon className="flex-shrink-0 w-5 h-5 text-gray-400" aria-hidden="true" />
                                     <a href="#" aria-current="page" className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
-                                    Show All
+                                    {t("other.Show")}
                                     </a>
                                 </div>
                                 </li>
@@ -298,7 +300,7 @@ export default function Family() {
                     
                     <div className="sm:flex sm:items-center">
                         <div className="sm:flex-auto">
-                            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">Families</h2>
+                            <h2 className="py-4 text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">{t("sidebar.Families")}</h2>
                             
                         </div>
                         <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
@@ -308,7 +310,7 @@ export default function Family() {
                                 className="flex items-center justify-center px-2 py-2 text-sm font-semibold text-white rounded-md shadow-sm bg-sky-600 hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
                             >
                             <DocumentPlusIcon className="w-6 h-6 mr-2"/>
-                            Add New
+                            {t("other.Add")}
                             </button>
                         </div>
                     </div>
@@ -319,7 +321,7 @@ export default function Family() {
                                 type="text"
                                 name="search"
                                 id="search"
-                                placeholder="Search"
+                                placeholder={t("filter.Search")}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="block w-full rounded-md border-0 py-1.5 pr-14 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
@@ -333,7 +335,7 @@ export default function Family() {
                             
                             <div>
                                 <select value={selectedHousehold} onChange={(e) => setSelectedHousehold(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                                    <option value="">All - Household No</option>
+                                    <option value="">{t("filter.Households")}</option>
                                     {/* Render Religions options */}
                                     {households.map((household) => (
                                         <option key={household.id} value={household.household_no}>
@@ -345,7 +347,7 @@ export default function Family() {
                             
                             <div>
                                 <select value={selectedOccupation} onChange={(e) => setSelectedOccupation(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                                    <option value="">All - Occupations</option>
+                                    <option value="">{t("filter.Occupations")}</option>
                                     {/* Render Occupations options */}
                                     {occupations.map((occupation) => (
                                         <option key={occupation.id} value={occupation.name}>
@@ -357,7 +359,7 @@ export default function Family() {
                                 
                             <div>
                                 <select value={selectedEducation} onChange={(e) => setSelectedEducation(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                                    <option value="">All - Educations</option>
+                                    <option value="">{t("filter.Educations")}</option>
                                     {/* Render Educations options */}
                                     {educations.map((education) => (
                                         <option key={education.id} value={education.name}>
@@ -369,7 +371,7 @@ export default function Family() {
 
                             <div>
                                 <select value={selectedEthnicity} onChange={(e) => setSelectedEthnicity(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                                    <option value="">All - Ethnicities</option>
+                                    <option value="">{t("filter.Ethnicities")}</option>
                                     {/* Render Ethnicities options */}
                                     {ethnicities.map((ethnicity) => (
                                         <option key={ethnicity.id} value={ethnicity.name}>
@@ -381,7 +383,7 @@ export default function Family() {
                             
                             <div>
                                 <select value={selectedReligion} onChange={(e) => setSelectedReligion(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                                    <option value="">All - Religions</option>
+                                    <option value="">{t("filter.Religions")}</option>
                                     {/* Render Religions options */}
                                     {religions.map((religion) => (
                                         <option key={religion.id} value={religion.name}>
@@ -403,103 +405,103 @@ export default function Family() {
                                                 scope="col"
                                                 className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                             >
-                                                No
+                                                {t("No")}
                                             </th>
                                             <th
                                                 scope="col"
                                                 className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter"
                                             >
-                                                Household No
+                                                {t("HouseholdNo")}
                                             </th> 
                                             <th
                                                 scope="col"
                                                 className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-8 lg:pl-8"
                                             >
-                                                Name
+                                               {t("Name")}
                                             </th>
                                             <th
                                                 scope="col"
                                                 className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-8 lg:pl-8"
                                             >
-                                                DOB
+                                               {t("DOB")}
                                             </th>
                                             <th
                                                 scope="col"
                                                 className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-8 lg:pl-8"
                                             >
-                                                Age
+                                                {t("Age")}
                                             </th>
                                             <th
                                                 scope="col"
                                                 className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-8 lg:pl-8"
                                             >
-                                                NRC ID
+                                                {t("NRC")}
                                             </th>
                                             <th
                                                 scope="col"
                                                 className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-8 lg:pl-8"
                                             >
-                                                Gender
+                                                {t("Gender")}
                                             </th>
                                             <th
                                                 scope="col"
                                                 className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-8 lg:pl-8"
                                             >
-                                                Father Name
+                                                {t("FatherName")}
                                             </th> 
                                             <th
                                                 scope="col"
                                                 className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-8 lg:pl-8"
                                             >
-                                                Mother Name
+                                                {t("MotherName")}
                                             </th>  
                                             <th
                                                 scope="col"
                                                 className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-8 lg:pl-8"
                                             >
-                                                Relationship
+                                                {t("Relationship")}
                                             </th>   
                                             <th
                                                 scope="col"
                                                 className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-8 lg:pl-8"
                                             >
-                                                Occupation
+                                                {t("Occupation")}
                                             </th> 
                                             <th
                                                 scope="col"
                                                 className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-8 lg:pl-8"
                                             >
-                                                Education
+                                                {t("Education")}
                                             </th>  
                                             <th
                                                 scope="col"
                                                 className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-8 lg:pl-8"
                                             >
-                                                Ethnicity
+                                                {t("Ethnicity")}
                                             </th>   
                                             <th
                                                 scope="col"
                                                 className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-8 lg:pl-8"
                                             >
-                                                Nationality
+                                                {t("Nationality")}
                                             </th>  
                                             <th
                                                 scope="col"
                                                 className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-8 lg:pl-8"
                                             >
-                                                Religion
+                                                {t("Religion")}
                                             </th> 
                                             <th
                                                 scope="col"
                                                 className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-8 lg:pl-8"
                                             >
-                                                hasLiving
+                                                {t("resident")}
                                             </th> 
                                             <th
                                                 scope="col"
                                                 className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-8 lg:pl-8"
                                             >
-                                                Remarks
+                                                {t("Remarks")}
                                             </th>
                                             <th
                                                 scope="col"
@@ -653,7 +655,7 @@ export default function Family() {
                                                 'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
                                             )}
                                             >
-                                            {family.hasLiving}
+                                            {family.resident}
                                             </td>
                                             <td
                                             className={classNames(
@@ -667,11 +669,11 @@ export default function Family() {
                                                 familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
                                                 'relative whitespace-nowrap py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-8 lg:pr-8'
                                             )}>
-                                                <a href={`/admin/families/${family.id}`} className="text-sky-600 hover:text-sky-900">
+                                                <Link href={`/admin/families/${family.id}`} className="text-sky-600 hover:text-sky-900">
                                                     <PencilSquareIcon className="inline-block w-4 h-4 mr-1 align-text-bottom" aria-hidden="true" />
-                                                    <span className="inline-block align-middle">Edit</span>
+                                                    <span className="inline-block align-middle">{t("other.Edit")}</span>
                                                     <span className="sr-only">, {family.id}</span>
-                                                </a>
+                                                </Link>
                                             </td>
                                             <td className={classNames(
                                                 familyIdx !== family.length - 1 ? 'border-b border-gray-200' : '',
@@ -682,7 +684,7 @@ export default function Family() {
                                                     className="text-red-600 hover:text-red-400"
                                                 >
                                                     <TrashIcon className="inline-block w-4 h-4 mr-1 align-text-bottom" aria-hidden="true" />
-                                                    <span className="inline-block align-middle">Trash</span>
+                                                    <span className="inline-block align-middle">{t("other.Trash")}</span>
                                                     <span className="sr-only">{family.id}</span>
                                                 </button>
                                             </td>
@@ -694,9 +696,9 @@ export default function Family() {
                                 <nav className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6" aria-label="Pagination">
                                     <div className="hidden sm:block">
                                     <p className="text-sm text-gray-700">
-                                        Showing <span className="font-medium">{offset + 1}</span> to{' '}
-                                        <span className="font-medium">{offset + currentPageData.length}</span> of{' '}
-                                        <span className="font-medium">{filteredFamilies.length}</span> results
+                                    {t("other.Showing")} <span className="font-medium">{offset + 1}</span> {t("other.To")}{' '}
+                                        <span className="font-medium">{offset + currentPageData.length}</span> {t("other.Of")}{' '}
+                                        <span className="font-medium">{filteredFamilies.length}</span> {t("other.Results")}
                                     </p>
                                     </div>
                                     <div className="flex justify-between flex-1 sm:justify-end">
@@ -725,7 +727,6 @@ export default function Family() {
         </>
     )
 }
-
 export async function getStaticProps({ locale }) {
     return {
       props: {

@@ -23,3 +23,33 @@ export function classNames(...classes) {
     return classes.filter(Boolean).join(' ');
 }
   
+
+export function translateNumberToMyanmar(number) {
+    const translations = {
+      '0': '၀',
+      '1': '၁',
+      '2': '၂',
+      '3': '၃',
+      '4': '၄',
+      '5': '၅',
+      '6': '၆',
+      '7': '၇',
+      '8': '၈',
+      '9': '၉',
+    };
+  
+    if (number < 10) {
+      return translations[number.toString()] || number.toString();
+    }
+  
+    let translatedNumber = '';
+    const digits = number.toString().split('');
+  
+    for (let i = 0; i < digits.length; i++) {
+      translatedNumber += translations[digits[i]];
+    }
+  
+    return translatedNumber;
+}
+  
+  

@@ -4,7 +4,8 @@ import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 import { UsersIcon, UserGroupIcon, HomeIcon, DocumentIcon, HomeModernIcon, DocumentDuplicateIcon, StarIcon } from '@heroicons/react/24/outline';
 import DropdownSelect from 'react-dropdown-select';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "next-i18next";
+
 
 import { Bar, Pie } from 'react-chartjs-2';
 import { Chart, LinearScale, CategoryScale, BarController, BarElement, ArcElement, Tooltip, Legend, Title } from 'chart.js';
@@ -20,14 +21,7 @@ const Dashboard = () => {
     const user = useUser();
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
-    const { t } = useTranslation(['common', 'dashboard']);
-
-    useEffect(() => {
-        let dir = router.locale == "mm" ? "mm" : "mm";
-        let lang = router.locale == "mm" ? "mm" : "en";
-        document.querySelector("html").setAttribute("dir", dir);
-        document.querySelector("html").setAttribute("lang", lang);
-    }, [router.locale]);
+    const { t } = useTranslation("");
 
     const [totalNumberofDeaths, setTotalNumberofDeaths] = useState(0);
     const [totalNumberofUsers, setTotalNumberofUsers] = useState(0);
@@ -79,8 +73,8 @@ const Dashboard = () => {
     const [selectedDeath, setSelectedDeath] = useState('');
     const [minAge, setMinAge] = useState('');
     const [maxAge, setMaxAge] = useState('');
-    const [hasLiving, setHasLiving] = useState([]);
-    const [selectedHasLiving, setSelectedHasLiving] = useState([]);
+    const [resident, setResident] = useState([]);
+    const [selectedResident, setSelectedResident] = useState([]);
     
       useEffect(() => {
         const fetchData = async () => {
@@ -98,7 +92,7 @@ const Dashboard = () => {
             await fetchTownships();
             await fetchWardVillageTracts();
             await fetchVillages();
-            await fetchHasLiving();
+            await fetchResident();
           } catch (error) {
             console.error('Error fetching data:', error);
           }
@@ -122,7 +116,7 @@ const Dashboard = () => {
             remark,
             isDeath,
             deaths(id),
-            hasLiving,
+            resident,
             disabilities (id),
             relationships (id, name),
             occupations (id, name),
@@ -174,17 +168,17 @@ const Dashboard = () => {
         setMaxAge(inputMaxAge);
     };
     
-    //Multi Select hasLiving start
-    const options = Object.keys(hasLiving).map((hasLivingValue) => ({
-        value: hasLivingValue,
-        label: `${hasLivingValue} (${hasLiving[hasLivingValue].length})`,
+    //Multi Select resident start
+    const options = Object.keys(resident).map((residentValue) => ({
+        value: residentValue,
+        label: `${residentValue} (${resident[residentValue].length})`,
     }));
 
     const handleSelectChange = (selectedItems) => {
     const selectedValues = selectedItems.map((item) => item.value);
-    setSelectedHasLiving(selectedValues);
+    setSelectedResident(selectedValues);
     };
-    //Multi Select hasLiving End
+    //Multi Select resident End
     
     // Filtered faimiles based on search and filters
     const filterFamilies = families.filter((family) => {
@@ -238,7 +232,7 @@ const Dashboard = () => {
 
         const isMatchingHousehold = selectedHousehold === '' || family.household_no === selectedHousehold;
         
-        const isMatchingHasLiving = selectedHasLiving.length === 0 || selectedHasLiving.includes(family.hasLiving);
+        const isMatchingResident = selectedResident.length === 0 || selectedResident.includes(family.resident);
 
         return (
             isMatchingDeath &&
@@ -254,7 +248,7 @@ const Dashboard = () => {
             isMatchingDistrict &&
             isMatchingTownship &&
             isMatchingWardVillageTract &&
-            isMatchingHasLiving &&
+            isMatchingResident &&
             isMatchingVillage
         );
     });
@@ -390,28 +384,28 @@ const Dashboard = () => {
     ];
     //Chart End
     
-    async function fetchHasLiving() {
+    async function fetchResident() {
         try {
           const { data, error } = await supabase
             .from('families')
-            .select('id, name, hasLiving');
+            .select('id, name, resident');
           
           if (error) {
             throw new Error(error.message);
           }
       
-          // Extract unique hasLiving values
-          const uniqueHasLiving = [...new Set(data.map(family => family.hasLiving))];
+          // Extract unique resident values
+          const uniqueResident = [...new Set(data.map(family => family.resident))];
       
-          // Group families by the hasLiving property
-          const groupedFamilies = uniqueHasLiving.reduce((groups, hasLivingValue) => {
-            groups[hasLivingValue] = data.filter(family => family.hasLiving === hasLivingValue);
+          // Group families by the resident property
+          const groupedFamilies = uniqueResident.reduce((groups, residentValue) => {
+            groups[residentValue] = data.filter(family => family.resident === residentValue);
             return groups;
           }, {});
       
-          setHasLiving(groupedFamilies);
+          setResident(groupedFamilies);
         } catch (error) {
-          console.log('Error fetching hasLiving:', error.message);
+          console.log('Error fetching resident:', error.message);
         }
     }
 
@@ -617,7 +611,7 @@ const Dashboard = () => {
                     </div>
                     <div>
                         <span className="block text-2xl font-bold">{totalFamilies}</span>
-                        <span className="block text-gray-500">{t("dashboard.TotalPopulations")}</span>
+                        <span className="block text-sm text-gray-500">{t("dashboard.TotalPopulations")}</span>
                     </div>
                     <div className="absolute bottom-0 left-0 w-full h-1 bg-blue-700" />
                 </div>
@@ -635,7 +629,7 @@ const Dashboard = () => {
                     </div>
                     <div>
                         <span className="block text-2xl font-bold">{totalHouseholds}</span>
-                        <span className="block text-gray-500">{t("dashboard.TotalHouseholds")}</span>
+                        <span className="block text-sm text-gray-500">{t("dashboard.TotalHouseholds")}</span>
                     </div>
                     <div className="absolute bottom-0 left-0 w-full h-1 bg-blue-900" />
                 </div>
@@ -654,7 +648,7 @@ const Dashboard = () => {
                     </div>
                     <div>
                         <span className="inline-block text-2xl font-bold">{totalDeaths}</span>
-                        <span className="block text-gray-500">{t("dashboard.TotalDeaths")}</span>
+                        <span className="block text-sm text-gray-500">{t("dashboard.TotalDeaths")}</span>
                     </div>
                     <div className="absolute bottom-0 left-0 w-full h-1 bg-blue-400" />
                 </div>
@@ -672,7 +666,7 @@ const Dashboard = () => {
                     </div>
                     <div>
                         <span className="inline-block text-2xl font-bold">{totalDisabilities}</span>
-                        <span className="block text-gray-500">{t("dashboard.TotalDisabilities")}</span>
+                        <span className="block text-sm text-gray-500">{t("dashboard.TotalDisabilities")}</span>
                     </div>
                     <div className="absolute bottom-0 left-0 w-full h-1 bg-blue-400" />
                 </div>
@@ -691,7 +685,7 @@ const Dashboard = () => {
                     </div>
                     <div>
                         <span className="block text-2xl font-bold">1</span>
-                        <span className="block text-gray-500">{t("dashboard.TotalUsers")}</span>
+                        <span className="block text-sm text-gray-500">{t("dashboard.TotalUsers")}</span>
                     </div>
                     <div className="absolute bottom-0 left-0 w-full h-1 bg-blue-200" />
                 </div>
@@ -707,12 +701,12 @@ const Dashboard = () => {
                         labels: barChartLabels,
                         datasets: [
                             {
-                            label: 'Populations',
+                            label: t('dashboard.Populations'),
                             data: barChartData,
                             backgroundColor: 'rgba(54, 162, 235, 0.6)',
                             },
                             {
-                            label: 'Households',
+                            label: t('dashboard.Households'),
                             data: barChartDataHousehold,
                             backgroundColor: 'rgba(155, 99, 132, 0.6)',
                             },
@@ -725,6 +719,7 @@ const Dashboard = () => {
                             title: {
                             display: true,
                             text: 'Population Ratio in Village',
+                            text: t('dashboard.PopulationAndHouseholdRation'),
                             position: 'top',
                             font: {
                                 weight: 'bold',
@@ -756,7 +751,7 @@ const Dashboard = () => {
                             display: true,
                             title: {
                                 display: true,
-                                text: 'Total Population',
+                                text: t('dashboard.TotalPopulations'),
                                 font: {
                                 weight: 'bold',
                                 size: 14,
@@ -772,7 +767,7 @@ const Dashboard = () => {
                     <div className="w-full mx-auto overflow-hidden">
                     <Pie
                         data={{
-                        labels: ['Male', 'Female'],
+                        labels: [t('dashboard.Male'), t('dashboard.Female')],
                         datasets: [
                             {
                             data: genderData,
@@ -785,7 +780,7 @@ const Dashboard = () => {
                         plugins: {
                             title: {
                             display: true,
-                            text: 'Gender Ratio',
+                            text: t('dashboard.GenderRatio'),
                             position: 'top',
                             font: {
                                 weight: 'bold',
@@ -825,7 +820,7 @@ const Dashboard = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="p-2 mr-2 border border-gray-300 rounded-md"
-                    placeholder="Search by name"
+                    placeholder={t("filter.Search")}
                 />
                 <button
                     onClick={handleToggleFilter}
@@ -835,7 +830,7 @@ const Dashboard = () => {
                     Filter
                 </button>
                 </div>
-                <p className="text-gray-500">Total Population Result: {filterFamilies.length}</p>
+                <p className="text-gray-500">{t("filter.TotalResults")}: {filterFamilies.length}</p>
             </div>
 
             {showFilter && (
@@ -846,7 +841,7 @@ const Dashboard = () => {
                     onChange={(e) => setSelectedHousehold(e.target.value)}
                     className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6"
                     >
-                    <option value="">All - Household</option>
+                    <option value="">{t("filter.Households")}</option>
                         {/* Render state region options */}
                         {households.map((household) => (
                             <option key={household.id} value={household.household_no}>
@@ -861,7 +856,7 @@ const Dashboard = () => {
                     onChange={(e) => setSelectedStateRegion(e.target.value)}
                     className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6"
                     >
-                    <option value="">All - State/Regions</option>
+                    <option value="">{t("filter.StateRegions")}</option>
                         {/* Render state region options */}
                         {stateRegions.map((stateRegion) => (
                             <option key={stateRegion.id} value={stateRegion.name}>
@@ -873,7 +868,7 @@ const Dashboard = () => {
                     
                 <div>
                     <select value={selectedDistrict} onChange={(e) => setSelectedDistrict(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                        <option value="">All - Districts</option>
+                        <option value="">{t("filter.Districts")}</option>
                         {/* Render district options */}
                         {districts.map((district) => (
                             <option key={district.id} value={district.name}>
@@ -885,7 +880,7 @@ const Dashboard = () => {
 
                 <div>
                     <select value={selectedTownship} onChange={(e) => setSelectedTownship(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                    <option value="">All - Townships</option>
+                    <option value="">{t("filter.Townships")}</option>
                     {/* Render township options */}
                     {townships.map((township) => (
                         <option key={township.id} value={township.name}>
@@ -897,7 +892,7 @@ const Dashboard = () => {
                 
                 <div>
                     <select value={selectedWardVillageTract} onChange={(e) => setSelectedWardVillageTract(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                        <option value="">All - Ward/Village Tracts</option>
+                        <option value="">{t("filter.WardVillageTracts")}</option>
                         {/* Render ward/village tract options */}
                         {wardVillageTracts.map((wardVillageTract) => (
                             <option key={wardVillageTract.id} value={wardVillageTract.name}>
@@ -909,7 +904,7 @@ const Dashboard = () => {
 
                 <div>
                     <select value={selectedVillage} onChange={(e) => setSelectedVillage(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                        <option value="">All Villages</option>
+                        <option value="">{t("filter.Villages")}</option>
                             {villages.map((village) => (
                             <option key={village.id} value={village.name}>
                             {village.name}
@@ -918,12 +913,32 @@ const Dashboard = () => {
                     </select>
                 </div>
                 <div>
+                    <DropdownSelect
+                        multi
+                        values={selectedResident}
+                        options={options}
+                        onChange={handleSelectChange}
+                        placeholder={t("filter.resident")}
+                        style={{
+                        zIndex: 40,
+                        marginTop: 9,
+                        borderRadius: '0.375rem',
+                        padding: '0.375rem 0.75rem',
+                        color: '#4b5563',
+                        ring: '1px inset #e2e8f0',
+                        focusRing: '2px solid #93c5fd',
+                        lineHeight: '1.25rem',
+                        fontSize: '1rem',
+                        }}
+                    />
+                </div>
+                <div>
                     <select
                         value={selectedDeath}
                         onChange={(e) => setSelectedDeath(e.target.value)}
                         className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6"
                     >
-                        <option value="">All - Deaths</option>
+                        <option value="">{t("filter.IsDeath")}</option>
                         {deaths.map((death) => (
                         <option key={death} value={death}>
                             {death}
@@ -938,7 +953,7 @@ const Dashboard = () => {
                     value={minAge}
                     onChange={handleMinAgeChange}
                     className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6"
-                    placeholder="Min Age"
+                    placeholder={t("filter.MinAge")}
                     />
                 </div>
                 <div>
@@ -947,27 +962,7 @@ const Dashboard = () => {
                     value={maxAge}
                     onChange={handleMaxAgeChange}
                     className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6"
-                    placeholder="Max Age"
-                    />
-                </div>
-                <div>
-                    <DropdownSelect
-                        multi
-                        values={selectedHasLiving}
-                        options={options}
-                        onChange={handleSelectChange}
-                        placeholder="Select hasLiving"
-                        style={{
-                        zIndex: 40,
-                        marginTop: 9,
-                        borderRadius: '0.375rem',
-                        padding: '0.375rem 0.75rem',
-                        color: '#4b5563',
-                        ring: '1px inset #e2e8f0',
-                        focusRing: '2px solid #93c5fd',
-                        lineHeight: '1.25rem',
-                        fontSize: '1rem',
-                        }}
+                    placeholder={t("filter.MaxAge")}
                     />
                 </div>
             </div>
@@ -983,43 +978,43 @@ const Dashboard = () => {
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    No
+                                    {t("No")}
                                 </th>
                                 <th
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    Village Name
+                                    {t("dashboard.VillageName")}
                                 </th>
                                 <th
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    Total Gender
+                                    {t("dashboard.TotalGender")}
                                 </th>
                                 <th
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    Total Population
+                                    {t("dashboard.TotalPopulations")}
                                 </th>
                                 <th
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    Total Household
+                                    {t("dashboard.TotalHouseholds")}
                                 </th>
                                 <th
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    Total Death
+                                    {t("dashboard.TotalDeaths")}
                                 </th>
                                 <th
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    Total Disability
+                                    {t("dashboard.TotalDisabilities")}
                                 </th>
                             </tr>
                         </thead>

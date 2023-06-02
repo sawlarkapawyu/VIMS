@@ -7,13 +7,15 @@ import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 import { formatDate } from '/src/pages/utilities/tools.js';
 import { UserMinusIcon } from '@heroicons/react/24/outline';
-
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useTranslation } from "react-i18next";
 
 export default function DisibilitySearch() {
     const router = useRouter();
     const supabase = useSupabaseClient();
     const user = useUser();
-
+    const { t } = useTranslation();
+    
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     
@@ -424,7 +426,7 @@ export default function DisibilitySearch() {
                         <nav className="sm:hidden" aria-label="Back">
                             <a href="#" className="flex items-center text-sm font-medium text-gray-500 hover:text-gray-700">
                                 <ChevronLeftIcon className="flex-shrink-0 w-5 h-5 mr-1 -ml-1 text-gray-400" aria-hidden="true" />
-                                Back
+                                {t("other.Back")}
                             </a>
                             </nav>
                             <nav className="hidden sm:flex" aria-label="Breadcrumb">
@@ -432,7 +434,7 @@ export default function DisibilitySearch() {
                                 <li>
                                 <div className="flex">
                                     <a href="#" className="text-sm font-medium text-gray-500 hover:text-gray-700">
-                                    Admin
+                                    {t("other.Admin")}
                                     </a>
                                 </div>
                                 </li>
@@ -440,7 +442,7 @@ export default function DisibilitySearch() {
                                 <div className="flex items-center">
                                     <ChevronRightIcon className="flex-shrink-0 w-5 h-5 text-gray-400" aria-hidden="true" />
                                     <a href="#" className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
-                                    Disability
+                                    {t("sidebar.Disabilities")}
                                     </a>
                                 </div>
                                 </li>
@@ -448,7 +450,7 @@ export default function DisibilitySearch() {
                                 <div className="flex items-center">
                                     <ChevronRightIcon className="flex-shrink-0 w-5 h-5 text-gray-400" aria-hidden="true" />
                                     <a href="#" aria-current="page" className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
-                                    Register
+                                    {t("Register")}
                                     </a>
                                 </div>
                                 </li>
@@ -459,8 +461,8 @@ export default function DisibilitySearch() {
                     
                     <div className="py-4 sm:flex sm:items-center sm:justify-between sm:gap-3">
                         <div className="flex-1 min-w-0">
-                            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-                                Disability Registration
+                            <h2 className="py-4 text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+                                {t("DisabilityRegistration")}
                             </h2>
                             </div>
                             <div className="relative flex items-center mt-2 sm:mt-0">
@@ -468,7 +470,7 @@ export default function DisibilitySearch() {
                                 type="text"
                                 name="search"
                                 id="search"
-                                placeholder="Search"
+                                placeholder={t("filter.Search")}
                                 value={searchTerm}
                                 onChange={handleSearch}
                                 className="block w-full rounded-md border-0 py-1.5 pr-14 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
@@ -484,12 +486,23 @@ export default function DisibilitySearch() {
                     
                     <div className="py-4 sm:grid sm:grid-cols-6 sm:gap-4">
                         <div>
+                            <select value={selectedHousehold} onChange={handleHousehlodChange} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
+                                <option value="">{t("filter.Households")}</option>
+                                {/* Render Religions options */}
+                                {households.map((household) => (
+                                    <option key={household.id} value={household.household_no}>
+                                    {household.household_no}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
                             <select
                             value={selectedStateRegion}
                             onChange={handleStateRegionChange}
                             className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6"
                             >
-                            <option value="">All - State/Regions</option>
+                            <option value="">{t("filter.StateRegions")}</option>
                                 {/* Render state region options */}
                                 {stateRegions.map((stateRegion) => (
                                     <option key={stateRegion.id} value={stateRegion.name}>
@@ -501,7 +514,7 @@ export default function DisibilitySearch() {
                             
                         <div>
                             <select value={selectedDistrict} onChange={handleDistrictChange} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                                <option value="">All - Districts</option>
+                                <option value="">{t("filter.Districts")}</option>
                                 {/* Render district options */}
                                 {districts.map((district) => (
                                     <option key={district.id} value={district.name}>
@@ -513,7 +526,7 @@ export default function DisibilitySearch() {
 
                         <div>
                             <select value={selectedTownship} onChange={handleTownshipChange} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                            <option value="">All - Townships</option>
+                            <option value="">{t("filter.Townships")}</option>
                             {/* Render township options */}
                             {townships.map((township) => (
                                 <option key={township.id} value={township.name}>
@@ -525,7 +538,7 @@ export default function DisibilitySearch() {
                         
                         <div>
                             <select value={selectedWardVillageTract} onChange={handleWardVillageTractChange} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                                <option value="">All - Ward/Village Tracts</option>
+                                <option value="">{t("filter.WardVillageTracts")}</option>
                                 {/* Render ward/village tract options */}
                                 {wardVillageTracts.map((wardVillageTract) => (
                                     <option key={wardVillageTract.id} value={wardVillageTract.name}>
@@ -537,21 +550,10 @@ export default function DisibilitySearch() {
 
                         <div>
                             <select value={selectedVillage} onChange={handleVillageChange} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                                <option value="">All Villages</option>
+                                <option value="">{t("filter.Villages")}</option>
                                     {villages.map((village) => (
                                     <option key={village.id} value={village.name}>
                                     {village.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <div>
-                            <select value={selectedHousehold} onChange={handleHousehlodChange} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                                <option value="">All - Household No</option>
-                                {/* Render Religions options */}
-                                {households.map((household) => (
-                                    <option key={household.id} value={household.household_no}>
-                                    {household.household_no}
                                     </option>
                                 ))}
                             </select>
@@ -567,61 +569,61 @@ export default function DisibilitySearch() {
                                             scope="col"
                                             className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                         >
-                                            No
+                                            {t("No")}
                                         </th>
                                         <th
                                             scope="col"
                                             className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                         >
-                                            Name
+                                            {t("Name")}
                                         </th>
                                         <th
                                             scope="col"
                                             className="sticky top-0 z-10 hidden border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:table-cell"
                                         >
-                                            NRC ID
+                                            {t("NRC")}
                                         </th>
                                         <th
                                             scope="col"
                                             className="sticky top-0 z-10 hidden border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter lg:table-cell"
                                         >
-                                            Date of Birth
+                                            {t("DOB")}
                                         </th>
                                         <th
                                             scope="col"
                                             className="sticky top-0 z-10 hidden border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter lg:table-cell"
                                         >
-                                            Age
+                                            {t("Age")}
                                         </th>
                                         <th
                                             scope="col"
                                             className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter"
                                         >
-                                            Gender
+                                            {t("Gender")}
                                         </th>
                                         <th
                                             scope="col"
                                             className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter"
                                         >
-                                            Father Name
+                                            {t("FatherName")}
                                         </th>
                                         <th
                                             scope="col"
                                             className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter"
                                         >
-                                            Household No
+                                            {t("HouseholdNo")}
                                         </th>
                                         <th
                                             scope="col"
                                             className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter"
                                         >
-                                            Address
+                                            {t("Address")}
                                         </th>
                                         <th
                                             scope="col"
                                             className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-3 pr-4 backdrop-blur backdrop-filter sm:pr-6 lg:pr-8"
                                         >
-                                            <span className="sr-only">Disability Register</span>
+                                            <span className="sr-only">{t("Register")}</span>
                                         </th>
                                     </tr>
                                 </thead>
@@ -718,7 +720,7 @@ export default function DisibilitySearch() {
                                         >
                                         <a href="#" onClick={() => handleRegistrationClick(family.id)} className="text-red-600 hover:text-sky-900">
                                             <ClipboardDocumentCheckIcon className="inline-block w-4 h-4 mr-1 align-text-bottom" aria-hidden="true" />
-                                            <span className="inline-block align-middle">Register</span>
+                                            <span className="inline-block align-middle">{t("Register")}</span>
                                             <span className="sr-only">, {family.name}</span>
                                         </a>
                                         </td>
@@ -731,9 +733,9 @@ export default function DisibilitySearch() {
                             <nav className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6" aria-label="Pagination">
                                 <div className="hidden sm:block">
                                 <p className="text-sm text-gray-700">
-                                    Showing <span className="font-medium">{offset + 1}</span> to{' '}
-                                    <span className="font-medium">{offset + currentPageData.length}</span> of{' '}
-                                    <span className="font-medium">{filteredFamilies.length}</span> results
+                                    {t("other.Showing")} <span className="font-medium">{offset + 1}</span> {t("other.To")}{' '}
+                                    <span className="font-medium">{offset + currentPageData.length}</span> {t("other.Of")}{' '}
+                                    <span className="font-medium">{filteredFamilies.length}</span> {t("other.Results")}
                                 </p>
                                 </div>
                                 <div className="flex justify-between flex-1 sm:justify-end">
@@ -742,14 +744,14 @@ export default function DisibilitySearch() {
                                     className="relative inline-flex items-center px-3 py-2 text-sm font-semibold text-gray-900 bg-white rounded-md ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
                                     disabled={currentPage === 0}
                                 >
-                                    Previous
+                                    {t("other.Previous")}
                                 </button>
                                 <button
                                     onClick={goToNextPage}
                                     className="relative inline-flex items-center px-3 py-2 ml-3 text-sm font-semibold text-gray-900 bg-white rounded-md ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
                                     disabled={currentPage === Math.ceil(filteredFamilies.length / perPage) - 1}
                                 >
-                                    Next
+                                    {t("other.Next")}
                                 </button>
                                 </div>
                             </nav>
@@ -760,18 +762,18 @@ export default function DisibilitySearch() {
                                 <Modal onClose={() => setSelectedFamily(null)}>
                                     <div className="grid max-w-4xl grid-cols-1 px-6 py-4 mx-auto gap-x-4 gap-y-8 sm:grid-cols-1">
                                         <div className="sm:col-span-4">
-                                            <div className="text-lg font-bold">Disability Registration Form</div>
+                                            <div className="text-lg font-bold">{t("DisabilityRegistrationForm")}</div>
                                             <hr className="my-2 border-gray-300" />
-                                            <p><span className="font-semibold">Death Date:</span> {selectedFamily.name}</p>
-                                            <p><span className="font-semibold">Date of Birth:</span> {selectedFamily.date_of_birth}</p>
-                                            <p><span className="font-semibold">Gender:</span> {selectedFamily.gender}</p>
-                                            <p><span className="font-semibold">NRC ID:</span> {selectedFamily.nrc_id}</p>
-                                            <p><span className="font-semibold">Address:</span> {`${selectedFamily.households.villages.name}\n${selectedFamily.households.ward_village_tracts.name}\n${selectedFamily.households.townships.name}, ${selectedFamily.households.districts.name},${selectedFamily.households.state_regions.name}`}</p>
+                                            <p><span className="font-semibold">{t("Name")}:</span> {selectedFamily.name}</p>
+                                            <p><span className="font-semibold">{t("DOB")}:</span> {formatDate(selectedFamily.date_of_birth)}</p>
+                                            <p><span className="font-semibold">{t("Gender")}:</span> {selectedFamily.gender}</p>
+                                            <p><span className="font-semibold">{t("NRC")}:</span> {selectedFamily.nrc_id}</p>
+                                            <p><span className="font-semibold">{t("Address")}:</span> {`${selectedFamily.households.villages.name}\n${selectedFamily.households.ward_village_tracts.name}\n${selectedFamily.households.townships.name}, ${selectedFamily.households.districts.name},${selectedFamily.households.state_regions.name}`}</p>
                                         </div>
                                         {/* Type */}
                                         <div className="sm:col-span-4">
                                             <label htmlFor="" className="block text-sm font-medium leading-6 text-gray-900">
-                                            Type of Disabilities
+                                            {t("TypeOfDisability")}
                                             </label>
                                             <div className="relative mt-2">
                                                 <select
@@ -780,7 +782,7 @@ export default function DisibilitySearch() {
                                                     onChange={handleDisabilityChange}
                                                     className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
                                                 >
-                                                    <option value="">Select Type</option>
+                                                    <option value="">{t("other.Choose")}</option>
                                                     {type_disabilities.map((disability, index) => (
                                                     <option key={index} value={disability.id}>
                                                         {disability.name}
@@ -788,7 +790,7 @@ export default function DisibilitySearch() {
                                                     ))}
                                                     <option disabled>──────────</option>
                                                     <option value="new" className="font-medium text-blue-500">
-                                                        Add a new disability
+                                                        {t("other.Add")}
                                                     </option>
                                                 </select>
                                             </div>
@@ -802,7 +804,7 @@ export default function DisibilitySearch() {
                                                         <div className="inline-block px-4 pt-5 pb-4 overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
                                                         <div>
                                                             <div className="mt-3 text-center sm:mt-5">
-                                                                <h3 className="text-lg font-medium leading-6 text-gray-900">Add a new disability</h3>
+                                                                <h3 className="text-lg font-medium leading-6 text-gray-900">{t("other.Add")} - {t("TypeOfDisability")}</h3>
                                                                 <div className="mt-2">
                                                                     <input
                                                                     type="text"
@@ -811,7 +813,6 @@ export default function DisibilitySearch() {
                                                                     value={newDisability}
                                                                     onChange={handleNewDisabilityChange}
                                                                     className="block w-full px-3 py-2 mt-2 mb-2 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                                                    placeholder="Enter a new occupation"
                                                                     />
                                                                 </div>
                                                             </div>
@@ -822,14 +823,14 @@ export default function DisibilitySearch() {
                                                                     disabled={!selectedDisability && !newDisability}
                                                                     onClick={handleNewDisabilitySubmit}
                                                                 >
-                                                                    Submit
+                                                                    {t("other.Submit")}
                                                                 </button>
                                                                 <button
                                                                     type="button"
                                                                     className="inline-block w-full px-4 py-2 ml-2 text-base font-medium text-gray-700 bg-gray-200 border border-transparent rounded-md shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:text-sm"
                                                                     onClick={handleCloseModalDisability}
                                                                 >
-                                                                    Cancel
+                                                                    {t("other.Cancel")}
                                                                 </button>
                                                             </div>
                                                         </div>
@@ -842,7 +843,7 @@ export default function DisibilitySearch() {
                                         <div className="sm:col-span-4">
                                             <textarea
                                                 id="about"
-                                                placeholder="Descriptions"
+                                                placeholder={t("Description")}
                                                 value={description}
                                                 onChange={(e) => setDescription(e.target.value)}
                                                 rows={3}
@@ -855,13 +856,13 @@ export default function DisibilitySearch() {
                                                 type="submit"
                                                 className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
                                             >
-                                                Register
+                                                {t("other.Submit")}
                                             </button>
                                             <button
                                                 className="px-4 py-2 text-white bg-gray-800 rounded hover:bg-gray-700"
                                                 onClick={() => setSelectedFamily(null)}
                                             >
-                                                Close
+                                                {t("other.Cancel")}
                                             </button>
                                         </div>
 
@@ -888,3 +889,11 @@ const Modal = ({ children }) => {
       </div>
     );
 };
+
+export async function getStaticProps({ locale }) {
+    return {
+      props: {
+        ...(await serverSideTranslations(locale, ["common", "filter", "other"])),
+      },
+    };
+}

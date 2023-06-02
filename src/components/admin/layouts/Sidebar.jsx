@@ -25,11 +25,12 @@ import { useTranslation } from "next-i18next";
 import Link from "next/link";
 
 
-const teams = [
-  { id: 1, name: 'Help', href: '#', initial: '?', current: false },
-  { id: 2, name: 'Tailwind Labs', href: '#', initial: 'T', current: false },
-  { id: 3, name: 'Workcation', href: '#', initial: 'W', current: false },
-]
+// const teams = [
+//   { id: 1, name: 'Help', href: '#', initial: '?', current: false },
+//   { id: 2, name: 'Tailwind Labs', href: '#', initial: 'T', current: false },
+//   { id: 3, name: 'Workcation', href: '#', initial: 'W', current: false },
+// ]
+
 const userNavigation = [
   { name: 'Your profile', href: '#' },
   { name: 'Sign out', href: '#' },
@@ -52,13 +53,13 @@ export default function Sidebar({children}) {
     }, [router.locale]);
     
     const navigation = [
-      { name: t("sidebar.Dashboard"), href: '/admin/dashboard', icon: Squares2X2Icon, current: true },
-      { name: t("sidebar.Households"), href: '/admin/households', icon: HomeModernIcon, current: false },
-      { name: t("sidebar.Families"), href: '/admin/families', icon: UserGroupIcon, current: false },
-      { name: t("sidebar.Deaths"), href: '/admin/deaths', icon: DocumentDuplicateIcon, current: false },
-      { name: t("sidebar.Disabilities"), href: '/admin/disabilities', icon: StarIcon, current: false },
-      { name: t("sidebar.Reports"), href: '/admin/reports', icon: ChartPieIcon, current: false },
-    ]
+      { name: t('sidebar.Dashboard'), href: '/admin/dashboard', icon: Squares2X2Icon },
+      { name: t('sidebar.Households'), href: '/admin/households', icon: HomeModernIcon },
+      { name: t('sidebar.Families'), href: '/admin/families', icon: UserGroupIcon },
+      { name: t('sidebar.Deaths'), href: '/admin/deaths', icon: DocumentDuplicateIcon },
+      { name: t('sidebar.Disabilities'), href: '/admin/disabilities', icon: StarIcon },
+      { name: t('sidebar.Reports'), href: '/admin/reports', icon: ChartPieIcon },
+    ];
 
     return (
       <>
@@ -120,40 +121,34 @@ export default function Sidebar({children}) {
                             src={logo} 
                             alt="Logo" 
                         />
-                        <span className='px-2 font-semibold text-left text-white'>Village Information Management System</span>
+                        <span className='px-2 font-semibold text-left text-white'>{t("sidebar.VIMS")}</span>
                       </div>
                       <nav className="flex flex-col flex-1">
                         <ul role="list" className="flex flex-col flex-1 gap-y-7">
                           <li>
                             <ul role="list" className="-mx-2 space-y-1">
                               {navigation.map((item) => (
-                                <li key={item.name} className={`nav-link ${router?.pathname === '/' ? 'active' : ''}`}>
+                                <li key={item.name} className={item.href === router.asPath ? 'active' : ''}>
                                   <Link href={`/${router.locale}${item.href}`}
-                                        className={classNames(
-                                          item.current
-                                            ? 'current'
-                                            : '',
-                                          item.current
-                                            ? 'bg-sky-700 text-white'
-                                            : 'text-sky-200 hover:text-white hover:bg-sky-700',
-                                          'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
-                                        )}
+                                    className={classNames(
+                                      item.href === router.asPath ? 'bg-sky-700 text-white' : 'text-sky-200 hover:text-white hover:bg-sky-700',
+                                      'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
+                                    )}
                                   >
-                                      <item.icon
-                                        className={classNames(
-                                          item.current ? 'text-white' : 'text-sky-200 group-hover:text-white',
-                                          'h-6 w-6 shrink-0'
-                                        )}
-                                        aria-hidden="true"
-                                      />
-                                      {item.name}
-                                   
+                                    <item.icon
+                                      className={classNames(
+                                        item.href === router.asPath ? 'text-white' : 'text-sky-200 group-hover:text-white',
+                                        'h-6 w-6 shrink-0'
+                                      )}
+                                      aria-hidden="true"
+                                    />
+                                    {item.name}
                                   </Link>
                                 </li>
                               ))}
                             </ul>
                           </li>
-                          <li>
+                          {/* <li>
                             <div className="text-xs font-semibold leading-6 text-sky-200">Your teams</div>
                             <ul role="list" className="mt-2 -mx-2 space-y-1">
                               {teams.map((team) => (
@@ -175,7 +170,7 @@ export default function Sidebar({children}) {
                                 </li>
                               ))}
                             </ul>
-                          </li>
+                          </li> */}
                           <li className="mt-auto">
                             <a
                               href="#"
@@ -201,43 +196,41 @@ export default function Sidebar({children}) {
           <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
             {/* Sidebar component, swap this element with another sidebar if you like */}
             <div className="flex flex-col px-6 pb-4 overflow-y-auto bg-sky-600 grow gap-y-5">
-                <div className="flex items-center h-16 shrink-0">
-                    <Image 
-                        className="w-auto h-10"
-                        src={logo} 
-                        alt="Logo" 
-                    />
-                    <span className='px-2 text-sm font-semibold text-left text-white'>Village Information Management System</span>
-                </div>
-
+              <div className="flex items-center h-16 shrink-0">
+                  <Image 
+                      className="w-auto h-10"
+                      src={logo} 
+                      alt="Logo" 
+                  />
+                  <span className='px-2 text-sm font-semibold text-left text-white'>{t("sidebar.VIMS")}</span>
+              </div>
+                {/* Web */}
               <nav className="flex flex-col flex-1">
                 <ul role="list" className="flex flex-col flex-1 gap-y-7">
                   <li>
                     <ul role="list" className="-mx-2 space-y-1">
-                        {navigation.map((item) => (
-                          <li key={item.name}>
-                            <Link href={`/${router.locale}${item.href}`}
-                              className={classNames(
-                              item.current
-                                ? 'bg-sky-700 text-white'
-                                : 'text-sky-200 hover:text-white hover:bg-sky-700',
+                      {navigation.map((item) => (
+                        <li key={item.name} className={item.href === router.asPath ? 'active' : ''}>
+                          <Link href={`/${router.locale}${item.href}`}
+                            className={classNames(
+                              item.href === router.asPath ? 'bg-sky-700 text-white' : 'text-sky-200 hover:text-white hover:bg-sky-700',
                               'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
-                            )}>
-                                <item.icon
-                                  className={classNames(
-                                    item.current ? 'text-white' : 'text-sky-200 group-hover:text-white',
-                                    'h-6 w-6 shrink-0'
-                                  )}
-                                  aria-hidden="true"
-                                />
-                                {item.name}
-                             
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
+                            )}
+                          >
+                            <item.icon
+                              className={classNames(
+                                item.href === router.asPath ? 'text-white' : 'text-sky-200 group-hover:text-white',
+                                'h-6 w-6 shrink-0'
+                              )}
+                              aria-hidden="true"
+                            />
+                            {item.name}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
                   </li>
-                  <li>
+                  {/* <li>
                     <div className="text-xs font-semibold leading-6 text-sky-200">Your teams</div>
                     <ul role="list" className="mt-2 -mx-2 space-y-1">
                       {teams.map((team) => (
@@ -259,7 +252,7 @@ export default function Sidebar({children}) {
                         </li>
                       ))}
                     </ul>
-                  </li>
+                  </li> */}
                   <li className="mt-auto">
                     <a
                       href="#"
@@ -305,10 +298,10 @@ export default function Sidebar({children}) {
                   />
                 </form>
                 <div className="flex items-center gap-x-4 lg:gap-x-6">
-                  <button type="button" className="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500">
+                  {/* <button type="button" className="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500">
                     <span className="sr-only">View notifications</span>
                     <BellIcon className="w-6 h-6" aria-hidden="true" />
-                  </button>
+                  </button> */}
                   {/* Language */}
                   <LocaleSwitcher/>
                   {/* Language flags */}
@@ -343,7 +336,7 @@ export default function Sidebar({children}) {
                       />
                       <span className="hidden lg:flex lg:items-center">
                         <span className="ml-4 text-sm font-semibold leading-6 text-gray-900" aria-hidden="true">
-                          Tom Cook
+                          {t("other.Admin")}
                         </span>
                         <ChevronDownIcon className="w-5 h-5 ml-2 text-gray-400" aria-hidden="true" />
                       </span>

@@ -5,12 +5,14 @@ import { ArrowUturnLeftIcon } from '@heroicons/react/24/outline';
 import React, { useState, useEffect } from "react";
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useTranslation } from "next-i18next";
 
 export default function HouseholdAdd() {
     const router = useRouter();
     const supabase = useSupabaseClient();
     const user = useUser();
-
+    const { t } = useTranslation("");
     const [entryDate, setEntryDate] = useState('');
     const [householdId, setHouseholdId] = useState('');
     const [houseNo, setHouseNo] = useState('');
@@ -265,7 +267,7 @@ export default function HouseholdAdd() {
                         <nav className="sm:hidden" aria-label="Back">
                         <a href="#" className="flex items-center text-sm font-medium text-gray-500 hover:text-gray-700">
                             <ChevronLeftIcon className="flex-shrink-0 w-5 h-5 mr-1 -ml-1 text-gray-400" aria-hidden="true" />
-                            Back
+                            {t("other.Back")}
                         </a>
                         </nav>
                         <nav className="hidden sm:flex" aria-label="Breadcrumb">
@@ -273,7 +275,7 @@ export default function HouseholdAdd() {
                             <li>
                             <div className="flex">
                                 <a href="#" className="text-sm font-medium text-gray-500 hover:text-gray-700">
-                                Admin
+                                {t("other.Admin")}
                                 </a>
                             </div>
                             </li>
@@ -281,7 +283,7 @@ export default function HouseholdAdd() {
                             <div className="flex items-center">
                                 <ChevronRightIcon className="flex-shrink-0 w-5 h-5 text-gray-400" aria-hidden="true" />
                                 <a href="#" className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
-                                Househlods
+                                {t("sidebar.Households")}
                                 </a>
                             </div>
                             </li>
@@ -289,7 +291,7 @@ export default function HouseholdAdd() {
                             <div className="flex items-center">
                                 <ChevronRightIcon className="flex-shrink-0 w-5 h-5 text-gray-400" aria-hidden="true" />
                                 <a href="#" aria-current="page" className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
-                                Add
+                                {t("other.Add")}
                                 </a>
                             </div>
                             </li>
@@ -298,8 +300,8 @@ export default function HouseholdAdd() {
                     </div>
                     <div className="mt-2 md:flex md:items-center md:justify-between">
                         <div className="flex-1 min-w-0">
-                        <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-                            Households
+                        <h2 className="py-4 text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+                        {t("sidebar.Households")}
                         </h2>
                         </div>
                         <div className="flex flex-shrink-0 mt-4 md:ml-4 md:mt-0">
@@ -314,7 +316,7 @@ export default function HouseholdAdd() {
                             onClick={handleBackClick}
                             className="inline-flex items-center px-3 py-2 ml-3 text-sm font-semibold text-white rounded-md shadow-sm bg-sky-600 hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
                         >
-                            <ArrowUturnLeftIcon className="w-5 h-5 mr-2" /> Go Back
+                            <ArrowUturnLeftIcon className="w-5 h-5 mr-2" />{t("other.Back")}
                         </button>
                         </div>
                     </div>
@@ -325,7 +327,7 @@ export default function HouseholdAdd() {
                         <div className="grid grid-cols-1 px-3 py-3 md:grid-cols-3"> {/* Updated className */}
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
                                 <label htmlFor="householdId" className="block text-sm font-medium leading-6 text-gray-900">
-                                    Household No
+                                    {t("HouseholdNo")}
                                 </label>
                                 <div className="mt-2">
                                     <input
@@ -341,7 +343,7 @@ export default function HouseholdAdd() {
 
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
                                 <label htmlFor="entryDate" className="block text-sm font-medium leading-6 text-gray-900">
-                                    Entry Date
+                                    {t("EntryDate")}
                                 </label>
                                 <div className="mt-2">
                                     <input
@@ -356,7 +358,7 @@ export default function HouseholdAdd() {
 
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
                                 <label htmlFor="houseNo" className="block text-sm font-medium leading-6 text-gray-900">
-                                    House Number
+                                    {t("HouseNo")}
                                 </label>
                                 <div className="mt-2">
                                     <input
@@ -372,7 +374,7 @@ export default function HouseholdAdd() {
 
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
                                 <label htmlFor="stateRegions" className="block text-sm font-medium leading-6 text-gray-900">
-                                State/Regions
+                                    {t("StateRegions")}
                                 </label>
                                 <div className="mt-2">
                                     <select 
@@ -380,7 +382,7 @@ export default function HouseholdAdd() {
                                         value={selectedStateRegion ? selectedStateRegion.id : ""}
                                         onChange={handleStateRegionChange} 
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6">
-                                        <option value="">Select state/region</option>
+                                        <option value="">{t("other.Choose")}</option>
                                         {stateRegions.map((sr) => (
                                         <option key={sr.id} value={sr.id}>
                                             {sr.name}
@@ -392,7 +394,7 @@ export default function HouseholdAdd() {
                             
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
                                 <label htmlFor="districts" className="block text-sm font-medium leading-6 text-gray-900">
-                                Districts
+                                    {t("Districts")}
                                 </label>
                                 <div className="mt-2">
                                     <select 
@@ -400,7 +402,7 @@ export default function HouseholdAdd() {
                                         value={selectedDistrict ? selectedDistrict.id :"" }
                                         onChange={handleDistrictChange} 
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6">
-                                        <option value="">Select district</option>
+                                        <option value="">{t("other.Choose")}</option>
                                         {districts.map((d) => (
                                         <option key={d.id} value={d.id}>
                                             {d.name}
@@ -412,7 +414,7 @@ export default function HouseholdAdd() {
 
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
                                 <label htmlFor="townships" className="block text-sm font-medium leading-6 text-gray-900">
-                                Townships
+                                    {t("Townships")}
                                 </label>
                                 <div className="mt-2">
                                     <select 
@@ -420,7 +422,7 @@ export default function HouseholdAdd() {
                                         value={selectedTownship ? selectedDistrict.id: ""}
                                         onChange={handleTownshipChange} 
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6">
-                                        <option value="">Select township</option>
+                                        <option value="">{t("other.Choose")}</option>
                                         {townships.map((t) => (
                                         <option key={t.id} value={t.id}>
                                             {t.name}
@@ -432,7 +434,7 @@ export default function HouseholdAdd() {
 
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
                                 <label htmlFor="wardVillageTracts" className="block text-sm font-medium leading-6 text-gray-900">
-                                Ward/Village Tracts
+                                    {t("WardVillageTracts")}
                                 </label>
                                 <div className="mt-2">
                                     <select 
@@ -440,7 +442,7 @@ export default function HouseholdAdd() {
                                         value={selectedWardVillageTract ? selectedWardVillageTract.id : ""}
                                         onChange={handleWardVillageTractChange} 
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6">
-                                        <option value="">Select ward/village tract</option>
+                                        <option value="">{t("other.Choose")}</option>
                                         {wardVillageTracts.map((wvt) => (
                                         <option key={wvt.id} value={wvt.id}>
                                             {wvt.name}
@@ -452,7 +454,7 @@ export default function HouseholdAdd() {
 
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
                                 <label htmlFor="selectedVillage" className="block text-sm font-medium leading-6 text-gray-900">
-                                Villages
+                                    {t("Villages")}
                                 </label>
                                 <div className="mt-2">
                                     <select 
@@ -460,7 +462,7 @@ export default function HouseholdAdd() {
                                         value={selectedVillage}
                                         onChange={handleVillageChange} 
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6">
-                                        <option value="">Select village</option>
+                                        <option value="">{t("other.Choose")}</option>
                                         {villages.map((v) => (
                                         <option key={v.id} value={v.id}>
                                             {v.name}
@@ -473,13 +475,13 @@ export default function HouseholdAdd() {
                         </div>
                         <div className="flex items-center justify-end px-4 py-4 border-t gap-x-6 border-gray-900/10 sm:px-8">
                             <button type="button" className="text-sm font-semibold leading-6 text-gray-900">
-                            Cancel
+                            {t("other.Cancel")}
                             </button>
                             <button
                             type="submit"
                             className="px-3 py-2 text-sm font-semibold text-white rounded-md shadow-sm bg-sky-600 hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
                             >
-                            Submit
+                            {t("other.Submit")}
                             </button>
                         </div>  
                     </form>
@@ -488,4 +490,12 @@ export default function HouseholdAdd() {
         
         </>
     )
+}
+
+export async function getStaticProps({ locale }) {
+    return {
+      props: {
+        ...(await serverSideTranslations(locale, ["common"])),
+      },
+    };
 }

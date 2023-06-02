@@ -7,12 +7,15 @@ import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 import { ArrowUturnLeftIcon } from '@heroicons/react/24/outline';
 import { getDateValue } from '/src/pages/utilities/tools.js';
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useTranslation } from "next-i18next";
 
 export default function DisabilityEdit() {
     const router = useRouter();
     const supabase = useSupabaseClient();
     const user = useUser();
     const { id } = router.query;
+    const { t } = useTranslation("");
 
     const [disabilities, setDisabilities] = useState(null);
     const [typeDisabilities, setTypeDisabilities] = useState([]);
@@ -146,7 +149,7 @@ export default function DisabilityEdit() {
                         <nav className="sm:hidden" aria-label="Back">
                         <a href="#" className="flex items-center text-sm font-medium text-gray-500 hover:text-gray-700">
                             <ChevronLeftIcon className="flex-shrink-0 w-5 h-5 mr-1 -ml-1 text-gray-400" aria-hidden="true" />
-                            Back
+                            {t("other.Back")}
                         </a>
                         </nav>
                         <nav className="hidden sm:flex" aria-label="Breadcrumb">
@@ -154,7 +157,7 @@ export default function DisabilityEdit() {
                             <li>
                             <div className="flex">
                                 <a href="#" className="text-sm font-medium text-gray-500 hover:text-gray-700">
-                                Admin
+                                {t("other.Admin")}
                                 </a>
                             </div>
                             </li>
@@ -162,7 +165,7 @@ export default function DisabilityEdit() {
                             <div className="flex items-center">
                                 <ChevronRightIcon className="flex-shrink-0 w-5 h-5 text-gray-400" aria-hidden="true" />
                                 <a href="#" className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
-                                Disability
+                                {t("sidebar.Disabilities")}
                                 </a>
                             </div>
                             </li>
@@ -170,7 +173,7 @@ export default function DisabilityEdit() {
                             <div className="flex items-center">
                                 <ChevronRightIcon className="flex-shrink-0 w-5 h-5 text-gray-400" aria-hidden="true" />
                                 <a href="#" aria-current="page" className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
-                                Edit
+                                {t("other.Edit")}
                                 </a>
                             </div>
                             </li>
@@ -179,8 +182,8 @@ export default function DisabilityEdit() {
                     </div>
                     <div className="mt-2 md:flex md:items-center md:justify-between">
                         <div className="flex-1 min-w-0">
-                        <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-                            Disabilities
+                        <h2 className="py-4 text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+                        {t("DisabilityRegistration")}
                         </h2>
                         </div>
                         <div className="flex flex-shrink-0 mt-4 md:ml-4 md:mt-0">
@@ -195,7 +198,7 @@ export default function DisabilityEdit() {
                             onClick={handleBackClick}
                             className="inline-flex items-center px-3 py-2 ml-3 text-sm font-semibold text-white rounded-md shadow-sm bg-sky-600 hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
                         >
-                            <ArrowUturnLeftIcon className="w-5 h-5 mr-2" /> Go Back
+                            <ArrowUturnLeftIcon className="w-5 h-5 mr-2" /> {t("other.Back")}
                         </button>
                         </div>
                     </div>
@@ -205,18 +208,18 @@ export default function DisabilityEdit() {
                     <form onSubmit={handleEditDisability} className="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2">
                         {disabilities && (
                         <div className="grid grid-cols-1 px-6 py-6 md:grid-cols-1">
-                            <p><span className="font-semibold">Name:</span> {disabilities.families.name}</p>
-                            <p><span className="font-semibold">Date of Birth:</span> {getDateValue(disabilities.families.date_of_birth)}</p>
-                            <p><span className="font-semibold">Gender:</span> {disabilities.families.gender}</p>
-                            <p><span className="font-semibold">NRC ID:</span> {disabilities.families.nrc_id}</p>
-                            <p><span className="font-semibold">Address:</span> {`${disabilities.families.households.villages.name}\n${disabilities.families.households.ward_village_tracts.name}\n${disabilities.families.households.townships.name}, ${disabilities.families.households.districts.name},${disabilities.families.households.state_regions.name}`}</p>
+                            <p><span className="font-semibold">{t("Name")}:</span> {disabilities.families.name}</p>
+                            <p><span className="font-semibold">{t("DOB")}:</span> {getDateValue(disabilities.families.date_of_birth)}</p>
+                            <p><span className="font-semibold">{t("Gender")}:</span> {disabilities.families.gender}</p>
+                            <p><span className="font-semibold">{t("NRC")}:</span> {disabilities.families.nrc_id}</p>
+                            <p><span className="font-semibold">{t("Address")}:</span> {`${disabilities.families.households.villages.name}\n${disabilities.families.households.ward_village_tracts.name}\n${disabilities.families.households.townships.name}, ${disabilities.families.households.districts.name},${disabilities.families.households.state_regions.name}`}</p>
                         </div>
                          )}
                         <div className="grid grid-cols-1 px-3 py-3 border-t md:grid-cols-2"> {/* Updated className */}
                             {/* Type */}
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
                                 <label htmlFor="" className="block text-sm font-medium leading-6 text-gray-900">
-                                Type of Disabilities
+                                {t("TypeOfDisability")}
                                 </label>
                                 <div className="relative mt-2">
                                     <select
@@ -225,7 +228,7 @@ export default function DisabilityEdit() {
                                         onChange={handleDisabilityChange}
                                         className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
                                     >
-                                        <option value="">Select Type</option>
+                                        <option value="">{t("other.Choose")}</option>
                                         {typeDisabilities && typeDisabilities.map((disability, index) => (
                                             <option key={index} value={disability.id}>
                                             {disability.name}
@@ -233,7 +236,7 @@ export default function DisabilityEdit() {
                                         ))}
                                         <option disabled>──────────</option>
                                         <option value="new" className="font-medium text-blue-500">
-                                            Add a new disability
+                                            {t("other.Add")}
                                         </option>
                                     </select>
                                 </div>
@@ -247,7 +250,7 @@ export default function DisabilityEdit() {
                                             <div className="inline-block px-4 pt-5 pb-4 overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
                                             <div>
                                                 <div className="mt-3 text-center sm:mt-5">
-                                                    <h3 className="text-lg font-medium leading-6 text-gray-900">Add a new disability</h3>
+                                                    <h3 className="text-lg font-medium leading-6 text-gray-900">{t("other.Add")} - {t("TypeOfDisability")}</h3>
                                                     <div className="mt-2">
                                                         <input
                                                         type="text"
@@ -256,7 +259,6 @@ export default function DisabilityEdit() {
                                                         value={newDisability}
                                                         onChange={handleNewDisabilityChange}
                                                         className="block w-full px-3 py-2 mt-2 mb-2 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                                        placeholder="Enter a new occupation"
                                                         />
                                                     </div>
                                                 </div>
@@ -267,14 +269,14 @@ export default function DisabilityEdit() {
                                                         disabled={!selectedDisabilityType && !newDisability}
                                                         onClick={handleNewDisabilitySubmit}
                                                     >
-                                                        Submit
+                                                        {t("other.Submit")}
                                                     </button>
                                                     <button
                                                         type="button"
                                                         className="inline-block w-full px-4 py-2 ml-2 text-base font-medium text-gray-700 bg-gray-200 border border-transparent rounded-md shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:text-sm"
                                                         onClick={handleCloseModalDisability}
                                                     >
-                                                        Cancel
+                                                        {t("other.Cancel")}
                                                     </button>
                                                 </div>
                                             </div>
@@ -285,7 +287,7 @@ export default function DisabilityEdit() {
                             </div>
                             <div className="col-span-1 px-3 py-3 mt-3 md:col-span-1">
                                 <label htmlFor="description" className="block text-sm font-medium leading-6 text-gray-900">
-                                Description
+                                {t("Description")}
                                 </label>
                                 <div className="mt-2">
                                     <input
@@ -300,13 +302,13 @@ export default function DisabilityEdit() {
                         </div> 
                         <div className="flex items-center justify-end px-4 py-4 border-t gap-x-6 border-gray-900/10 sm:px-8">
                             <button type="button" className="text-sm font-semibold leading-6 text-gray-900">
-                            Cancel
+                            {t("other.Cancel")}
                             </button>
                             <button
                             type="submit"
                             className="px-3 py-2 text-sm font-semibold text-white rounded-md shadow-sm bg-sky-600 hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
                             >
-                            Submit
+                            {t("other.Submit")}
                             </button>
                         </div>
                     </form>
@@ -315,4 +317,21 @@ export default function DisabilityEdit() {
         
         </>
     )
+}
+
+export async function getStaticPaths() {
+    return {
+      paths: [
+        '/admin/disabilities/[id]',
+      ],
+      fallback: true,
+    }
+}
+
+export async function getStaticProps({ locale }) {
+    return {
+      props: {
+        ...(await serverSideTranslations(locale, ["common"])),
+      },
+    };
 }

@@ -27,7 +27,7 @@ CREATE TABLE families (
   father_name text,
   mother_name text,
   remark text,
-  hasLiving text,
+  resident text,
   isDeath text,
   inserted_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
   relationship_id bigint NULL REFERENCES relationships(id) ON DELETE CASCADE,

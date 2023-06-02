@@ -1,18 +1,20 @@
 import Head from 'next/head'
 import Sidebar from '@/components/admin/layouts/Sidebar'
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 import { ChevronRightIcon, ChevronLeftIcon, TrashIcon, PencilSquareIcon, DocumentPlusIcon } from '@heroicons/react/24/outline';
-import { formatDate, classNames } from '/src/pages/utilities/tools.js';
+import { formatDate, classNames, translateNumberToMyanmar } from '/src/pages/utilities/tools.js';
 
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useTranslation } from "next-i18next";
 
 export default function Household() {
     const router = useRouter();
     const supabase = useSupabaseClient();
     const user = useUser();
-    
+    const { t } = useTranslation("");
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [households, setHouseholds] = useState([]);
@@ -250,7 +252,7 @@ export default function Household() {
                     <nav className="sm:hidden" aria-label="Back">
                         <a href="#" className="flex items-center text-sm font-medium text-gray-500 hover:text-gray-700">
                             <ChevronLeftIcon className="flex-shrink-0 w-5 h-5 mr-1 -ml-1 text-gray-400" aria-hidden="true" />
-                            Back
+                            {t("other.Back")}
                         </a>
                         </nav>
                         <nav className="hidden sm:flex" aria-label="Breadcrumb">
@@ -258,7 +260,7 @@ export default function Household() {
                             <li>
                             <div className="flex">
                                 <a href="#" className="text-sm font-medium text-gray-500 hover:text-gray-700">
-                                Admin
+                                {t("other.Admin")}
                                 </a>
                             </div>
                             </li>
@@ -266,7 +268,7 @@ export default function Household() {
                             <div className="flex items-center">
                                 <ChevronRightIcon className="flex-shrink-0 w-5 h-5 text-gray-400" aria-hidden="true" />
                                 <a href="#" className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
-                                Household
+                                {t("sidebar.Reports")}
                                 </a>
                             </div>
                             </li>
@@ -274,7 +276,7 @@ export default function Household() {
                             <div className="flex items-center">
                                 <ChevronRightIcon className="flex-shrink-0 w-5 h-5 text-gray-400" aria-hidden="true" />
                                 <a href="#" aria-current="page" className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
-                                Show All
+                                {t("other.Show")}
                                 </a>
                             </div>
                             </li>
@@ -285,7 +287,7 @@ export default function Household() {
                 
                 <div className="sm:flex sm:items-center">
                     <div className="sm:flex-auto">
-                        <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">Households</h2>
+                        <h2 className="py-4 text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">{t("sidebar.Households")}</h2>
                         {/* <p className="mt-2 text-sm text-gray-700">
                             A list of all the users in your account including their name, title, email and role.
                         </p> */}
@@ -297,7 +299,7 @@ export default function Household() {
                             className="flex items-center justify-center px-4 py-2 text-sm font-semibold text-white rounded-md shadow-sm bg-sky-600 hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
                         >
                         <DocumentPlusIcon className="w-6 h-6 mr-2"/>
-                        Add New
+                        {t("other.Add")}
                         </button>
                     </div>
                 </div>
@@ -308,7 +310,7 @@ export default function Household() {
                             type="text"
                             name="search"
                             id="search"
-                            placeholder="Search"
+                            placeholder={t("filter.Search")}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="block w-full rounded-md border-0 py-1.5 pr-14 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
@@ -326,7 +328,7 @@ export default function Household() {
                             onChange={(e) => setSelectedStateRegion(e.target.value)}
                             className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6"
                             >
-                            <option value="">All - State/Regions</option>
+                            <option value="">{t("filter.StateRegions")}</option>
                                 {/* Render state region options */}
                                 {stateRegions.map((stateRegion) => (
                                     <option key={stateRegion.id} value={stateRegion.name}>
@@ -338,7 +340,7 @@ export default function Household() {
                             
                         <div>
                             <select value={selectedDistrict} onChange={(e) => setSelectedDistrict(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                                <option value="">All - Districts</option>
+                                <option value="">{t("filter.Districts")}</option>
                                 {/* Render district options */}
                                 {districts.map((district) => (
                                     <option key={district.id} value={district.name}>
@@ -350,7 +352,7 @@ export default function Household() {
 
                         <div>
                             <select value={selectedTownship} onChange={(e) => setSelectedTownship(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                            <option value="">All - Townships</option>
+                            <option value="">{t("filter.Townships")}</option>
                             {/* Render township options */}
                             {townships.map((township) => (
                                 <option key={township.id} value={township.name}>
@@ -362,7 +364,7 @@ export default function Household() {
                         
                         <div>
                             <select value={selectedWardVillageTract} onChange={(e) => setSelectedWardVillageTract(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                            <option value="">All - Ward/Village Tracts</option>
+                            <option value="">{t("filter.WardVillageTracts")}</option>
                             {/* Render ward/village tract options */}
                             {wardVillageTracts.map((wardVillageTract) => (
                                 <option key={wardVillageTract.id} value={wardVillageTract.name}>
@@ -374,7 +376,7 @@ export default function Household() {
 
                         <div>
                             <select value={selectedVillage} onChange={(e) => setSelectedVillage(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                            <option value="">All- Villages</option>
+                            <option value="">{t("filter.Villages")}</option>
                             {/* Render village options */}
                             {villages.map((village) => (
                                 <option key={village.id} value={village.name}>
@@ -395,55 +397,55 @@ export default function Household() {
                                             scope="col"
                                             className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                         >
-                                            No
+                                            {t("No")}
                                         </th>
                                         <th
                                             scope="col"
                                             className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                         >
-                                            Household No
+                                             {t("HouseholdNo")}
                                         </th>
                                         <th
                                             scope="col"
                                             className="sticky top-0 z-10 hidden border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:table-cell"
                                         >
-                                            Entry Date
+                                             {t("EntryDate")}
                                         </th>
                                         <th
                                             scope="col"
                                             className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter"
                                         >
-                                            House No
+                                             {t("HouseNo")}
                                         </th>
                                         <th
                                             scope="col"
                                             className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter"
                                         >
-                                            Village
+                                             {t("Villages")}
                                         </th>
                                         <th
                                             scope="col"
                                             className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter"
                                         >
-                                            Ward/Village Tract
+                                            {t("WardVillageTracts")}
                                         </th> 
                                         <th
                                             scope="col"
                                             className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter"
                                         >
-                                            Township
+                                            {t("Townships")}
                                         </th>  
                                         <th
                                             scope="col"
                                             className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter"
                                         >
-                                            District
+                                            {t("Districts")}
                                         </th>   
                                         <th
                                             scope="col"
                                             className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter"
                                         >
-                                            State/Region
+                                            {t("StateRegions")}
                                         </th>     
                                         <th
                                             scope="col"
@@ -474,7 +476,7 @@ export default function Household() {
                                             'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8'
                                         )}
                                         >
-                                        {(currentPage * perPage) + householdIdx + 1}
+                                        {translateNumberToMyanmar((currentPage * perPage) + householdIdx + 1)}
                                         {/* {householdIdx + 1} */}
                                         </td>
                                         <td
@@ -551,11 +553,11 @@ export default function Household() {
                                             householdIdx !== households.length - 1 ? 'border-b border-gray-200' : '',
                                             'relative whitespace-nowrap py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-8 lg:pr-8'
                                         )}>
-                                            <a href={`/admin/households/${household.id}`} className="text-sky-600 hover:text-sky-900">
+                                            <Link href={`/admin/households/${household.id}`} className="text-sky-600 hover:text-sky-900">
                                                 <PencilSquareIcon className="inline-block w-4 h-4 mr-1 align-text-bottom" aria-hidden="true" />
-                                                <span className="inline-block align-middle">Edit</span>
+                                                <span className="inline-block align-middle">{t("other.Edit")}</span>
                                                 <span className="sr-only">, {household.id}</span>
-                                            </a>
+                                            </Link>
                                         </td>
                                         <td className={classNames(
                                             householdIdx !== households.length - 1 ? 'border-b border-gray-200' : '',
@@ -566,7 +568,7 @@ export default function Household() {
                                                 className="text-red-600 hover:text-red-400"
                                             >
                                                 <TrashIcon className="inline-block w-4 h-4 mr-1 align-text-bottom" aria-hidden="true" />
-                                                <span className="inline-block align-middle">Trash</span>
+                                                <span className="inline-block align-middle">{t("other.Trash")}</span>
                                                 <span className="sr-only">{household.id}</span>
                                             </button>
                                         </td>
@@ -578,9 +580,9 @@ export default function Household() {
                             <nav className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6" aria-label="Pagination">
                                 <div className="hidden sm:block">
                                 <p className="text-sm text-gray-700">
-                                    Showing <span className="font-medium">{offset + 1}</span> to{' '}
-                                    <span className="font-medium">{offset + currentPageData.length}</span> of{' '}
-                                    <span className="font-medium">{filteredHouseholds.length}</span> results
+                                    {t("other.Showing")} <span className="font-medium">{offset + 1}</span> {t("other.To")}{' '}
+                                    <span className="font-medium">{offset + currentPageData.length}</span> {t("other.Of")}{' '}
+                                    <span className="font-medium">{filteredHouseholds.length}</span> {t("other.Results")}
                                 </p>
                                 </div>
                                 <div className="flex justify-between flex-1 sm:justify-end">
@@ -589,14 +591,16 @@ export default function Household() {
                                     className="relative inline-flex items-center px-3 py-2 text-sm font-semibold text-gray-900 bg-white rounded-md ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
                                     disabled={currentPage === 0}
                                 >
-                                    Previous
+                                     <ChevronLeftIcon className="w-4 h-4 mr-1" />
+                                     {t("other.Previous")}
                                 </button>
                                 <button
                                     onClick={goToNextPage}
                                     className="relative inline-flex items-center px-3 py-2 ml-3 text-sm font-semibold text-gray-900 bg-white rounded-md ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
                                     disabled={currentPage === Math.ceil(filteredHouseholds.length / perPage) - 1}
                                 >
-                                    Next
+                                    {t("other.Next")}
+                                    <ChevronRightIcon className="w-4 h-4 ml-1" />
                                 </button>
                                 </div>
                             </nav>

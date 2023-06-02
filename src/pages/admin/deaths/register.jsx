@@ -8,13 +8,14 @@ import { useRouter } from 'next/router';
 import { formatDate } from '/src/pages/utilities/tools.js';
 import { UserMinusIcon } from '@heroicons/react/24/outline';
 import { getDateValue } from '/src/pages/utilities/tools.js';
-
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useTranslation } from "next-i18next";
 
 export default function FamilySearch() {
     const router = useRouter();
     const supabase = useSupabaseClient();
     const user = useUser();
-
+    const { t } = useTranslation("");
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     
@@ -308,6 +309,12 @@ export default function FamilySearch() {
     const handleRegister = async (e) => {
         e.preventDefault();
 
+        // Validate required fields
+        if (!deathDate || !deathPlace || !complainant || !selectedFamily) {
+            console.error('Please fill in all required fields.');
+            return;
+        }
+        
         const { data: deathData, error: deathError } = await supabase
         .from("deaths")
         .insert([
@@ -375,7 +382,7 @@ export default function FamilySearch() {
                         <nav className="sm:hidden" aria-label="Back">
                             <a href="#" className="flex items-center text-sm font-medium text-gray-500 hover:text-gray-700">
                                 <ChevronLeftIcon className="flex-shrink-0 w-5 h-5 mr-1 -ml-1 text-gray-400" aria-hidden="true" />
-                                Back
+                                {t("other.Back")}
                             </a>
                             </nav>
                             <nav className="hidden sm:flex" aria-label="Breadcrumb">
@@ -383,7 +390,7 @@ export default function FamilySearch() {
                                 <li>
                                 <div className="flex">
                                     <a href="#" className="text-sm font-medium text-gray-500 hover:text-gray-700">
-                                    Admin
+                                    {t("other.Admin")}
                                     </a>
                                 </div>
                                 </li>
@@ -391,7 +398,7 @@ export default function FamilySearch() {
                                 <div className="flex items-center">
                                     <ChevronRightIcon className="flex-shrink-0 w-5 h-5 text-gray-400" aria-hidden="true" />
                                     <a href="#" className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
-                                    Death
+                                    {t("sidebar.Deaths")}
                                     </a>
                                 </div>
                                 </li>
@@ -399,7 +406,7 @@ export default function FamilySearch() {
                                 <div className="flex items-center">
                                     <ChevronRightIcon className="flex-shrink-0 w-5 h-5 text-gray-400" aria-hidden="true" />
                                     <a href="#" aria-current="page" className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">
-                                    Register
+                                    {t("Register")}
                                     </a>
                                 </div>
                                 </li>
@@ -410,9 +417,9 @@ export default function FamilySearch() {
                     
                     <div className="py-4 sm:flex sm:items-center sm:justify-between sm:gap-3">
                         <div className="flex-1 min-w-0">
-                            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-                                Death Registration
-                                <span className="px-4 text-sm">({filteredFamilies.length} Results)</span>
+                            <h2 className="py-4 text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+                                {t("DeathRegistration")}
+                                <span className="px-4 text-sm">({filteredFamilies.length} {t("filter.TotalResults")})</span>
                             </h2>
                             </div>
                             <div className="relative flex items-center mt-2 sm:mt-0">
@@ -420,7 +427,7 @@ export default function FamilySearch() {
                                 type="text"
                                 name="search"
                                 id="search"
-                                placeholder="Search"
+                                placeholder={t("filter.Search")}
                                 value={searchTerm}
                                 onChange={handleSearch}
                                 className="block w-full rounded-md border-0 py-1.5 pr-14 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
@@ -437,7 +444,7 @@ export default function FamilySearch() {
                     <div className="py-4 sm:grid sm:grid-cols-6 sm:gap-4">
                         <div>
                             <select value={selectedHousehold} onChange={handleHousehlodChange} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                                <option value="">All - Household No</option>
+                                <option value="">{t("filter.Households")}</option>
                                 {/* Render Religions options */}
                                 {households.map((household) => (
                                     <option key={household.id} value={household.household_no}>
@@ -452,7 +459,7 @@ export default function FamilySearch() {
                             onChange={handleStateRegionChange}
                             className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6"
                             >
-                            <option value="">All - State/Regions</option>
+                            <option value="">{t("filter.StateRegions")}</option>
                                 {/* Render state region options */}
                                 {stateRegions.map((stateRegion) => (
                                     <option key={stateRegion.id} value={stateRegion.name}>
@@ -464,7 +471,7 @@ export default function FamilySearch() {
                             
                         <div>
                             <select value={selectedDistrict} onChange={handleDistrictChange} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                                <option value="">All - Districts</option>
+                                <option value="">{t("filter.Districts")}</option>
                                 {/* Render district options */}
                                 {districts.map((district) => (
                                     <option key={district.id} value={district.name}>
@@ -476,7 +483,7 @@ export default function FamilySearch() {
 
                         <div>
                             <select value={selectedTownship} onChange={handleTownshipChange} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                            <option value="">All - Townships</option>
+                            <option value="">{t("filter.Townships")}</option>
                             {/* Render township options */}
                             {townships.map((township) => (
                                 <option key={township.id} value={township.name}>
@@ -488,7 +495,7 @@ export default function FamilySearch() {
                         
                         <div>
                             <select value={selectedWardVillageTract} onChange={handleWardVillageTractChange} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                                <option value="">All - Ward/Village Tracts</option>
+                                <option value="">{t("filter.WardVillageTracts")}</option>
                                 {/* Render ward/village tract options */}
                                 {wardVillageTracts.map((wardVillageTract) => (
                                     <option key={wardVillageTract.id} value={wardVillageTract.name}>
@@ -500,7 +507,7 @@ export default function FamilySearch() {
 
                         <div>
                             <select value={selectedVillage} onChange={handleVillageChange} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                                <option value="">All Villages</option>
+                                <option value="">{t("filter.Villages")}</option>
                                     {villages.map((village) => (
                                     <option key={village.id} value={village.name}>
                                     {village.name}
@@ -519,61 +526,61 @@ export default function FamilySearch() {
                                             scope="col"
                                             className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                         >
-                                            No
+                                            {t("No")}
                                         </th>
                                         <th
                                             scope="col"
                                             className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                         >
-                                            Name
+                                             {t("Name")}
                                         </th>
                                         <th
                                             scope="col"
                                             className="sticky top-0 z-10 hidden border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:table-cell"
                                         >
-                                            NRC ID
+                                            {t("NRC")}
                                         </th>
                                         <th
                                             scope="col"
                                             className="sticky top-0 z-10 hidden border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter lg:table-cell"
                                         >
-                                            Date of Birth
+                                            {t("DOB")}
                                         </th>
                                         <th
                                             scope="col"
                                             className="sticky top-0 z-10 hidden border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter lg:table-cell"
                                         >
-                                            Age
+                                            {t("Age")}
                                         </th>
                                         <th
                                             scope="col"
                                             className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter"
                                         >
-                                            Gender
+                                            {t("Gender")}
                                         </th>
                                         <th
                                             scope="col"
                                             className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter"
                                         >
-                                            Father Name
+                                            {t("FatherName")}
                                         </th>
                                         <th
                                             scope="col"
                                             className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter"
                                         >
-                                            Household No
+                                            {t("MotherName")}
                                         </th>
                                         <th
                                             scope="col"
                                             className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter"
                                         >
-                                            Address
+                                            {t("Address")}
                                         </th>
                                         <th
                                             scope="col"
                                             className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-3 pr-4 backdrop-blur backdrop-filter sm:pr-6 lg:pr-8"
                                         >
-                                            <span className="sr-only">Death Register</span>
+                                            <span className="sr-only">{t("Register")}</span>
                                         </th>
                                     </tr>
                                 </thead>
@@ -670,7 +677,7 @@ export default function FamilySearch() {
                                         >
                                         <a href="#" onClick={() => handleRegistrationClick(family.id)} className="text-red-600 hover:text-sky-900">
                                             <UserMinusIcon className="inline-block w-4 h-4 mr-1 align-text-bottom" aria-hidden="true" />
-                                            <span className="inline-block align-middle">Register</span>
+                                            <span className="inline-block align-middle">{t("Register")}</span>
                                             <span className="sr-only">, {family.name}</span>
                                         </a>
                                         </td>
@@ -683,9 +690,9 @@ export default function FamilySearch() {
                             <nav className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6" aria-label="Pagination">
                                 <div className="hidden sm:block">
                                 <p className="text-sm text-gray-700">
-                                    Showing <span className="font-medium">{offset + 1}</span> to{' '}
-                                    <span className="font-medium">{offset + currentPageData.length}</span> of{' '}
-                                    <span className="font-medium">{filteredFamilies.length}</span> results
+                                    {t("other.Showing")}  <span className="font-medium">{offset + 1}</span> {t("other.To")}{' '}
+                                    <span className="font-medium">{offset + currentPageData.length}</span> {t("other.Of")}{' '}
+                                    <span className="font-medium">{filteredFamilies.length}</span> {t("other.Results")}
                                 </p>
                                 </div>
                                 <div className="flex justify-between flex-1 sm:justify-end">
@@ -694,14 +701,14 @@ export default function FamilySearch() {
                                     className="relative inline-flex items-center px-3 py-2 text-sm font-semibold text-gray-900 bg-white rounded-md ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
                                     disabled={currentPage === 0}
                                 >
-                                    Previous
+                                    {t("other.Previous")}
                                 </button>
                                 <button
                                     onClick={goToNextPage}
                                     className="relative inline-flex items-center px-3 py-2 ml-3 text-sm font-semibold text-gray-900 bg-white rounded-md ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
                                     disabled={currentPage === Math.ceil(filteredFamilies.length / perPage) - 1}
                                 >
-                                    Next
+                                    {t("other.Next")}
                                 </button>
                                 </div>
                             </nav>
@@ -712,18 +719,17 @@ export default function FamilySearch() {
                                 <Modal onClose={() => setSelectedFamily(null)}>
                                     <div className="grid max-w-4xl grid-cols-1 px-6 py-4 mx-auto gap-x-4 gap-y-8 sm:grid-cols-1">
                                         <div className="sm:col-span-4">
-                                            <div className="text-lg font-bold">Death Registration Form</div>
+                                            <div className="text-lg font-bold">{t("DeathRegistrationForm")}</div>
                                             <hr className="my-2 border-gray-300" />
-                                            <p><span className="font-semibold">Death Date:</span> {selectedFamily.name}</p>
-                                            <p><span className="font-semibold">Date of Birth:</span> {getDateValue(selectedFamily.date_of_birth)}</p>
-                                            <p><span className="font-semibold">Gender:</span> {selectedFamily.gender}</p>
-                                            <p><span className="font-semibold">NRC ID:</span> {selectedFamily.nrc_id}</p>
-                                            <p><span className="font-semibold">Address:</span> {`${selectedFamily.households.villages.name}\n${selectedFamily.households.ward_village_tracts.name}\n${selectedFamily.households.townships.name}, ${selectedFamily.households.districts.name},${selectedFamily.households.state_regions.name}`}</p>
+                                            <p><span className="font-semibold">{t("Name")}:</span> {selectedFamily.name}</p>
+                                            <p><span className="font-semibold">{t("DOB")}:</span> {getDateValue(selectedFamily.date_of_birth)}</p>
+                                            <p><span className="font-semibold">{t("Gender")}:</span> {selectedFamily.gender}</p>
+                                            <p><span className="font-semibold">{t("NRC")}:</span> {selectedFamily.nrc_id}</p>
+                                            <p><span className="font-semibold">{t("Address")}:</span> {`${selectedFamily.households.villages.name}\n${selectedFamily.households.ward_village_tracts.name}\n${selectedFamily.households.townships.name}, ${selectedFamily.households.districts.name},${selectedFamily.households.state_regions.name}`}</p>
                                         </div>
                                         <div className="sm:col-span-4">
                                             <input
                                             type="date"
-                                            placeholder="Death Date"
                                             value={deathDate}
                                             onChange={(e) => setDeathDate(e.target.value)}
                                             className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
@@ -732,7 +738,7 @@ export default function FamilySearch() {
                                         <div className="sm:col-span-4">
                                             <input
                                             type="text"
-                                            placeholder="Death Place"
+                                            placeholder={t("DeathPlace")}
                                             value={deathPlace}
                                             onChange={(e) => setDeathPlace(e.target.value)}
                                             className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
@@ -741,7 +747,7 @@ export default function FamilySearch() {
                                         <div className="sm:col-span-4">
                                             <input
                                             type="text"
-                                            placeholder="Complainant"
+                                            placeholder={t("Complainant")}
                                             value={complainant}
                                             onChange={(e) => setComplainant(e.target.value)}
                                             className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
@@ -751,7 +757,7 @@ export default function FamilySearch() {
                                         <div className="sm:col-span-4">
                                             <textarea
                                                 id="about"
-                                                placeholder="Remarks"
+                                                placeholder={t("Remarks")}
                                                 value={remark}
                                                 onChange={(e) => setRemark(e.target.value)}
                                                 rows={3}
@@ -764,13 +770,13 @@ export default function FamilySearch() {
                                                 type="submit"
                                                 className="px-4 py-2 text-white rounded bg-sky-500 hover:bg-blue-600"
                                             >
-                                                Submit
+                                                {t("other.Submit")}
                                             </button>
                                             <button
                                                 className="px-4 py-2 text-white bg-gray-800 rounded hover:bg-gray-700"
                                                 onClick={() => setSelectedFamily(null)}
                                             >
-                                                Close
+                                                {t("other.Cancel")}
                                             </button>
                                         </div>
 
@@ -797,4 +803,12 @@ const Modal = ({ children }) => {
       </div>
     );
 };
+
+export async function getStaticProps({ locale }) {
+    return {
+      props: {
+        ...(await serverSideTranslations(locale, ["common"])),
+      },
+    };
+}
   

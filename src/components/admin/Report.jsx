@@ -7,7 +7,8 @@ import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 import DropdownSelect from 'react-dropdown-select';
 import { formatDate, classNames } from '/src/pages/utilities/tools.js';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "next-i18next";
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 const Report = () => {
     const router = useRouter();
@@ -15,8 +16,7 @@ const Report = () => {
     const user = useUser();
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
-    const { t } = useTranslation(['common', 'report','vims']);
-
+    const { t } = useTranslation(['common', 'dashboard', 'filter', 'other', 'report']);
     const [families, setFamilies] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -47,88 +47,135 @@ const Report = () => {
     const [selectedDeath, setSelectedDeath] = useState('');
     const [minAge, setMinAge] = useState('');
     const [maxAge, setMaxAge] = useState('');
-    const [hasLiving, setHasLiving] = useState([]);
-    const [selectedHasLiving, setSelectedHasLiving] = useState([]);
+    const [resident, setResident] = useState([]);
+    const [selectedResident, setSelectedResident] = useState([]);
     const [isDisability, setDisability] = useState([]);
     const [selectedDisability, setSelectedDisability] = useState('');
     
     useEffect(() => {
         fetchFamilies();
-      }, [selectedDeath, minAge, maxAge]);
-
+    }, [selectedDeath, minAge, maxAge]);
+      
     const fetchFamilies = async () => {
         setIsLoading(true);
         setErrorMessage(null);
-        
-        if (selectedDeath === '') {
-            try {
-                const { data: familiesData, error: familiesError } = await supabase
-                    .from('families').select(`
-                    id, 
-                    name, 
-                    date_of_birth,
-                    nrc_id,
-                    gender,
-                    father_name,
-                    mother_name,
-                    remark,
-                    hasLiving,
-                    isDeath,
-                    isDisability,
-                    relationships (id, name),
-                    occupations (id, name),
-                    educations (id, name),
-                    ethnicities (id, name),
-                    nationalities (id, name),
-                    religions (id, name),
-                    households (household_no, state_regions(name), townships(name), districts(name), ward_village_tracts(name), villages(name)),
-                    household_no
-                    `)
-                    .eq('isDeath', 'No');
-            
-                if (familiesError) throw new Error(familiesError.message);
-        
-                setFamilies(familiesData);
-                setIsLoading(false);
-            } catch (error) {
-                console.error('Error fetching families:', error);
-            }
+      
+        let query = supabase.from('families').select(`
+          id,
+          name,
+          date_of_birth,
+          nrc_id,
+          gender,
+          father_name,
+          mother_name,
+          remark,
+          isDeath,
+          deaths(id),
+          resident,
+          disabilities (id),
+          relationships (id, name),
+          occupations (id, name),
+          educations (id, name),
+          ethnicities (id, name),
+          nationalities (id, name),
+          religions (id, name),
+          households (household_no, state_regions(name), townships(name), districts(name), ward_village_tracts(name), villages(name)),
+          household_no
+        `);
+      
+        if (selectedDeath === 'No') {
+          query = query.eq('isDeath', 'No');
+        } else if (selectedDeath === 'Yes') {
+          query = query.eq('isDeath', 'Yes');
         }
-        else {
-            try {
-                const { data: familiesData, error: familiesError } = await supabase
-                    .from('families').select(`
-                    id, 
-                    name, 
-                    date_of_birth,
-                    nrc_id,
-                    gender,
-                    father_name,
-                    mother_name,
-                    remark,
-                    hasLiving,
-                    isDeath,
-                    isDisability,
-                    relationships (id, name),
-                    occupations (id, name),
-                    educations (id, name),
-                    ethnicities (id, name),
-                    nationalities (id, name),
-                    religions (id, name),
-                    households (household_no, state_regions(name), townships(name), districts(name), ward_village_tracts(name), villages(name)),
-                    household_no
-                    `)
-                    .eq('isDeath', selectedDeath);
-            
-                if (familiesError) throw new Error(familiesError.message);
-        
-                setFamilies(familiesData);
-                setIsLoading(false);
-            } catch (error) {
-                console.error('Error fetching families:', error);
-            }
+      
+        try {
+          const { data: familiesData, error: familiesError } = await query;
+      
+          if (familiesError) {
+            throw new Error(familiesError.message);
+          }
+      
+          setFamilies(familiesData);
+          setIsLoading(false);
+        } catch (error) {
+          console.error('Error fetching families:', error);
         }
     };
+      
+    // const fetchFamilies = async () => {
+    //     setIsLoading(true);
+    //     setErrorMessage(null);
+        
+    //     if (selectedDeath === '') {
+    //         try {
+    //             const { data: familiesData, error: familiesError } = await supabase
+    //                 .from('families').select(`
+    //                 id, 
+    //                 name, 
+    //                 date_of_birth,
+    //                 nrc_id,
+    //                 gender,
+    //                 father_name,
+    //                 mother_name,
+    //                 remark,
+    //                 resident,
+    //                 isDeath,
+    //                 isDisability,
+    //                 relationships (id, name),
+    //                 occupations (id, name),
+    //                 educations (id, name),
+    //                 ethnicities (id, name),
+    //                 nationalities (id, name),
+    //                 religions (id, name),
+    //                 households (household_no, state_regions(name), townships(name), districts(name), ward_village_tracts(name), villages(name)),
+    //                 household_no
+    //                 `)
+    //                 .eq('isDeath', 'No');
+            
+    //             if (familiesError) throw new Error(familiesError.message);
+        
+    //             setFamilies(familiesData);
+    //             setIsLoading(false);
+    //         } catch (error) {
+    //             console.error('Error fetching families:', error);
+    //         }
+    //     }
+    //     else {
+    //         try {
+    //             const { data: familiesData, error: familiesError } = await supabase
+    //                 .from('families').select(`
+    //                 id, 
+    //                 name, 
+    //                 date_of_birth,
+    //                 nrc_id,
+    //                 gender,
+    //                 father_name,
+    //                 mother_name,
+    //                 remark,
+    //                 resident,
+    //                 isDeath,
+    //                 isDisability,
+    //                 relationships (id, name),
+    //                 occupations (id, name),
+    //                 educations (id, name),
+    //                 ethnicities (id, name),
+    //                 nationalities (id, name),
+    //                 religions (id, name),
+    //                 households (household_no, state_regions(name), townships(name), districts(name), ward_village_tracts(name), villages(name)),
+    //                 household_no
+    //                 `)
+    //                 .eq('isDeath', selectedDeath);
+            
+    //             if (familiesError) throw new Error(familiesError.message);
+        
+    //             setFamilies(familiesData);
+    //             setIsLoading(false);
+    //         } catch (error) {
+    //             console.error('Error fetching families:', error);
+    //         }
+    //     }
+    // };
     
     // Function to check if the age matches the selected age filter
     const checkAge = (dateOfBirth) => {
@@ -150,17 +197,17 @@ const Report = () => {
         setMaxAge(inputMaxAge);
     };
 
-    //Multi Select hasLiving start
-    const options = Object.keys(hasLiving).map((hasLivingValue) => ({
-        value: hasLivingValue,
-        label: `${hasLivingValue} (${hasLiving[hasLivingValue].length})`,
+    //Multi Select resident start
+    const options = Object.keys(resident).map((residentValue) => ({
+        value: residentValue,
+        label: `${residentValue} (${resident[residentValue].length})`,
     }));
 
     const handleSelectChange = (selectedItems) => {
     const selectedValues = selectedItems.map((item) => item.value);
-    setSelectedHasLiving(selectedValues);
+    setSelectedResident(selectedValues);
     };
-    //Multi Select hasLiving End
+    //Multi Select resident End
     
     // Filtered faimiles based on search and filters  
     const filterFamilies = families.filter((family) => {
@@ -209,7 +256,7 @@ const Report = () => {
 
         const isMatchingHousehold = selectedHousehold === '' || family.household_no === selectedHousehold;
 
-        const isMatchingHasLiving = selectedHasLiving.length === 0 || selectedHasLiving.includes(family.hasLiving);
+        const isMatchingResident = selectedResident.length === 0 || selectedResident.includes(family.resident);
         
         const isMatchingIsDisability = selectedDisability === '' || family.isDisability === selectedDisability;
 
@@ -227,7 +274,7 @@ const Report = () => {
             isMatchingDistrict &&
             isMatchingTownship &&
             isMatchingWardVillageTract &&
-            isMatchingHasLiving &&
+            isMatchingResident &&
             isMatchingIsDisability &&
             isMatchingVillage
         );
@@ -248,7 +295,7 @@ const Report = () => {
             await fetchTownships();
             await fetchWardVillageTracts();
             await fetchVillages();
-            await fetchHasLiving();
+            await fetchResident();
             await fetchIsDisability();
           } catch (error) {
             console.error('Error fetching data:', error);
@@ -283,28 +330,28 @@ const Report = () => {
         }
     }
 
-    async function fetchHasLiving() {
+    async function fetchResident() {
         try {
           const { data, error } = await supabase
             .from('families')
-            .select('id, name, hasLiving');
+            .select('id, name, resident');
           
           if (error) {
             throw new Error(error.message);
           }
       
-          // Extract unique hasLiving values
-          const uniqueHasLiving = [...new Set(data.map(family => family.hasLiving))];
+          // Extract unique resident values
+          const uniqueResident = [...new Set(data.map(family => family.resident))];
       
-          // Group families by the hasLiving property
-          const groupedFamilies = uniqueHasLiving.reduce((groups, hasLivingValue) => {
-            groups[hasLivingValue] = data.filter(family => family.hasLiving === hasLivingValue);
+          // Group families by the resident property
+          const groupedFamilies = uniqueResident.reduce((groups, residentValue) => {
+            groups[residentValue] = data.filter(family => family.resident === residentValue);
             return groups;
           }, {});
       
-          setHasLiving(groupedFamilies);
+          setResident(groupedFamilies);
         } catch (error) {
-          console.log('Error fetching hasLiving:', error.message);
+          console.log('Error fetching resident:', error.message);
         }
     }
     
@@ -513,7 +560,7 @@ const Report = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="p-2 mr-2 border border-gray-300 rounded-md"
-                    placeholder="Search by name"
+                    placeholder={t("filter.Search")}
                 />
                 <button
                     onClick={handleToggleFilter}
@@ -523,7 +570,7 @@ const Report = () => {
                     Filter
                 </button>
                 </div>
-                <p className="text-gray-500">{t("vims.TotalResults")}: {filterFamilies.length}</p>
+                <p className="text-gray-500">{t("filter.TotalResults")}: {filterFamilies.length}</p>
             </div>
 
             {showFilter && (
@@ -534,7 +581,7 @@ const Report = () => {
                     onChange={(e) => setSelectedHousehold(e.target.value)}
                     className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6"
                     >
-                    <option value="">All - Household</option>
+                    <option value="">{t("filter.Households")}</option>
                         {/* Render state region options */}
                         {households.map((household) => (
                             <option key={household.id} value={household.household_no}>
@@ -549,7 +596,7 @@ const Report = () => {
                     onChange={(e) => setSelectedStateRegion(e.target.value)}
                     className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6"
                     >
-                    <option value="">All - State/Regions</option>
+                    <option value="">{t("filter.StateRegions")}</option>
                         {/* Render state region options */}
                         {stateRegions.map((stateRegion) => (
                             <option key={stateRegion.id} value={stateRegion.name}>
@@ -561,7 +608,7 @@ const Report = () => {
                     
                 <div>
                     <select value={selectedDistrict} onChange={(e) => setSelectedDistrict(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                        <option value="">All - Districts</option>
+                        <option value="">{t("filter.Districts")}</option>
                         {/* Render district options */}
                         {districts.map((district) => (
                             <option key={district.id} value={district.name}>
@@ -573,7 +620,7 @@ const Report = () => {
 
                 <div>
                     <select value={selectedTownship} onChange={(e) => setSelectedTownship(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                    <option value="">All - Townships</option>
+                    <option value="">{t("filter.Townships")}</option>
                     {/* Render township options */}
                     {townships.map((township) => (
                         <option key={township.id} value={township.name}>
@@ -585,7 +632,7 @@ const Report = () => {
                 
                 <div>
                     <select value={selectedWardVillageTract} onChange={(e) => setSelectedWardVillageTract(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                        <option value="">All - Ward/Village Tracts</option>
+                        <option value="">{t("filter.WardVillageTracts")}</option>
                         {/* Render ward/village tract options */}
                         {wardVillageTracts.map((wardVillageTract) => (
                             <option key={wardVillageTract.id} value={wardVillageTract.name}>
@@ -597,7 +644,7 @@ const Report = () => {
 
                 <div>
                     <select value={selectedVillage} onChange={(e) => setSelectedVillage(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                        <option value="">All Villages</option>
+                        <option value="">{t("filter.Villages")}</option>
                             {villages.map((village) => (
                             <option key={village.id} value={village.name}>
                             {village.name}
@@ -611,7 +658,7 @@ const Report = () => {
                     value={selectedOccupation}
                     onChange={(e) => setSelectedOccupation(e.target.value)}
                     className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                        <option value="">All - Occupations</option>
+                        <option value="">{t("filter.Occupations")}</option>
                         {/* Render Occupations options */}
                         {occupations.map((occupation) => (
                             <option key={occupation.id} value={occupation.name}>
@@ -623,7 +670,7 @@ const Report = () => {
                     
                 <div>
                     <select value={selectedEducation} onChange={(e) => setSelectedEducation(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                        <option value="">All - Educations</option>
+                        <option value="">{t("filter.Educations")}</option>
                         {/* Render Educations options */}
                         {educations.map((education) => (
                             <option key={education.id} value={education.name}>
@@ -635,7 +682,7 @@ const Report = () => {
 
                 <div>
                     <select value={selectedEthnicity} onChange={(e) => setSelectedEthnicity(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                        <option value="">All - Ethnicities</option>
+                        <option value="">{t("filter.Ethnicities")}</option>
                         {/* Render Ethnicities options */}
                         {ethnicities.map((ethnicity) => (
                             <option key={ethnicity.id} value={ethnicity.name}>
@@ -647,7 +694,7 @@ const Report = () => {
                 
                 <div>
                     <select value={selectedReligion} onChange={(e) => setSelectedReligion(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
-                        <option value="">All - Religions</option>
+                        <option value="">{t("filter.Religions")}</option>
                         {/* Render Religions options */}
                         {religions.map((religion) => (
                             <option key={religion.id} value={religion.name}>
@@ -662,7 +709,7 @@ const Report = () => {
                         onChange={(e) => setSelectedGender(e.target.value)}
                         className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6"
                     >
-                        <option value="">All - Gender</option>
+                        <option value="">{t("filter.Gender")}</option>
                         {genders.map((gender) => (
                         <option key={gender} value={gender}>
                             {gender}
@@ -676,7 +723,7 @@ const Report = () => {
                         onChange={(e) => setSelectedDisability(e.target.value)}
                         className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6"
                     >
-                        <option value="">All - Is Disability</option>
+                        <option value="">{t("filter.IsDisabilities")}</option>
                         {Object.keys(isDisability).map((isDisabilityValue) => (
                         <option key={isDisabilityValue} value={isDisabilityValue}>
                             {isDisabilityValue} ({isDisability[isDisabilityValue].length})
@@ -685,12 +732,32 @@ const Report = () => {
                     </select>
                 </div> 
                 <div>
+                    <DropdownSelect
+                        multi
+                        values={selectedResident}
+                        options={options}
+                        onChange={handleSelectChange}
+                        placeholder={t("filter.resident")}
+                        style={{
+                        zIndex: 40,
+                        marginTop: 9,
+                        borderRadius: '0.375rem',
+                        padding: '0.375rem 0.75rem',
+                        color: '#4b5563',
+                        ring: '1px inset #e2e8f0',
+                        focusRing: '2px solid #93c5fd',
+                        fontSize: '0.875rem',
+                        lineHeight: '1.25rem',
+                        }}
+                    />
+                </div>
+                <div>
                     <select
                         value={selectedDeath}
                         onChange={(e) => setSelectedDeath(e.target.value)}
                         className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6"
                     >
-                        <option value="">All - Deaths</option>
+                        <option value="">{t("filter.IsDeath")}</option>
                         {deaths.map((death) => (
                         <option key={death} value={death}>
                             {death}
@@ -705,7 +772,7 @@ const Report = () => {
                     value={minAge}
                     onChange={handleMinAgeChange}
                     className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6"
-                    placeholder="Min Age"
+                    placeholder={t("filter.MinAge")}
                     />
                 </div>
                 <div>
@@ -714,30 +781,9 @@ const Report = () => {
                     value={maxAge}
                     onChange={handleMaxAgeChange}
                     className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6"
-                    placeholder="Max Age"
+                    placeholder={t("filter.MaxAge")}
                     />
                 </div>
-                <div>
-                    <DropdownSelect
-                        multi
-                        values={selectedHasLiving}
-                        options={options}
-                        onChange={handleSelectChange}
-                        placeholder="Select hasLiving"
-                        style={{
-                        zIndex: 40,
-                        marginTop: 9,
-                        borderRadius: '0.375rem',
-                        padding: '0.375rem 0.75rem',
-                        color: '#4b5563',
-                        ring: '1px inset #e2e8f0',
-                        focusRing: '2px solid #93c5fd',
-                        fontSize: '0.875rem',
-                        lineHeight: '1.25rem',
-                        }}
-                    />
-                </div>
-
             </div>
            
             )}
@@ -751,61 +797,61 @@ const Report = () => {
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    {t("vims.No")}
+                                    {t("No")}
                                 </th>
                                 <th
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    {t("vims.Name")}
+                                    {t("Name")}
                                 </th>
                                 <th
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    {t("vims.NRC")}
+                                    {t("NRC")}
                                 </th>
                                 <th
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    {t("vims.DOB")}
+                                    {t("DOB")}
                                 </th>
                                 <th
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    {t("vims.Age")}
+                                    {t("Age")}
                                 </th>
                                 <th
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    {t("vims.Gender")}
+                                    {t("Gender")}
                                 </th>
                                 <th
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    {t("vims.FatherName")}
+                                    {t("FatherName")}
                                 </th>
                                 <th
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    {t("vims.MotherName")}
+                                    {t("MotherName")}
                                 </th>
                                 <th
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    {t("vims.HouseholdNo")}
+                                    {t("HouseholdNo")}
                                 </th>
                                 <th
                                     scope="col"
                                     className="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
                                 >
-                                    {t("vims.Address")}
+                                    {t("Address")}
                                 </th>
                             </tr>
                         </thead>
@@ -911,9 +957,9 @@ const Report = () => {
                     <nav className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6" aria-label="Pagination">
                         <div className="hidden sm:block">
                         <p className="text-sm text-gray-700">
-                            Showing <span className="font-medium">{offset + 1}</span> to{' '}
-                            <span className="font-medium">{offset + currentPageData.length}</span> of{' '}
-                            <span className="font-medium">{filterFamilies.length}</span> results
+                            {t("other.Showing")} <span className="font-medium">{offset + 1}</span> {t("other.To")}{' '}
+                            <span className="font-medium">{offset + currentPageData.length}</span> {t("other.Of")}{' '}
+                            <span className="font-medium">{filterFamilies.length}</span> {t("other.Results")}
                         </p>
                         </div>
                         <div className="flex justify-between flex-1 sm:justify-end">
@@ -922,14 +968,16 @@ const Report = () => {
                             className="relative inline-flex items-center px-3 py-2 text-sm font-semibold text-gray-900 bg-white rounded-md ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
                             disabled={currentPage === 0}
                         >
-                            Previous
+                            <ChevronLeftIcon className="w-4 h-4 mr-1" />
+                            {t("other.Previous")}
                         </button>
                         <button
                             onClick={goToNextPage}
                             className="relative inline-flex items-center px-3 py-2 ml-3 text-sm font-semibold text-gray-900 bg-white rounded-md ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
                             disabled={currentPage === Math.ceil(filterFamilies.length / perPage) - 1}
                         >
-                            Next
+                            {t("other.Next")}
+                            <ChevronRightIcon className="w-4 h-4 ml-1" />
                         </button>
                         </div>
                     </nav>
