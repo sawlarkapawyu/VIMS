@@ -5,7 +5,7 @@ import { ArrowUturnLeftIcon} from '@heroicons/react/24/outline';
 import React, { useState, useEffect } from "react";
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react';
 import { useRouter } from 'next/router';
-import { getDateValue } from '/src/pages/utilities/tools.js';
+import { getDateValue } from '/src/components/utilities/tools.js';
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
 

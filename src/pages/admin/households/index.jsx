@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 import { ChevronRightIcon, ChevronLeftIcon, TrashIcon, PencilSquareIcon, DocumentPlusIcon } from '@heroicons/react/24/outline';
-import { formatDate, classNames, translateNumberToMyanmar } from '/src/pages/utilities/tools.js';
+import { formatDate, classNames, translateNumberToMyanmar } from '/src/components/utilities/tools.js';
 
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";

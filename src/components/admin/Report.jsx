@@ -6,7 +6,7 @@ import 'jspdf-autotable';
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 import DropdownSelect from 'react-dropdown-select';
-import { formatDate, classNames } from '/src/pages/utilities/tools.js';
+import { formatDate, classNames } from '/src/components/utilities/tools.js';
 import { useTranslation } from "next-i18next";
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 

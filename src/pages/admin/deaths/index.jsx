@@ -6,7 +6,7 @@ import React, { useState, useEffect } from "react";
 import { FolderPlusIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
-import { formatDate, classNames } from '/src/pages/utilities/tools.js';
+import { formatDate, classNames } from '/src/components/utilities/tools.js';
 
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
