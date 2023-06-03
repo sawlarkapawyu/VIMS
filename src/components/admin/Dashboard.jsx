@@ -129,65 +129,140 @@ const Dashboard = () => {
     async function fetchGenders() {
         try {
           const { data, error } = await supabase
-          .from('families')
-          .select('gender');
+            .from('families')
+            .select('gender');
       
           if (error) {
             throw new Error(error.message);
           }
       
-          // Extract unique gender values by filtering out duplicates
-          const uniqueGenders = [...new Set(data.map((row) => row.gender))];
+          const uniqueGenders = [];
+          data.forEach((row) => {
+            if (!uniqueGenders.includes(row.gender)) {
+              uniqueGenders.push(row.gender);
+            }
+          });
       
           setGenders(uniqueGenders);
         } catch (error) {
           console.log('Error fetching gender:', error.message);
         }
     }
+      
+    // async function fetchGenders() {
+    //     try {
+    //       const { data, error } = await supabase
+    //       .from('families')
+    //       .select('gender');
+      
+    //       if (error) {
+    //         throw new Error(error.message);
+    //       }
+      
+    //       // Extract unique gender values by filtering out duplicates
+    //       const uniqueGenders = [...new Set(data.map((row) => row.gender))];
+      
+    //       setGenders(uniqueGenders);
+    //     } catch (error) {
+    //       console.log('Error fetching gender:', error.message);
+    //     }
+    // }
 
     async function fetchDeaths() {
         try {
           const { data, error } = await supabase
-          .from('families')
-          .select('isDeath');
-      
+            .from('families')
+            .select('isDeath');
+        
           if (error) {
             throw new Error(error.message);
           }
       
-          const uniqueDeaths = [...new Set(data.map((row) => row.isDeath))];
+          const uniqueDeaths = [];
+          data.forEach(row => {
+            if (!uniqueDeaths.includes(row.isDeath)) {
+              uniqueDeaths.push(row.isDeath);
+            }
+          });
       
           setDeaths(uniqueDeaths);
         } catch (error) {
           console.log('Error fetching deaths:', error.message);
         }
     }
+      
+    // async function fetchDeaths() {
+    //     try {
+    //       const { data, error } = await supabase
+    //       .from('families')
+    //       .select('isDeath');
+      
+    //       if (error) {
+    //         throw new Error(error.message);
+    //       }
+      
+    //       const uniqueDeaths = [...new Set(data.map((row) => row.isDeath))];
+      
+    //       setDeaths(uniqueDeaths);
+    //     } catch (error) {
+    //       console.log('Error fetching deaths:', error.message);
+    //     }
+    // }
 
-    
     async function fetchIsDisability() {
         try {
           const { data, error } = await supabase
             .from('families')
             .select('id, name, isDisability');
-          
+            
           if (error) {
             throw new Error(error.message);
           }
       
           // Extract unique Disability values
-          const uniqueIsDisability = [...new Set(data.map(family => family.isDisability))];
+          const uniqueIsDisability = [];
+          data.forEach(family => {
+            if (!uniqueIsDisability.includes(family.isDisability)) {
+              uniqueIsDisability.push(family.isDisability);
+            }
+          });
       
           // Group families by the Disability property
-          const groupedFamilies = uniqueIsDisability.reduce((groups, isDisabilityValue) => {
-            groups[isDisabilityValue] = data.filter(family => family.isDisability === isDisabilityValue);
-            return groups;
-          }, {});
+          const groupedFamilies = {};
+          uniqueIsDisability.forEach(isDisabilityValue => {
+            groupedFamilies[isDisabilityValue] = data.filter(family => family.isDisability === isDisabilityValue);
+          });
       
           setDisability(groupedFamilies);
         } catch (error) {
           console.log('Error fetching isDisability:', error.message);
         }
     }
+      
+    // async function fetchIsDisability() {
+    //     try {
+    //       const { data, error } = await supabase
+    //         .from('families')
+    //         .select('id, name, isDisability');
+          
+    //       if (error) {
+    //         throw new Error(error.message);
+    //       }
+      
+    //       // Extract unique Disability values
+    //       const uniqueIsDisability = [...new Set(data.map(family => family.isDisability))];
+      
+    //       // Group families by the Disability property
+    //       const groupedFamilies = uniqueIsDisability.reduce((groups, isDisabilityValue) => {
+    //         groups[isDisabilityValue] = data.filter(family => family.isDisability === isDisabilityValue);
+    //         return groups;
+    //       }, {});
+      
+    //       setDisability(groupedFamilies);
+    //     } catch (error) {
+    //       console.log('Error fetching isDisability:', error.message);
+    //     }
+    // }
 
     async function fetchOccupation() {
         try {
@@ -315,25 +390,52 @@ const Dashboard = () => {
           const { data, error } = await supabase
             .from('families')
             .select('id, name, resident');
-          
+        
           if (error) {
             throw new Error(error.message);
           }
       
-          // Extract unique resident values
-          const uniqueResident = [...new Set(data.map(family => family.resident))];
+          const uniqueResident = [];
+          const groupedFamilies = {};
       
-          // Group families by the resident property
-          const groupedFamilies = uniqueResident.reduce((groups, residentValue) => {
-            groups[residentValue] = data.filter(family => family.resident === residentValue);
-            return groups;
-          }, {});
+          data.forEach(family => {
+            if (!uniqueResident.includes(family.resident)) {
+              uniqueResident.push(family.resident);
+              groupedFamilies[family.resident] = [];
+            }
+            groupedFamilies[family.resident].push(family);
+          });
       
           setResident(groupedFamilies);
         } catch (error) {
           console.log('Error fetching resident:', error.message);
         }
     }
+      
+    // async function fetchResident() {
+    //     try {
+    //       const { data, error } = await supabase
+    //         .from('families')
+    //         .select('id, name, resident');
+          
+    //       if (error) {
+    //         throw new Error(error.message);
+    //       }
+      
+    //       // Extract unique resident values
+    //       const uniqueResident = [...new Set(data.map(family => family.resident))];
+      
+    //       // Group families by the resident property
+    //       const groupedFamilies = uniqueResident.reduce((groups, residentValue) => {
+    //         groups[residentValue] = data.filter(family => family.resident === residentValue);
+    //         return groups;
+    //       }, {});
+      
+    //       setResident(groupedFamilies);
+    //     } catch (error) {
+    //       console.log('Error fetching resident:', error.message);
+    //     }
+    // }
     
     // Function to check if the age matches the selected age filter
     const checkAge = (dateOfBirth) => {
@@ -444,7 +546,6 @@ const Dashboard = () => {
     });
 
     // Calculate total gender counts, family count, and household count for each village start
-    const villageSet = new Set();
     const villageCounts = {};
     const householdCounts = {};
     let totalFamilies = 0;
@@ -457,12 +558,11 @@ const Dashboard = () => {
     const gender = family.gender;
     const isDeath = family.isDeath;
     const deaths = family.deaths?.length;
-    const disabilities = family.disabilities?.length; // Update disabilities variable
+    const disabilities = family.disabilities?.length;
     const householdNo = family.households?.household_no;
-        
+
     if (villageName && isDeath === 'No') {
-        if (!villageSet.has(villageName)) {
-        villageSet.add(villageName);
+        if (!villageCounts[villageName]) {
         villageCounts[villageName] = {
             maleCount: 0,
             femaleCount: 0,
@@ -473,7 +573,6 @@ const Dashboard = () => {
         };
         }
 
-        // Gender
         if (gender === 'ကျား') {
         villageCounts[villageName].maleCount++;
         } else if (gender === 'မ') {
@@ -482,10 +581,10 @@ const Dashboard = () => {
 
         villageCounts[villageName].familyCount++;
         totalFamilies++;
-    
+
         if (deaths) {
-            villageCounts[villageName].deathCount++;
-            totalDeaths++;
+        villageCounts[villageName].deathCount++;
+        totalDeaths++;
         }
 
         if (disabilities) {
@@ -495,10 +594,10 @@ const Dashboard = () => {
 
         if (householdNo) {
         if (!householdCounts[villageName]) {
-            householdCounts[villageName] = new Set();
+            householdCounts[villageName] = {};
         }
-        householdCounts[villageName].add(householdNo);
-        villageCounts[villageName].householdCount = householdCounts[villageName].size;
+        householdCounts[villageName][householdNo] = true;
+        villageCounts[villageName].householdCount = Object.keys(householdCounts[villageName]).length;
         }
 
         if (householdNo && !householdCounts[householdNo]) {
@@ -510,8 +609,7 @@ const Dashboard = () => {
     }
 
     if (isDeath === 'Yes') {
-        if (!villageSet.has(villageName)) {
-        villageSet.add(villageName);
+        if (!villageCounts[villageName]) {
         villageCounts[villageName] = {
             maleCount: 0,
             femaleCount: 0,
@@ -543,10 +641,10 @@ const Dashboard = () => {
 
         if (householdNo) {
         if (!householdCounts[villageName]) {
-            householdCounts[villageName] = new Set();
+            householdCounts[villageName] = {};
         }
-        householdCounts[villageName].add(householdNo);
-        villageCounts[villageName].householdCount = householdCounts[villageName].size;
+        householdCounts[villageName][householdNo] = true;
+        villageCounts[villageName].householdCount = Object.keys(householdCounts[villageName]).length;
         }
 
         if (householdNo && !householdCounts[householdNo]) {
@@ -557,6 +655,120 @@ const Dashboard = () => {
         householdCounts[householdNo]++;
     }
     });
+
+    // const villageSet = new Set();
+    // const villageCounts = {};
+    // const householdCounts = {};
+    // let totalFamilies = 0;
+    // let totalHouseholds = 0;
+    // let totalDeaths = 0;
+    // let totalDisabilities = 0;
+
+    // filterFamilies.forEach((family) => {
+    // const villageName = family.households?.villages?.name;
+    // const gender = family.gender;
+    // const isDeath = family.isDeath;
+    // const deaths = family.deaths?.length;
+    // const disabilities = family.disabilities?.length; // Update disabilities variable
+    // const householdNo = family.households?.household_no;
+        
+    // if (villageName && isDeath === 'No') {
+    //     if (!villageSet.has(villageName)) {
+    //     villageSet.add(villageName);
+    //     villageCounts[villageName] = {
+    //         maleCount: 0,
+    //         femaleCount: 0,
+    //         familyCount: 0,
+    //         householdCount: 0,
+    //         deathCount: 0,
+    //         disabilityCount: 0,
+    //     };
+    //     }
+
+    //     // Gender
+    //     if (gender === 'ကျား') {
+    //     villageCounts[villageName].maleCount++;
+    //     } else if (gender === 'မ') {
+    //     villageCounts[villageName].femaleCount++;
+    //     }
+
+    //     villageCounts[villageName].familyCount++;
+    //     totalFamilies++;
+    
+    //     if (deaths) {
+    //         villageCounts[villageName].deathCount++;
+    //         totalDeaths++;
+    //     }
+
+    //     if (disabilities) {
+    //     villageCounts[villageName].disabilityCount += disabilities;
+    //     totalDisabilities += disabilities;
+    //     }
+
+    //     if (householdNo) {
+    //     if (!householdCounts[villageName]) {
+    //         householdCounts[villageName] = new Set();
+    //     }
+    //     householdCounts[villageName].add(householdNo);
+    //     villageCounts[villageName].householdCount = householdCounts[villageName].size;
+    //     }
+
+    //     if (householdNo && !householdCounts[householdNo]) {
+    //     householdCounts[householdNo] = 0;
+    //     totalHouseholds++;
+    //     }
+
+    //     householdCounts[householdNo]++;
+    // }
+
+    // if (isDeath === 'Yes') {
+    //     if (!villageSet.has(villageName)) {
+    //     villageSet.add(villageName);
+    //     villageCounts[villageName] = {
+    //         maleCount: 0,
+    //         femaleCount: 0,
+    //         familyCount: 0,
+    //         householdCount: 0,
+    //         deathCount: 0,
+    //         disabilityCount: 0,
+    //     };
+    //     }
+
+    //     if (gender === 'ကျား') {
+    //     villageCounts[villageName].maleCount++;
+    //     } else if (gender === 'မ') {
+    //     villageCounts[villageName].femaleCount++;
+    //     }
+
+    //     if (deaths) {
+    //     villageCounts[villageName].deathCount++;
+    //     totalDeaths++;
+    //     }
+
+    //     villageCounts[villageName].familyCount++;
+    //     totalFamilies++;
+
+    //     if (disabilities) {
+    //     villageCounts[villageName].disabilityCount += disabilities;
+    //     totalDisabilities += disabilities;
+    //     }
+
+    //     if (householdNo) {
+    //     if (!householdCounts[villageName]) {
+    //         householdCounts[villageName] = new Set();
+    //     }
+    //     householdCounts[villageName].add(householdNo);
+    //     villageCounts[villageName].householdCount = householdCounts[villageName].size;
+    //     }
+
+    //     if (householdNo && !householdCounts[householdNo]) {
+    //     householdCounts[householdNo] = 0;
+    //     totalHouseholds++;
+    //     }
+
+    //     householdCounts[householdNo]++;
+    // }
+    // });
 
     const sortedVillages = Object.keys(villageCounts).sort((a, b) => {
     return villageCounts[b].familyCount - villageCounts[a].familyCount;

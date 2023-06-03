@@ -52,23 +52,21 @@ const Report = () => {
     useEffect(() => {
         const fetchData = async () => {
           try {
-            await Promise.all([
-                fetchFamilies(),
-                fetchOccupation(),
-                fetchEducation(),
-                fetchEthnicity(),
-                fetchReligion(),
-                fetchGenders(),
-                fetchDeaths(),
-                fetchHouseholds(),
-                fetchStateRegions(),
-                fetchDistricts(),
-                fetchTownships(),
-                fetchWardVillageTracts(),
-                fetchVillages(),
-                fetchResident(),
-                fetchIsDisability(),
-            ]);
+            fetchFamilies();
+            fetchOccupation();
+            fetchEducation();
+            fetchEthnicity();
+            fetchReligion();
+            fetchDeaths();
+            fetchGenders(),
+            fetchHouseholds();
+            fetchStateRegions();
+            fetchDistricts();
+            fetchTownships();
+            fetchWardVillageTracts();
+            fetchVillages();
+            fetchResident();
+            fetchIsDisability();
           } catch (error) {
             console.error('Error fetching data:', error);
           }
@@ -128,19 +126,24 @@ const Report = () => {
           const { data, error } = await supabase
             .from('families')
             .select('id, name, isDisability');
-          
+            
           if (error) {
             throw new Error(error.message);
           }
       
           // Extract unique Disability values
-          const uniqueIsDisability = [...new Set(data.map(family => family.isDisability))];
+          const uniqueIsDisability = [];
+          data.forEach(family => {
+            if (!uniqueIsDisability.includes(family.isDisability)) {
+              uniqueIsDisability.push(family.isDisability);
+            }
+          });
       
           // Group families by the Disability property
-          const groupedFamilies = uniqueIsDisability.reduce((groups, isDisabilityValue) => {
-            groups[isDisabilityValue] = data.filter(family => family.isDisability === isDisabilityValue);
-            return groups;
-          }, {});
+          const groupedFamilies = {};
+          uniqueIsDisability.forEach(isDisabilityValue => {
+            groupedFamilies[isDisabilityValue] = data.filter(family => family.isDisability === isDisabilityValue);
+          });
       
           setDisability(groupedFamilies);
         } catch (error) {
@@ -153,37 +156,70 @@ const Report = () => {
           const { data, error } = await supabase
             .from('families')
             .select('id, name, resident');
-          
+        
           if (error) {
             throw new Error(error.message);
           }
       
-          // Extract unique resident values
-          const uniqueResident = [...new Set(data.map(family => family.resident))];
+          const uniqueResident = [];
+          const groupedFamilies = {};
       
-          // Group families by the resident property
-          const groupedFamilies = uniqueResident.reduce((groups, residentValue) => {
-            groups[residentValue] = data.filter(family => family.resident === residentValue);
-            return groups;
-          }, {});
+          data.forEach(family => {
+            if (!uniqueResident.includes(family.resident)) {
+              uniqueResident.push(family.resident);
+              groupedFamilies[family.resident] = [];
+            }
+            groupedFamilies[family.resident].push(family);
+          });
       
           setResident(groupedFamilies);
         } catch (error) {
           console.log('Error fetching resident:', error.message);
         }
     }
+
+      
+    // async function fetchResident() {
+    //     try {
+    //       const { data, error } = await supabase
+    //         .from('families')
+    //         .select('id, name, resident');
+          
+    //       if (error) {
+    //         throw new Error(error.message);
+    //       }
+      
+    //       // Extract unique resident values
+    //       const uniqueResident = [...new Set(data.map(family => family.resident))];
+      
+    //       // Group families by the resident property
+    //       const groupedFamilies = uniqueResident.reduce((groups, residentValue) => {
+    //         groups[residentValue] = data.filter(family => family.resident === residentValue);
+    //         return groups;
+    //       }, {});
+      
+    //       setResident(groupedFamilies);
+    //     } catch (error) {
+    //       console.log('Error fetching resident:', error.message);
+    //     }
+    // }
     
     async function fetchDeaths() {
         try {
           const { data, error } = await supabase
-          .from('families')
-          .select('isDeath');
-      
+            .from('families')
+            .select('isDeath');
+        
           if (error) {
             throw new Error(error.message);
           }
       
-          const uniqueDeaths = [...new Set(data.map((row) => row.isDeath))];
+          const uniqueDeaths = [];
+          data.forEach(row => {
+            if (!uniqueDeaths.includes(row.isDeath)) {
+              uniqueDeaths.push(row.isDeath);
+            }
+          });
       
           setDeaths(uniqueDeaths);
         } catch (error) {
@@ -191,24 +227,67 @@ const Report = () => {
         }
     }
 
+      
+    // async function fetchDeaths() {
+    //     try {
+    //       const { data, error } = await supabase
+    //       .from('families')
+    //       .select('isDeath');
+      
+    //       if (error) {
+    //         throw new Error(error.message);
+    //       }
+      
+    //       const uniqueDeaths = [...new Set(data.map((row) => row.isDeath))];
+      
+    //       setDeaths(uniqueDeaths);
+    //     } catch (error) {
+    //       console.log('Error fetching deaths:', error.message);
+    //     }
+    // }
+
     async function fetchGenders() {
         try {
           const { data, error } = await supabase
-          .from('families')
-          .select('gender');
-      
+            .from('families')
+            .select('gender');
+        
           if (error) {
             throw new Error(error.message);
           }
       
-          // Extract unique gender values by filtering out duplicates
-          const uniqueGenders = [...new Set(data.map((row) => row.gender))];
+          const uniqueGenders = [];
+          data.forEach(row => {
+            if (!uniqueGenders.includes(row.gender)) {
+              uniqueGenders.push(row.gender);
+            }
+          });
       
           setGenders(uniqueGenders);
         } catch (error) {
           console.log('Error fetching gender:', error.message);
         }
-    }
+      }
+
+      
+    // async function fetchGenders() {
+    //     try {
+    //       const { data, error } = await supabase
+    //       .from('families')
+    //       .select('gender');
+      
+    //       if (error) {
+    //         throw new Error(error.message);
+    //       }
+      
+    //       // Extract unique gender values by filtering out duplicates
+    //       const uniqueGenders = [...new Set(data.map((row) => row.gender))];
+      
+    //       setGenders(uniqueGenders);
+    //     } catch (error) {
+    //       console.log('Error fetching gender:', error.message);
+    //     }
+    // }
     
     async function fetchOccupation() {
         try {

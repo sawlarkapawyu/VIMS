@@ -4,4 +4,7 @@ module.exports = {
   reactStrictMode: true,
   swcMinify: true,
   i18n,
+  future: {
+    webpack5: true,
+  },
 };
