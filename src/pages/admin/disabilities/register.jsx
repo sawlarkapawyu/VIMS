@@ -400,7 +400,7 @@ export default function DisibilitySearch() {
             console.log(error);
           } else {
             if (data) {
-                setTypeDisabilities([...disabilities, data[0]]);
+                setTypeDisabilities([...type_disabilities, data[0]]);
                 setSelectedDisability(data[0].id);
             }
             setNewDisability('');

@@ -41,7 +41,7 @@ const Dashboard = () => {
         };
 
         fetchData();
-    }, []);
+    }, [supabase]);
     
     const [families, setFamilies] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
@@ -100,7 +100,7 @@ const Dashboard = () => {
       
         fetchData();
     }, [selectedDeath, minAge, maxAge]);
-
+      
     const fetchFamilies = async () => {
         setIsLoading(true);
         setErrorMessage(null);
@@ -147,6 +147,7 @@ const Dashboard = () => {
           console.error('Error fetching families:', error);
         }
     };
+
 
     // Function to check if the age matches the selected age filter
     const checkAge = (dateOfBirth) => {
@@ -718,7 +719,6 @@ const Dashboard = () => {
                         plugins: {
                             title: {
                             display: true,
-                            text: 'Population Ratio in Village',
                             text: t('dashboard.PopulationAndHouseholdRation'),
                             position: 'top',
                             font: {

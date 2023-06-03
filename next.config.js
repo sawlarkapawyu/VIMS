@@ -6,9 +6,15 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   i18n,
-  experimental: {
-    scrollRestoration: true,
-  },
+  // experimental: {
+  //   scrollRestoration: true,
+  // },
 }
 
-module.exports = nextConfig
+// module.exports = nextConfig
+module.exports = {
+  i18n: {
+    locales: ['default', 'en', 'mm'],
+    defaultLocale: 'default',
+  },
+};

@@ -999,35 +999,35 @@ const Report = () => {
             </div>
 
         {/* Hidden component for printing */}
-        <div style={{ display: 'none' }}>
+        {/* <div style={{ display: 'none' }}>
             <ComponentToPrint ref={componentRef} data={filterFamilies} totalResults={filterFamilies.length} />
-        </div>
+        </div> */}
     </div>
     );
 };
 
-const ComponentToPrint = React.forwardRef(({ data, totalResults }, ref) => (
-    <div ref={ref}>
-      <h2>Total Results: {totalResults}</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Age</th>
-            <th>School</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((item) => (
-            <tr key={item.id}>
-              <td>{item.name}</td>
-              <td>{item.age}</td>
-              <td>{item.school}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-));
+// const ComponentToPrint = React.forwardRef(({ data, totalResults }, ref) => (
+//     <div ref={ref}>
+//       <h2>Total Results: {totalResults}</h2>
+//       <table>
+//         <thead>
+//           <tr>
+//             <th>Name</th>
+//             <th>Age</th>
+//             <th>School</th>
+//           </tr>
+//         </thead>
+//         <tbody>
+//           {data.map((item) => (
+//             <tr key={item.id}>
+//               <td>{item.name}</td>
+//               <td>{item.age}</td>
+//               <td>{item.school}</td>
+//             </tr>
+//           ))}
+//         </tbody>
+//       </table>
+//     </div>
+// ));
 
 export default Report;
