@@ -13,6 +13,7 @@ const nextConfig = {
 
 // module.exports = nextConfig
 module.exports = {
+  pageExtensions: ['mdx', 'md', 'jsx', 'js', 'tsx', 'ts'],
   i18n: {
     locales: ['default', 'en', 'mm'],
     defaultLocale: 'default',
