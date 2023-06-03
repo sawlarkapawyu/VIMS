@@ -2,7 +2,7 @@ import { GridFilterListIcon } from '@mui/x-data-grid';
 import React, { useState, useEffect } from "react";
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
-import { UsersIcon, UserGroupIcon, HomeIcon, DocumentIcon, HomeModernIcon, DocumentDuplicateIcon, StarIcon } from '@heroicons/react/24/outline';
+import { UserGroupIcon, HomeModernIcon, DocumentDuplicateIcon, StarIcon } from '@heroicons/react/24/outline';
 import DropdownSelect from 'react-dropdown-select';
 import { useTranslation } from "next-i18next";
 
@@ -573,23 +573,6 @@ const Dashboard = () => {
     const handleToggleFilter = () => {
         setShowFilter(!showFilter);
     };
-
-    // Pagination Start
-    const [currentPage, setCurrentPage] = useState(0);
-    const [perPage] = useState(20);
-    const offset = currentPage * perPage;
-    const currentPageData = filterFamilies.slice(offset, offset + perPage);
-    const goToPreviousPage = () => {
-        if (currentPage > 0) {
-          setCurrentPage(currentPage - 1);
-        }
-    };
-    const goToNextPage = () => {
-    if (currentPage < Math.ceil(filterFamilies.length / perPage) - 1) {
-        setCurrentPage(currentPage + 1);
-    }
-    };
-    // Pagination End
     
     function classNames(...classes) {
         return classes.filter(Boolean).join(' ')
@@ -1037,7 +1020,7 @@ const Dashboard = () => {
                                         "whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8"
                                     )}
                                     >
-                                    {(currentPage * perPage) + familyIdx + 1}
+                                    {familyIdx + 1}
                                     </td>
                                     <td
                                     className={classNames(

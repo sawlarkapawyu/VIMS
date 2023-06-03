@@ -1,8 +1,7 @@
 import Head from 'next/head'
-import { Header } from '@/components/Header'
 import Sidebar from '@/components/admin/layouts/Sidebar'
 import Reports from '@/components/admin/Report'
-import { PlusCircleIcon, ChevronRightIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
+import { ChevronRightIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from "next-i18next";
 

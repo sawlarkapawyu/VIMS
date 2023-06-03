@@ -1,5 +1,4 @@
 import Head from 'next/head'
-import { Header } from '@/components/Header'
 import Sidebar from '@/components/admin/layouts/Sidebar'
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
