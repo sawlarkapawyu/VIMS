@@ -3,7 +3,7 @@ import Head from 'next/head'
 import Sidebar from '@/components/admin/layouts/Sidebar'
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
+import { useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 import { ChevronLeftIcon, ChevronRightIcon, DocumentPlusIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { formatDate, classNames } from '/src/components/utilities/tools.js';
@@ -14,7 +14,6 @@ import { useTranslation } from "next-i18next";
 export default function Family() {
     const router = useRouter();
     const supabase = useSupabaseClient();
-    const user = useUser();
     const { t } = useTranslation("");
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
@@ -22,16 +21,16 @@ export default function Family() {
     
     // Search and filter state
     const [searchQuery, setSearchQuery] = useState('');
-    const [relationships, setRelationships] = useState([]);
-    const [selectedRelationship, setSelectedRelationship] = useState('');
+    // const [relationships, setRelationships] = useState([]);
+    // const [selectedRelationship, setSelectedRelationship] = useState('');
     const [occupations, setOccupations] = useState([]);
     const [selectedOccupation, setSelectedOccupation] = useState('');
     const [educations, setEducations] = useState([]);
     const [selectedEducation, setSelectedEducation] = useState('');
     const [ethnicities, setEthnicities] = useState([]);
     const [selectedEthnicity, setSelectedEthnicity] = useState('');
-    const [nationalities, setNationalities] = useState([]);
-    const [selectedNationality, setSelectedNationality] = useState('');
+    // const [nationalities, setNationalities] = useState([]);
+    // const [selectedNationality, setSelectedNationality] = useState('');
     const [religions, setReligions] = useState([]);
     const [selectedReligion, setSelectedReligion] = useState('');
     const [households, setHouseholds] = useState([]);
@@ -42,10 +41,10 @@ export default function Family() {
         fetchEducation();
         fetchEthnicity();
         fetchHousehold();
-        fetchNationality();
+        // fetchNationality();
         fetchOccupation();
         fetchRelition();
-        fetchRelationship();
+        // fetchRelationship();
     }, []);
 
     async function fetchFamilies() {
@@ -88,17 +87,17 @@ export default function Family() {
         router.push('/admin/families/add');
     };
 
-    async function fetchRelationship() {
-        try {
-          const { data, error } = await supabase.from('relationships').select('id, name');
-          if (error) {
-            throw new Error(error.message);
-          }
-          setRelationships(data);
-        } catch (error) {
-          console.log('Error fetching relationships:', error.message);
-        }
-    }
+    // async function fetchRelationship() {
+    //     try {
+    //       const { data, error } = await supabase.from('relationships').select('id, name');
+    //       if (error) {
+    //         throw new Error(error.message);
+    //       }
+    //       setRelationships(data);
+    //     } catch (error) {
+    //       console.log('Error fetching relationships:', error.message);
+    //     }
+    // }
 
     async function fetchOccupation() {
         try {
@@ -136,17 +135,17 @@ export default function Family() {
         }
     }
 
-    async function fetchNationality() {
-        try {
-          const { data, error } = await supabase.from('nationalities').select('id, name');
-          if (error) {
-            throw new Error(error.message);
-          }
-          setNationalities(data);
-        } catch (error) {
-          console.log('Error fetching nationalities:', error.message);
-        }
-    }
+    // async function fetchNationality() {
+    //     try {
+    //       const { data, error } = await supabase.from('nationalities').select('id, name');
+    //       if (error) {
+    //         throw new Error(error.message);
+    //       }
+    //       setNationalities(data);
+    //     } catch (error) {
+    //       console.log('Error fetching nationalities:', error.message);
+    //     }
+    // }
     async function fetchRelition() {
         try {
           const { data, error } = await supabase.from('religions').select('id, name');

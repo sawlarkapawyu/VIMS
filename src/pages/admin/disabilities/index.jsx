@@ -3,9 +3,9 @@ import Sidebar from '@/components/admin/layouts/Sidebar'
 import Link from "next/link";
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
 import React, { useState, useEffect } from "react";
-import { FolderPlusIcon, PencilSquareIcon, PlusCircleIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { FolderPlusIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 
-import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
+import { useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 import { formatDate, classNames } from '/src/components/utilities/tools.js';
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
@@ -14,11 +14,9 @@ import { useTranslation } from "next-i18next";
 export default function Disability() {
     const router = useRouter();
     const supabase = useSupabaseClient();
-    const user = useUser();
     const { t } = useTranslation("");
     
     const [isLoading, setIsLoading] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
     const [disabilities, setDisabilities] = useState([]);
 
     useEffect(() => {
@@ -27,7 +25,6 @@ export default function Disability() {
 
     const fetchDisabilities = async () => {
         setIsLoading(true);
-        setErrorMessage(null);
         
         const { data: disibilityData, error: disibilityError } = await supabase
           .from("disabilities")

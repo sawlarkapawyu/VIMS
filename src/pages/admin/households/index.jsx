@@ -2,7 +2,7 @@ import Head from 'next/head'
 import Sidebar from '@/components/admin/layouts/Sidebar'
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
+import { useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 import { ChevronRightIcon, ChevronLeftIcon, TrashIcon, PencilSquareIcon, DocumentPlusIcon } from '@heroicons/react/24/outline';
 import { formatDate, classNames, translateNumberToMyanmar } from '/src/components/utilities/tools.js';
@@ -13,7 +13,6 @@ import { useTranslation } from "next-i18next";
 export default function Household() {
     const router = useRouter();
     const supabase = useSupabaseClient();
-    const user = useUser();
     const { t } = useTranslation("");
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");

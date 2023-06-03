@@ -3,7 +3,7 @@ import Sidebar from '@/components/admin/layouts/Sidebar'
 import { ChevronLeftIcon, ChevronRightIcon, ClipboardDocumentCheckIcon } from '@heroicons/react/20/solid'
 import React, { useState, useEffect } from "react";
 
-import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
+import { useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 import { formatDate } from '/src/components/utilities/tools.js';
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
@@ -12,7 +12,6 @@ import { useTranslation } from "react-i18next";
 export default function DisibilitySearch() {
     const router = useRouter();
     const supabase = useSupabaseClient();
-    const user = useUser();
     const { t } = useTranslation();
     
     const [isLoading, setIsLoading] = useState(false);

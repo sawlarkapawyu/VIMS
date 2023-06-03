@@ -3,17 +3,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
-import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
-import { useRouter } from 'next/router';
+import { useSupabaseClient } from '@supabase/auth-helpers-react'
 import DropdownSelect from 'react-dropdown-select';
 import { formatDate, classNames } from '/src/components/utilities/tools.js';
 import { useTranslation } from "next-i18next";
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 const Report = () => {
-    const router = useRouter();
     const supabase = useSupabaseClient();
-    const user = useUser();
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const { t } = useTranslation(['common', 'dashboard', 'filter', 'other', 'report']);
@@ -53,25 +50,50 @@ const Report = () => {
     const [selectedDisability, setSelectedDisability] = useState('');
     
     useEffect(() => {
-        fetchFamilies();
-    }, [selectedDeath, minAge, maxAge]);
+        const fetchData = async () => {
+          try {
+            await Promise.all([
+                fetchFamilies(),
+                fetchOccupation(),
+                fetchEducation(),
+                fetchEthnicity(),
+                fetchReligion(),
+                fetchGenders(),
+                fetchDeaths(),
+                fetchHouseholds(),
+                fetchStateRegions(),
+                fetchDistricts(),
+                fetchTownships(),
+                fetchWardVillageTracts(),
+                fetchVillages(),
+                fetchResident(),
+                fetchIsDisability(),
+            ]);
+          } catch (error) {
+            console.error('Error fetching data:', error);
+          }
+        };
       
+        fetchData();
+    }, []);
+    
     const fetchFamilies = async () => {
         setIsLoading(true);
         setErrorMessage(null);
       
         let query = supabase.from('families').select(`
-          id,
-          name,
+          id, 
+          name, 
           date_of_birth,
           nrc_id,
           gender,
           father_name,
           mother_name,
           remark,
+          resident,
           isDeath,
           deaths(id),
-          resident,
+          isDisability,
           disabilities (id),
           relationships (id, name),
           occupations (id, name),
@@ -92,9 +114,7 @@ const Report = () => {
         try {
           const { data: familiesData, error: familiesError } = await query;
       
-          if (familiesError) {
-            throw new Error(familiesError.message);
-          }
+          if (familiesError) throw new Error(familiesError.message);
       
           setFamilies(familiesData);
           setIsLoading(false);
@@ -102,208 +122,6 @@ const Report = () => {
           console.error('Error fetching families:', error);
         }
     };
-      
-    // const fetchFamilies = async () => {
-    //     setIsLoading(true);
-    //     setErrorMessage(null);
-        
-    //     if (selectedDeath === '') {
-    //         try {
-    //             const { data: familiesData, error: familiesError } = await supabase
-    //                 .from('families').select(`
-    //                 id, 
-    //                 name, 
-    //                 date_of_birth,
-    //                 nrc_id,
-    //                 gender,
-    //                 father_name,
-    //                 mother_name,
-    //                 remark,
-    //                 resident,
-    //                 isDeath,
-    //                 isDisability,
-    //                 relationships (id, name),
-    //                 occupations (id, name),
-    //                 educations (id, name),
-    //                 ethnicities (id, name),
-    //                 nationalities (id, name),
-    //                 religions (id, name),
-    //                 households (household_no, state_regions(name), townships(name), districts(name), ward_village_tracts(name), villages(name)),
-    //                 household_no
-    //                 `)
-    //                 .eq('isDeath', 'No');
-            
-    //             if (familiesError) throw new Error(familiesError.message);
-        
-    //             setFamilies(familiesData);
-    //             setIsLoading(false);
-    //         } catch (error) {
-    //             console.error('Error fetching families:', error);
-    //         }
-    //     }
-    //     else {
-    //         try {
-    //             const { data: familiesData, error: familiesError } = await supabase
-    //                 .from('families').select(`
-    //                 id, 
-    //                 name, 
-    //                 date_of_birth,
-    //                 nrc_id,
-    //                 gender,
-    //                 father_name,
-    //                 mother_name,
-    //                 remark,
-    //                 resident,
-    //                 isDeath,
-    //                 isDisability,
-    //                 relationships (id, name),
-    //                 occupations (id, name),
-    //                 educations (id, name),
-    //                 ethnicities (id, name),
-    //                 nationalities (id, name),
-    //                 religions (id, name),
-    //                 households (household_no, state_regions(name), townships(name), districts(name), ward_village_tracts(name), villages(name)),
-    //                 household_no
-    //                 `)
-    //                 .eq('isDeath', selectedDeath);
-            
-    //             if (familiesError) throw new Error(familiesError.message);
-        
-    //             setFamilies(familiesData);
-    //             setIsLoading(false);
-    //         } catch (error) {
-    //             console.error('Error fetching families:', error);
-    //         }
-    //     }
-    // };
-    
-    // Function to check if the age matches the selected age filter
-    const checkAge = (dateOfBirth) => {
-        const today = new Date();
-        const birthDate = new Date(dateOfBirth);
-        const age = today.getFullYear() - birthDate.getFullYear();
-        const monthDiff = today.getMonth() - birthDate.getMonth();
-        const isMatchingAge =
-          (minAge === '' || age >= minAge) && (maxAge === '' || age <= maxAge);
-    
-        return isMatchingAge;
-    };
-    const handleMinAgeChange = (e) => {
-        const inputMinAge = e.target.value !== '' ? parseInt(e.target.value) : '';
-        setMinAge(inputMinAge);
-    };
-    const handleMaxAgeChange = (e) => {
-        const inputMaxAge = e.target.value !== '' ? parseInt(e.target.value) : '';
-        setMaxAge(inputMaxAge);
-    };
-
-    //Multi Select resident start
-    const options = Object.keys(resident).map((residentValue) => ({
-        value: residentValue,
-        label: `${residentValue} (${resident[residentValue].length})`,
-    }));
-
-    const handleSelectChange = (selectedItems) => {
-    const selectedValues = selectedItems.map((item) => item.value);
-    setSelectedResident(selectedValues);
-    };
-    //Multi Select resident End
-    
-    // Filtered faimiles based on search and filters  
-    const filterFamilies = families.filter((family) => {
-        const isMatchingSearchQuery =
-        (family.name && family?.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (family.nrc_id && family?.nrc_id.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (family.date_of_birth && formatDate(family.date_of_birth).startsWith(searchQuery)) ||
-        (family.gender && family?.gender.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (family.father_name && family?.father_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (family.mother_name && family?.mother_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (family.remark && family?.remark.toLowerCase().includes(searchQuery.toLowerCase()));
-        
-        const isMatchingDeath =
-        selectedDeath === '' || family.isDeath === selectedDeath;
-
-        const isMatchingOccupation =
-        selectedOccupation === '' || family.occupations.name === selectedOccupation;
-
-        const isMatchingEducation =
-        selectedEducation === '' || family.educations.name === selectedEducation;
-
-        const isMatchingEthnicity =
-        selectedEthnicity === '' ||
-        family.ethnicities.name === selectedEthnicity;
-
-        const isMatchingReligion = 
-        selectedReligion === '' || family.religions?.name === selectedReligion;
-            
-        const isMatchingGender =
-        selectedGender === '' || family.gender === selectedGender;
-        
-        const isMatchingAge = checkAge(family.date_of_birth);
-
-        const isMatchingStateRegion =
-            selectedStateRegion === '' || family.households.state_regions.name === selectedStateRegion;
-    
-        const isMatchingDistrict = selectedDistrict === '' || family.households.districts.name === selectedDistrict;
-    
-        const isMatchingTownship =
-            selectedTownship === '' || family.households.townships.name === selectedTownship;
-    
-        const isMatchingWardVillageTract =
-            selectedWardVillageTract === '' || family.households.ward_village_tracts.name === selectedWardVillageTract;
-    
-        const isMatchingVillage = selectedVillage === '' || family.households.villages.name === selectedVillage;
-
-        const isMatchingHousehold = selectedHousehold === '' || family.household_no === selectedHousehold;
-
-        const isMatchingResident = selectedResident.length === 0 || selectedResident.includes(family.resident);
-        
-        const isMatchingIsDisability = selectedDisability === '' || family.isDisability === selectedDisability;
-
-        return (
-            isMatchingDeath &&
-            isMatchingOccupation &&
-            isMatchingEducation &&
-            isMatchingEthnicity &&
-            isMatchingReligion &&
-            isMatchingGender &&
-            isMatchingAge &&
-            isMatchingHousehold &&
-            isMatchingSearchQuery &&
-            isMatchingStateRegion &&
-            isMatchingDistrict &&
-            isMatchingTownship &&
-            isMatchingWardVillageTract &&
-            isMatchingResident &&
-            isMatchingIsDisability &&
-            isMatchingVillage
-        );
-    });
-
-    useEffect(() => {
-        const fetchData = async () => {
-          try {
-            await fetchOccupation();
-            await fetchEducation();
-            await fetchEthnicity();
-            await fetchReligion();
-            await fetchGenders();
-            await fetchDeaths();
-            await fetchHouseholds();
-            await fetchStateRegions();
-            await fetchDistricts();
-            await fetchTownships();
-            await fetchWardVillageTracts();
-            await fetchVillages();
-            await fetchResident();
-            await fetchIsDisability();
-          } catch (error) {
-            console.error('Error fetching data:', error);
-          }
-        };
-      
-        fetchData();
-    }, []);
 
     async function fetchIsDisability() {
         try {
@@ -512,6 +330,111 @@ const Report = () => {
           console.log('Error fetching villages:', error.message);
         }
     }
+    
+    // Function to check if the age matches the selected age filter
+    const checkAge = (dateOfBirth) => {
+        const today = new Date();
+        const birthDate = new Date(dateOfBirth);
+        const age = today.getFullYear() - birthDate.getFullYear();
+        // const monthDiff = today.getMonth() - birthDate.getMonth();
+        const isMatchingAge =
+          (minAge === '' || age >= minAge) && (maxAge === '' || age <= maxAge);
+    
+        return isMatchingAge;
+    };
+    const handleMinAgeChange = (e) => {
+        const inputMinAge = e.target.value !== '' ? parseInt(e.target.value) : '';
+        setMinAge(inputMinAge);
+    };
+    const handleMaxAgeChange = (e) => {
+        const inputMaxAge = e.target.value !== '' ? parseInt(e.target.value) : '';
+        setMaxAge(inputMaxAge);
+    };
+
+    //Multi Select resident start
+    const options = Object.keys(resident).map((residentValue) => ({
+        value: residentValue,
+        label: `${residentValue} (${resident[residentValue].length})`,
+    }));
+
+    const handleSelectChange = (selectedItems) => {
+    const selectedValues = selectedItems.map((item) => item.value);
+    setSelectedResident(selectedValues);
+    };
+    //Multi Select resident End
+    
+    // Filtered faimiles based on search and filters  
+    const filterFamilies = families.filter((family) => {
+        const isMatchingSearchQuery =
+        (family.name && family?.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (family.nrc_id && family?.nrc_id.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (family.date_of_birth && formatDate(family.date_of_birth).startsWith(searchQuery)) ||
+        (family.gender && family?.gender.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (family.father_name && family?.father_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (family.mother_name && family?.mother_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (family.remark && family?.remark.toLowerCase().includes(searchQuery.toLowerCase()));
+        
+        const isMatchingDeath =
+        selectedDeath === '' || family.isDeath === selectedDeath;
+
+        const isMatchingOccupation =
+        selectedOccupation === '' || family.occupations.name === selectedOccupation;
+
+        const isMatchingEducation =
+        selectedEducation === '' || family.educations.name === selectedEducation;
+
+        const isMatchingEthnicity =
+        selectedEthnicity === '' ||
+        family.ethnicities.name === selectedEthnicity;
+
+        const isMatchingReligion = 
+        selectedReligion === '' || family.religions?.name === selectedReligion;
+            
+        const isMatchingGender =
+        selectedGender === '' || family.gender === selectedGender;
+        
+        const isMatchingAge = checkAge(family.date_of_birth);
+
+        const isMatchingStateRegion =
+            selectedStateRegion === '' || family.households.state_regions.name === selectedStateRegion;
+    
+        const isMatchingDistrict = selectedDistrict === '' || family.households.districts.name === selectedDistrict;
+    
+        const isMatchingTownship =
+            selectedTownship === '' || family.households.townships.name === selectedTownship;
+    
+        const isMatchingWardVillageTract =
+            selectedWardVillageTract === '' || family.households.ward_village_tracts.name === selectedWardVillageTract;
+    
+        const isMatchingVillage = selectedVillage === '' || family.households.villages.name === selectedVillage;
+
+        const isMatchingHousehold = selectedHousehold === '' || family.household_no === selectedHousehold;
+
+        const isMatchingResident = selectedResident.length === 0 || selectedResident.includes(family.resident);
+        
+        const isMatchingIsDisability = selectedDisability.length === 0 || selectedDisability.includes(family.isDisability);
+
+        // const isMatchingIsDisability = selectedDisability === '' || family.isDisability === selectedDisability;
+
+        return (
+            isMatchingDeath &&
+            isMatchingOccupation &&
+            isMatchingEducation &&
+            isMatchingEthnicity &&
+            isMatchingReligion &&
+            isMatchingGender &&
+            isMatchingAge &&
+            isMatchingHousehold &&
+            isMatchingSearchQuery &&
+            isMatchingStateRegion &&
+            isMatchingDistrict &&
+            isMatchingTownship &&
+            isMatchingWardVillageTract &&
+            isMatchingResident &&
+            isMatchingIsDisability &&
+            isMatchingVillage
+        );
+    });
     
     // Pagination Start
     const [currentPage, setCurrentPage] = useState(0);
@@ -724,13 +647,27 @@ const Report = () => {
                         className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6"
                     >
                         <option value="">{t("filter.IsDisabilities")}</option>
-                        {Object.keys(isDisability).map((isDisabilityValue) => (
-                        <option key={isDisabilityValue} value={isDisabilityValue}>
-                            {isDisabilityValue} ({isDisability[isDisabilityValue].length})
+                        {Object.keys(isDisability).map((d) => (
+                        <option key={d} value={d}>
+                            {d} ({isDisability[d].length})
                         </option>
                         ))}
                     </select>
                 </div> 
+                <div>
+                    <select
+                        value={selectedDeath}
+                        onChange={(e) => setSelectedDeath(e.target.value)}
+                        className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6"
+                    >
+                        <option value="">{t("filter.IsDeath")}</option>
+                        {deaths.map((death) => (
+                        <option key={death} value={death}>
+                            {death}
+                        </option>
+                        ))}
+                    </select>
+                </div>
                 <div>
                     <DropdownSelect
                         multi
@@ -750,20 +687,6 @@ const Report = () => {
                         lineHeight: '1.25rem',
                         }}
                     />
-                </div>
-                <div>
-                    <select
-                        value={selectedDeath}
-                        onChange={(e) => setSelectedDeath(e.target.value)}
-                        className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6"
-                    >
-                        <option value="">{t("filter.IsDeath")}</option>
-                        {deaths.map((death) => (
-                        <option key={death} value={death}>
-                            {death}
-                        </option>
-                        ))}
-                    </select>
                 </div>
 
                 <div>

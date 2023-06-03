@@ -1,11 +1,9 @@
 import { GridFilterListIcon } from '@mui/x-data-grid';
 import React, { useState, useEffect } from "react";
-import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
-import { useRouter } from 'next/router';
+import { useSupabaseClient } from '@supabase/auth-helpers-react'
 import { UserGroupIcon, HomeModernIcon, DocumentDuplicateIcon, StarIcon } from '@heroicons/react/24/outline';
 import DropdownSelect from 'react-dropdown-select';
 import { useTranslation } from "next-i18next";
-
 
 import { Bar, Pie } from 'react-chartjs-2';
 import { Chart, LinearScale, CategoryScale, BarController, BarElement, ArcElement, Tooltip, Legend, Title } from 'chart.js';
@@ -16,38 +14,14 @@ Chart.register(LinearScale, CategoryScale, BarController, BarElement, ArcElement
 
 
 const Dashboard = () => {
-    const router = useRouter();
     const supabase = useSupabaseClient();
-    const user = useUser();
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const { t } = useTranslation("");
-
-    const [totalNumberofDeaths, setTotalNumberofDeaths] = useState(0);
-    const [totalNumberofUsers, setTotalNumberofUsers] = useState(0);
-
-    useEffect(() => {
-    // Fetch data from Supabase
-    const fetchData = async () => {
-        const { data: deaths, error: deathsError } = await supabase
-            .from('deaths')
-            .select('*', { count: 'exact' });
-        if (deathsError) {
-            console.error('Error fetching total number of deaths:', deathsError);
-            return;
-        }
-        setTotalNumberofDeaths(deaths.length);
-        // setTotalNumberofUsers(users.length);
-        };
-
-        fetchData();
-    }, [supabase]);
     
     const [families, setFamilies] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
 
-    const [genders, setGenders] = useState([]);
-    const [selectedGender, setSelectedGender] = useState('');
     const [households, setHouseholds] = useState([]);
     const [selectedHousehold, setSelectedHousehold] = useState('');
     const [stateRegions, setStateRegions] = useState([]);
@@ -75,24 +49,29 @@ const Dashboard = () => {
     const [maxAge, setMaxAge] = useState('');
     const [resident, setResident] = useState([]);
     const [selectedResident, setSelectedResident] = useState([]);
-    
-      useEffect(() => {
+    const [isDisability, setDisability] = useState([]);
+    const [selectedDisability, setSelectedDisability] = useState('');
+    const [genders, setGenders] = useState([]);
+    const [selectedGender, setSelectedGender] = useState('');
+
+    useEffect(() => {
         const fetchData = async () => {
           try {
-            await fetchFamilies();
-            await fetchOccupation();
-            await fetchEducation();
-            await fetchEthnicity();
-            await fetchRelition();
-            await fetchGenders();
-            await fetchDeaths();
-            await fetchHouseholds();
-            await fetchStateRegions();
-            await fetchDistricts();
-            await fetchTownships();
-            await fetchWardVillageTracts();
-            await fetchVillages();
-            await fetchResident();
+            fetchFamilies();
+            fetchOccupation();
+            fetchEducation();
+            fetchEthnicity();
+            fetchReligion();
+            fetchDeaths();
+            fetchGenders(),
+            fetchHouseholds();
+            fetchStateRegions();
+            fetchDistricts();
+            fetchTownships();
+            fetchWardVillageTracts();
+            fetchVillages();
+            fetchResident();
+            fetchIsDisability();
           } catch (error) {
             console.error('Error fetching data:', error);
           }
@@ -100,33 +79,34 @@ const Dashboard = () => {
       
         fetchData();
     }, [selectedDeath, minAge, maxAge]);
-      
+    
     const fetchFamilies = async () => {
         setIsLoading(true);
         setErrorMessage(null);
       
         let query = supabase.from('families').select(`
-            id,
-            name,
-            date_of_birth,
-            nrc_id,
-            gender,
-            father_name,
-            mother_name,
-            remark,
-            isDeath,
-            deaths(id),
-            resident,
-            disabilities (id),
-            relationships (id, name),
-            occupations (id, name),
-            educations (id, name),
-            ethnicities (id, name),
-            nationalities (id, name),
-            religions (id, name),
-            households (household_no, state_regions(name), townships(name), districts(name), ward_village_tracts(name), villages(name)),
-            household_no
-            `);
+          id, 
+          name, 
+          date_of_birth,
+          nrc_id,
+          gender,
+          father_name,
+          mother_name,
+          remark,
+          resident,
+          isDeath,
+          deaths(id),
+          isDisability,
+          disabilities (id),
+          relationships (id, name),
+          occupations (id, name),
+          educations (id, name),
+          ethnicities (id, name),
+          nationalities (id, name),
+          religions (id, name),
+          households (household_no, state_regions(name), townships(name), districts(name), ward_village_tracts(name), villages(name)),
+          household_no
+        `);
       
         if (selectedDeath === 'No') {
           query = query.eq('isDeath', 'No');
@@ -137,9 +117,7 @@ const Dashboard = () => {
         try {
           const { data: familiesData, error: familiesError } = await query;
       
-          if (familiesError) {
-            throw new Error(familiesError.message);
-          }
+          if (familiesError) throw new Error(familiesError.message);
       
           setFamilies(familiesData);
           setIsLoading(false);
@@ -148,13 +126,221 @@ const Dashboard = () => {
         }
     };
 
+    async function fetchGenders() {
+        try {
+          const { data, error } = await supabase
+          .from('families')
+          .select('gender');
+      
+          if (error) {
+            throw new Error(error.message);
+          }
+      
+          // Extract unique gender values by filtering out duplicates
+          const uniqueGenders = [...new Set(data.map((row) => row.gender))];
+      
+          setGenders(uniqueGenders);
+        } catch (error) {
+          console.log('Error fetching gender:', error.message);
+        }
+    }
 
+    async function fetchDeaths() {
+        try {
+          const { data, error } = await supabase
+          .from('families')
+          .select('isDeath');
+      
+          if (error) {
+            throw new Error(error.message);
+          }
+      
+          const uniqueDeaths = [...new Set(data.map((row) => row.isDeath))];
+      
+          setDeaths(uniqueDeaths);
+        } catch (error) {
+          console.log('Error fetching deaths:', error.message);
+        }
+    }
+
+    
+    async function fetchIsDisability() {
+        try {
+          const { data, error } = await supabase
+            .from('families')
+            .select('id, name, isDisability');
+          
+          if (error) {
+            throw new Error(error.message);
+          }
+      
+          // Extract unique Disability values
+          const uniqueIsDisability = [...new Set(data.map(family => family.isDisability))];
+      
+          // Group families by the Disability property
+          const groupedFamilies = uniqueIsDisability.reduce((groups, isDisabilityValue) => {
+            groups[isDisabilityValue] = data.filter(family => family.isDisability === isDisabilityValue);
+            return groups;
+          }, {});
+      
+          setDisability(groupedFamilies);
+        } catch (error) {
+          console.log('Error fetching isDisability:', error.message);
+        }
+    }
+
+    async function fetchOccupation() {
+        try {
+          const { data, error } = await supabase.from('occupations').select('id, name');
+          if (error) {
+            throw new Error(error.message);
+          }
+          setOccupations(data);
+        } catch (error) {
+          console.log('Error fetching occupations:', error.message);
+        }
+    }
+
+    async function fetchEducation() {
+        try {
+          const { data, error } = await supabase.from('educations').select('id, name');
+          if (error) {
+            throw new Error(error.message);
+          }
+          setEducations(data);
+        } catch (error) {
+          console.log('Error fetching educations:', error.message);
+        }
+    }
+
+    async function fetchEthnicity() {
+        try {
+          const { data, error } = await supabase.from('ethnicities').select('id, name');
+          if (error) {
+            throw new Error(error.message);
+          }
+          setEthnicities(data);
+        } catch (error) {
+          console.log('Error fetching ethnicities:', error.message);
+        }
+    }
+
+    async function fetchReligion() {
+        try {
+          const { data, error } = await supabase.from('religions').select('id, name');
+          if (error) {
+            throw new Error(error.message);
+          }
+          setReligions(data);
+        } catch (error) {
+          console.log('Error fetching religions:', error.message);
+        }
+    }
+    
+
+    async function fetchHouseholds() {
+        try {
+          const { data, error } = await supabase.from('households').select('id, household_no').order("household_no");
+          if (error) {
+            throw new Error(error.message);
+          }
+          setHouseholds(data);
+        } catch (error) {
+          console.log('Error fetching households:', error.message);
+        }
+    }
+    
+    async function fetchStateRegions() {
+        try {
+          const { data, error } = await supabase.from('state_regions').select('id, name');
+          if (error) {
+            throw new Error(error.message);
+          }
+          setStateRegions(data);
+        } catch (error) {
+          console.log('Error fetching state regions:', error.message);
+        }
+    }
+
+    async function fetchDistricts() {
+        try {
+          const { data, error } = await supabase.from('districts').select('id, name');
+          if (error) {
+            throw new Error(error.message);
+          }
+          setDistricts(data);
+        } catch (error) {
+          console.log('Error fetching districts:', error.message);
+        }
+    }
+
+    async function fetchTownships() {
+        try {
+          const { data, error } = await supabase.from('townships').select('id, name');
+          if (error) {
+            throw new Error(error.message);
+          }
+          setTownships(data);
+        } catch (error) {
+          console.log('Error fetching townships:', error.message);
+        }
+    }
+
+    async function fetchWardVillageTracts() {
+        try {
+          const { data, error } = await supabase.from('ward_village_tracts').select('id, name');
+          if (error) {
+            throw new Error(error.message);
+          }
+          setWardVillageTracts(data);
+        } catch (error) {
+          console.log('Error fetching ward village tracts:', error.message);
+        }
+    }
+
+    async function fetchVillages() {
+        try {
+          const { data, error } = await supabase.from('villages').select('id, name');
+          if (error) {
+            throw new Error(error.message);
+          }
+          setVillages(data);
+        } catch (error) {
+          console.log('Error fetching villages:', error.message);
+        }
+    }
+
+    async function fetchResident() {
+        try {
+          const { data, error } = await supabase
+            .from('families')
+            .select('id, name, resident');
+          
+          if (error) {
+            throw new Error(error.message);
+          }
+      
+          // Extract unique resident values
+          const uniqueResident = [...new Set(data.map(family => family.resident))];
+      
+          // Group families by the resident property
+          const groupedFamilies = uniqueResident.reduce((groups, residentValue) => {
+            groups[residentValue] = data.filter(family => family.resident === residentValue);
+            return groups;
+          }, {});
+      
+          setResident(groupedFamilies);
+        } catch (error) {
+          console.log('Error fetching resident:', error.message);
+        }
+    }
+    
     // Function to check if the age matches the selected age filter
     const checkAge = (dateOfBirth) => {
         const today = new Date();
         const birthDate = new Date(dateOfBirth);
         const age = today.getFullYear() - birthDate.getFullYear();
-        const monthDiff = today.getMonth() - birthDate.getMonth();
+        // const monthDiff = today.getMonth() - birthDate.getMonth();
         const isMatchingAge =
           (minAge === '' || age >= minAge) && (maxAge === '' || age <= maxAge);
     
@@ -212,12 +398,12 @@ const Dashboard = () => {
         family.ethnicities.name === selectedEthnicity;
 
         const isMatchingReligion = selectedReligion === '' || family.religions.name === selectedReligion;
-            
-        const isMatchingGender =
-        selectedGender === '' || family.gender === selectedGender;
         
         const isMatchingAge = checkAge(family.date_of_birth);
 
+        const isMatchingGender =
+        selectedGender === '' || family.gender === selectedGender;
+        
         const isMatchingStateRegion =
             selectedStateRegion === '' || family.households.state_regions.name === selectedStateRegion;
     
@@ -235,13 +421,14 @@ const Dashboard = () => {
         
         const isMatchingResident = selectedResident.length === 0 || selectedResident.includes(family.resident);
 
+        const isMatchingIsDisability = selectedDisability.length === 0 || selectedDisability.includes(family.isDisability);
+
         return (
             isMatchingDeath &&
             isMatchingOccupation &&
             isMatchingEducation &&
             isMatchingEthnicity &&
             isMatchingReligion &&
-            isMatchingGender &&
             isMatchingAge &&
             isMatchingHousehold &&
             isMatchingSearchQuery &&
@@ -250,6 +437,8 @@ const Dashboard = () => {
             isMatchingTownship &&
             isMatchingWardVillageTract &&
             isMatchingResident &&
+            isMatchingIsDisability &&
+            isMatchingGender &&
             isMatchingVillage
         );
     });
@@ -374,6 +563,7 @@ const Dashboard = () => {
     });
     // Calculate total gender counts, family count, and household count for each village end
     
+
     //Chart start
     const barChartLabels = sortedVillages;
     const barChartData = sortedVillages.map((village) => villageCounts[village].familyCount);
@@ -384,189 +574,6 @@ const Dashboard = () => {
         sortedVillages.reduce((acc, village) => acc + villageCounts[village].femaleCount, 0),
     ];
     //Chart End
-    
-    async function fetchResident() {
-        try {
-          const { data, error } = await supabase
-            .from('families')
-            .select('id, name, resident');
-          
-          if (error) {
-            throw new Error(error.message);
-          }
-      
-          // Extract unique resident values
-          const uniqueResident = [...new Set(data.map(family => family.resident))];
-      
-          // Group families by the resident property
-          const groupedFamilies = uniqueResident.reduce((groups, residentValue) => {
-            groups[residentValue] = data.filter(family => family.resident === residentValue);
-            return groups;
-          }, {});
-      
-          setResident(groupedFamilies);
-        } catch (error) {
-          console.log('Error fetching resident:', error.message);
-        }
-    }
-
-    async function fetchDeaths() {
-        try {
-          const { data, error } = await supabase
-          .from('families')
-          .select('isDeath');
-      
-          if (error) {
-            throw new Error(error.message);
-          }
-      
-          const uniqueDeaths = [...new Set(data.map((row) => row.isDeath))];
-      
-          setDeaths(uniqueDeaths);
-        } catch (error) {
-          console.log('Error fetching deaths:', error.message);
-        }
-    }
-
-    async function fetchGenders() {
-        try {
-          const { data, error } = await supabase
-          .from('families')
-          .select('gender');
-      
-          if (error) {
-            throw new Error(error.message);
-          }
-      
-          // Extract unique gender values by filtering out duplicates
-          const uniqueGenders = [...new Set(data.map((row) => row.gender))];
-      
-          setGenders(uniqueGenders);
-        } catch (error) {
-          console.log('Error fetching gender:', error.message);
-        }
-    }
-    
-    async function fetchOccupation() {
-        try {
-          const { data, error } = await supabase.from('occupations').select('id, name');
-          if (error) {
-            throw new Error(error.message);
-          }
-          setOccupations(data);
-        } catch (error) {
-          console.log('Error fetching occupations:', error.message);
-        }
-    }
-
-    async function fetchEducation() {
-        try {
-          const { data, error } = await supabase.from('educations').select('id, name');
-          if (error) {
-            throw new Error(error.message);
-          }
-          setEducations(data);
-        } catch (error) {
-          console.log('Error fetching educations:', error.message);
-        }
-    }
-
-    async function fetchEthnicity() {
-        try {
-          const { data, error } = await supabase.from('ethnicities').select('id, name');
-          if (error) {
-            throw new Error(error.message);
-          }
-          setEthnicities(data);
-        } catch (error) {
-          console.log('Error fetching ethnicities:', error.message);
-        }
-    }
-
-    async function fetchRelition() {
-        try {
-          const { data, error } = await supabase.from('religions').select('id, name');
-          if (error) {
-            throw new Error(error.message);
-          }
-          setReligions(data);
-        } catch (error) {
-          console.log('Error fetching religions:', error.message);
-        }
-    }
-    
-
-    async function fetchHouseholds() {
-        try {
-          const { data, error } = await supabase.from('households').select('id, household_no').order("household_no");
-          if (error) {
-            throw new Error(error.message);
-          }
-          setHouseholds(data);
-        } catch (error) {
-          console.log('Error fetching households:', error.message);
-        }
-    }
-    
-    async function fetchStateRegions() {
-        try {
-          const { data, error } = await supabase.from('state_regions').select('id, name');
-          if (error) {
-            throw new Error(error.message);
-          }
-          setStateRegions(data);
-        } catch (error) {
-          console.log('Error fetching state regions:', error.message);
-        }
-    }
-
-    async function fetchDistricts() {
-        try {
-          const { data, error } = await supabase.from('districts').select('id, name');
-          if (error) {
-            throw new Error(error.message);
-          }
-          setDistricts(data);
-        } catch (error) {
-          console.log('Error fetching districts:', error.message);
-        }
-    }
-
-    async function fetchTownships() {
-        try {
-          const { data, error } = await supabase.from('townships').select('id, name');
-          if (error) {
-            throw new Error(error.message);
-          }
-          setTownships(data);
-        } catch (error) {
-          console.log('Error fetching townships:', error.message);
-        }
-    }
-
-    async function fetchWardVillageTracts() {
-        try {
-          const { data, error } = await supabase.from('ward_village_tracts').select('id, name');
-          if (error) {
-            throw new Error(error.message);
-          }
-          setWardVillageTracts(data);
-        } catch (error) {
-          console.log('Error fetching ward village tracts:', error.message);
-        }
-    }
-
-    async function fetchVillages() {
-        try {
-          const { data, error } = await supabase.from('villages').select('id, name');
-          if (error) {
-            throw new Error(error.message);
-          }
-          setVillages(data);
-        } catch (error) {
-          console.log('Error fetching villages:', error.message);
-        }
-    }
 
     const [showFilter, setShowFilter] = useState(false);
 
@@ -817,7 +824,7 @@ const Dashboard = () => {
             </div>
 
             {showFilter && (
-            <div className="py-4 sm:grid sm:grid-cols-5 sm:gap-4">
+            <div className="py-4 sm:grid sm:grid-cols-6 sm:gap-4">
                 <div>
                     <select
                     value={selectedHousehold}
@@ -896,6 +903,98 @@ const Dashboard = () => {
                     </select>
                 </div>
                 <div>
+                    <select 
+                    value={selectedOccupation}
+                    onChange={(e) => setSelectedOccupation(e.target.value)}
+                    className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
+                        <option value="">{t("filter.Occupations")}</option>
+                        {/* Render Occupations options */}
+                        {occupations.map((occupation) => (
+                            <option key={occupation.id} value={occupation.name}>
+                            {occupation.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                    
+                <div>
+                    <select value={selectedEducation} onChange={(e) => setSelectedEducation(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
+                        <option value="">{t("filter.Educations")}</option>
+                        {/* Render Educations options */}
+                        {educations.map((education) => (
+                            <option key={education.id} value={education.name}>
+                            {education.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                <div>
+                    <select value={selectedEthnicity} onChange={(e) => setSelectedEthnicity(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
+                        <option value="">{t("filter.Ethnicities")}</option>
+                        {/* Render Ethnicities options */}
+                        {ethnicities.map((ethnicity) => (
+                            <option key={ethnicity.id} value={ethnicity.name}>
+                            {ethnicity.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                
+                <div>
+                    <select value={selectedReligion} onChange={(e) => setSelectedReligion(e.target.value)} className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6">
+                        <option value="">{t("filter.Religions")}</option>
+                        {/* Render Religions options */}
+                        {religions.map((religion) => (
+                            <option key={religion.id} value={religion.name}>
+                            {religion.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <div>
+                    <select
+                        value={selectedGender}
+                        onChange={(e) => setSelectedGender(e.target.value)}
+                        className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6"
+                    >
+                        <option value="">{t("filter.Gender")}</option>
+                        {genders.map((gender) => (
+                        <option key={gender} value={gender}>
+                            {gender}
+                        </option>
+                        ))}
+                    </select>
+                </div>
+                <div>
+                    <select
+                        value={selectedDisability}
+                        onChange={(e) => setSelectedDisability(e.target.value)}
+                        className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6"
+                    >
+                        <option value="">{t("filter.IsDisabilities")}</option>
+                        {Object.keys(isDisability).map((d) => (
+                        <option key={d} value={d}>
+                            {d} ({isDisability[d].length})
+                        </option>
+                        ))}
+                    </select>
+                </div> 
+                <div>
+                    <select
+                        value={selectedDeath}
+                        onChange={(e) => setSelectedDeath(e.target.value)}
+                        className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6"
+                    >
+                        <option value="">{t("filter.IsDeath")}</option>
+                        {deaths.map((death) => (
+                        <option key={death} value={death}>
+                            {death}
+                        </option>
+                        ))}
+                    </select>
+                </div>
+                <div>
                     <DropdownSelect
                         multi
                         values={selectedResident}
@@ -915,20 +1014,7 @@ const Dashboard = () => {
                         }}
                     />
                 </div>
-                <div>
-                    <select
-                        value={selectedDeath}
-                        onChange={(e) => setSelectedDeath(e.target.value)}
-                        className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-sky-600 sm:text-sm sm:leading-6"
-                    >
-                        <option value="">{t("filter.IsDeath")}</option>
-                        {deaths.map((death) => (
-                        <option key={death} value={death}>
-                            {death}
-                        </option>
-                        ))}
-                    </select>
-                </div>
+                
 
                 <div>
                     <input

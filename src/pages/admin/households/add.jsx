@@ -3,7 +3,7 @@ import Sidebar from '@/components/admin/layouts/Sidebar'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
 import { ArrowUturnLeftIcon } from '@heroicons/react/24/outline';
 import React, { useState, useEffect } from "react";
-import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
+import { useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
@@ -11,7 +11,6 @@ import { useTranslation } from "next-i18next";
 export default function HouseholdAdd() {
     const router = useRouter();
     const supabase = useSupabaseClient();
-    const user = useUser();
     const { t } = useTranslation("");
     const [entryDate, setEntryDate] = useState('');
     const [householdId, setHouseholdId] = useState('');

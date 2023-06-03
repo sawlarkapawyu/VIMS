@@ -3,7 +3,7 @@ import Sidebar from '@/components/admin/layouts/Sidebar'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
 import React, { useState, useEffect } from "react";
 
-import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
+import { useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 import { ArrowUturnLeftIcon } from '@heroicons/react/24/outline';
 import { getDateValue } from '/src/components/utilities/tools.js';
@@ -13,7 +13,6 @@ import { useTranslation } from "next-i18next";
 export default function DeathEdit() {
     const router = useRouter();
     const supabase = useSupabaseClient();
-    const user = useUser();
     const { id } = router.query;
     const { t } = useTranslation("");
     
@@ -66,6 +65,7 @@ export default function DeathEdit() {
         .eq('id', id)
         .single();
 
+        console.log(deathData);
         if (deathError) {
         alert('Failed to update death!');
         console.error(deathError);

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
 import React, { useState, useEffect } from "react";
 import { FolderPlusIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
+import { useSupabaseClient } from '@supabase/auth-helpers-react'
 import { useRouter } from 'next/router';
 import { formatDate, classNames } from '/src/components/utilities/tools.js';
 
@@ -14,10 +14,8 @@ import { useTranslation } from "next-i18next";
 export default function Deaths() {
     const router = useRouter();
     const supabase = useSupabaseClient();
-    const user = useUser();
     const { t } = useTranslation("");
     const [isLoading, setIsLoading] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
     const [deaths, setDeaths] = useState([]);
 
     useEffect(() => {
@@ -26,7 +24,6 @@ export default function Deaths() {
 
     const fetchDeaths = async () => {
         setIsLoading(true);
-        setErrorMessage(null);
         
         const { data: deathsData, error: deathsError } = await supabase
           .from("deaths")
@@ -91,28 +88,29 @@ export default function Deaths() {
     };
     // Pagination End
 
-    //Delete
-    const [families, setFamilies] = useState([]);
-    useEffect(() => {
-        fetchFamilies();
-      }, []);
+   
+    // const [families, setFamilies] = useState([]);
+    // useEffect(() => {
+    //     fetchFamilies();
+    //   }, []);
       
-      const fetchFamilies = async () => {
-        try {
-          const { data: familiesData, error: familiesError } = await supabase
-            .from('families')
-            .select('*');
+    //   const fetchFamilies = async () => {
+    //     try {
+    //       const { data: familiesData, error: familiesError } = await supabase
+    //         .from('families')
+    //         .select('*');
       
-          if (familiesError) {
-            throw new Error(familiesError.message);
-          }
+    //       if (familiesError) {
+    //         throw new Error(familiesError.message);
+    //       }
       
-          setFamilies(familiesData);
-        } catch (error) {
-          console.error('Error fetching families:', error);
-        }
-    };
-          
+    //       setFamilies(familiesData);
+    //     } catch (error) {
+    //       console.error('Error fetching families:', error);
+    //     }
+    // };
+    
+    //Delete    
     const handleDeleteDeath = async (familyId) => {
         const selectedFamily = deaths.find((family) => family.id === familyId);
         
