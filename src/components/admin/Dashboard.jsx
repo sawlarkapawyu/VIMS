@@ -5,6 +5,7 @@ import { UserGroupIcon, HomeModernIcon, DocumentDuplicateIcon, StarIcon } from '
 import DropdownSelect from 'react-dropdown-select';
 import { useTranslation } from "next-i18next";
 
+
 import { Bar, Pie } from 'react-chartjs-2';
 import { Chart, LinearScale, CategoryScale, BarController, BarElement, ArcElement, Tooltip, Legend, Title } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';

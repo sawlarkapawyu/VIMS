@@ -249,7 +249,6 @@ export async function getStaticPaths() {
       fallback: true,
     }
 }
-
 export async function getStaticProps({ locale }) {
     return {
       props: {
@@ -257,3 +256,4 @@ export async function getStaticProps({ locale }) {
       },
     };
 }
+  

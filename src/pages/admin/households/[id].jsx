@@ -29,41 +29,41 @@ export default function HouseholdEdit() {
     const [selectedWardVillageTract, setSelectedWardVillageTract] = useState(null);
     const [villages, setVillages] = useState([]);
     const [selectedVillage, setSelectedVillage] = useState("");
-    
-    useEffect(() => {
+
+    useEffect(() => {    
         fetchStateRegions();
-    
+        
         const fetchHouseholdData = async () => {
-        const { data: householdData, error: householdError } = await supabase
-            .from('households')
-            .select(`
-            id,
-            entry_date,
-            household_no,
-            house_no,
-            state_regions (id, name),
-            districts (id, name),
-            townships (id, name),
-            ward_village_tracts (id, name),
-            villages (id, name)
-            `)
-            .eq('id', id)
-            .single();
-    
-        if (householdError) {
-            throw householdError;
-        }
-    
-        setEntryDate(householdData.entry_date);
-        setHouseholdId(householdData.household_no);
-        setHouseNo(householdData.house_no);
-        setSelectedStateRegion(householdData.state_regions);
-        setSelectedDistrict(householdData.districts);
-        setSelectedTownship(householdData.townships);
-        setSelectedWardVillageTract(householdData.ward_village_tracts);
-        setSelectedVillage(householdData.villages);
-        };
-    
+            const { data: householdData, error: householdError } = await supabase
+                .from('households')
+                .select(`
+                id,
+                entry_date,
+                household_no,
+                house_no,
+                state_regions (id, name),
+                districts (id, name),
+                townships (id, name),
+                ward_village_tracts (id, name),
+                villages (id, name)
+                `)
+                .eq('id', id)
+                .single();
+        
+            if (householdError) {
+                throw householdError;
+            }
+        
+            setEntryDate(householdData.entry_date);
+            setHouseholdId(householdData.household_no);
+            setHouseNo(householdData.house_no);
+            setSelectedStateRegion(householdData.state_regions);
+            setSelectedDistrict(householdData.districts);
+            setSelectedTownship(householdData.townships);
+            setSelectedWardVillageTract(householdData.ward_village_tracts);
+            setSelectedVillage(householdData.villages);
+            };
+        
         if (id) {
         fetchHouseholdData();
         }
